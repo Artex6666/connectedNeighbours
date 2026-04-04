@@ -4,8 +4,28 @@ export type HeroAction = {
   variant?: 'primary' | 'secondary'
 }
 
+export type HeroMetric = {
+  id: string
+  value: string
+  label: string
+}
+
 export type HomeHighlight = {
   id: string
+  eyebrow: string
+  title: string
+  description: string
+}
+
+export type CommunityPillar = {
+  id: string
+  title: string
+  description: string
+}
+
+export type JourneyStep = {
+  id: string
+  step: string
   title: string
   description: string
 }
@@ -15,10 +35,14 @@ export type HomePageContent = {
   title: string
   description: string
   actions: HeroAction[]
+  metrics: HeroMetric[]
   highlightsTitle: string
   highlightsDescription: string
   highlights: HomeHighlight[]
-  roadmapTitle: string
-  roadmapDescription: string
-  roadmapItems: string[]
+  journeyTitle: string
+  journeyDescription: string
+  journeySteps: JourneyStep[]
+  communityTitle: string
+  communityDescription: string
+  communityPillars: CommunityPillar[]
 }

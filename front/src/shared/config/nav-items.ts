@@ -7,8 +7,7 @@ export type NavItem = {
 
 export const navItems: NavItem[] = [
   { labelKey: 'navigation.home', href: routes.home },
+  { labelKey: 'navigation.concept', href: '#concept' },
   { labelKey: 'navigation.services', href: '#services' },
-  { labelKey: 'navigation.documents', href: '#documents' },
   { labelKey: 'navigation.events', href: '#events' },
-  { labelKey: 'navigation.messaging', href: '#messaging' },
 ]

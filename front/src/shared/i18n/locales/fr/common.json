@@ -5,41 +5,122 @@
   "navigation": {
     "ariaLabel": "Navigation principale",
     "home": "Accueil",
+    "concept": "Concept",
     "services": "Services",
-    "documents": "Documents",
     "events": "Evenements",
-    "messaging": "Messagerie"
+    "messaging": "Messagerie",
+    "footer": "Vision"
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Inscription",
+    "logout": "Se deconnecter",
+    "connected": "Connecte",
+    "modal": {
+      "eyebrow": "Acces rapide",
+      "close": "Fermer",
+      "chooseForm": "Choisir un formulaire",
+      "fullName": "Nom complet",
+      "fullNamePlaceholder": "Jean Dupont",
+      "email": "Email",
+      "emailPlaceholder": "jean@bobconnect.fr",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "********",
+      "district": "Quartier",
+      "districtPlaceholder": "Centre-ville",
+      "submitLogin": "Se connecter",
+      "submitRegister": "Creer mon compte",
+      "hint": "Maquette front uniquement : aucune API n'est branchee pour le moment."
+    }
   },
   "home": {
-    "badge": "Base front-end",
-    "title": "Une base React propre pour construire BobConnect",
-    "description": "Le front est pret pour la mise en page, l'ajout du hero menu, les futures routes et les modules metier du projet.",
-    "primaryCta": "Construire le hero menu",
-    "secondaryCta": "Voir l'architecture",
-    "highlightsTitle": "Socle deja en place",
-    "highlightsDescription": "Cette base couvre l'organisation du code, la navigation, les styles globaux, l'internationalisation et les scripts de travail.",
-    "sections": {
-      "architecture": {
-        "title": "Architecture modulaire",
-        "description": "Decoupage par fonctionnalite avec un modele MVC simple : controller, model et view par module."
+    "badge": "Voisinage nouvelle generation",
+    "title": "Le reseau local qui rapproche les habitants d'un meme quartier.",
+    "description": "BobConnect centralise l'entraide, la messagerie, les evenements et les signatures numeriques dans une experience moderne, rassurante et simple a prendre en main.",
+    "primaryCta": "Decouvrir le concept",
+    "secondaryCta": "Voir la vision produit",
+    "metrics": {
+      "neighbors": {
+        "value": "1 quartier",
+        "label": "une communaute reliee autour d'un meme espace"
       },
-      "routing": {
-        "title": "Routing propre",
-        "description": "React Router est configure pour accueillir les pages publiques, les espaces connectes et les futures routes d'administration."
+      "documents": {
+        "value": "100%",
+        "label": "de signatures et echanges centralises"
       },
-      "tooling": {
-        "title": "Tooling de production",
-        "description": "Vite, TypeScript, ESLint, Vitest et pnpm sont relies a des scripts dev, build, preview, lint, typecheck et test."
+      "events": {
+        "value": "24/7",
+        "label": "de visibilite sur la vie locale et les besoins"
       }
     },
-    "roadmapTitle": "Modules a brancher ensuite",
-    "roadmapDescription": "La structure est prete pour accueillir l'authentification, les annonces, les signatures, les evenements, la messagerie et les votes.",
-    "roadmap": {
-      "auth": "Authentification, MFA et roles",
-      "services": "Annonces et services entre voisins",
-      "documents": "Documents PDF et signatures numeriques",
-      "events": "Evenements de quartier et recommandations",
-      "messaging": "Messagerie temps reel et presence"
+    "highlightsTitle": "Une plateforme pensee pour la vie de quartier",
+    "highlightsDescription": "Chaque module renforce la proximite entre habitants, tout en donnant un cadre fiable pour collaborer, partager et organiser la vie locale.",
+    "sections": {
+      "services": {
+        "eyebrow": "Services",
+        "title": "Des annonces utiles entre voisins",
+        "description": "Publier une aide, proposer un service ou trouver un voisin disponible devient naturel, avec une lecture simple des besoins du quartier."
+      },
+      "documents": {
+        "eyebrow": "Documents",
+        "title": "Des signatures numeriques fluides",
+        "description": "Les contrats et documents PDF circulent dans un espace clair, avec zones de signature, suivi et verification MFA sur les actions sensibles."
+      },
+      "events": {
+        "eyebrow": "Evenements",
+        "title": "Une vie locale visible et engageante",
+        "description": "Ateliers, collectes, reunions ou activites de quartier sont presentes dans une interface qui facilite la participation et la recommandation."
+      },
+      "messaging": {
+        "eyebrow": "Messagerie",
+        "title": "Des conversations directes et securisees",
+        "description": "Messages, photos, presence en ligne et echanges prives renforcent le lien local sans sortir de la plateforme."
+      }
+    },
+    "journeyTitle": "Une experience claire, du premier acces a l'action",
+    "journeyDescription": "La page d'accueil donne immediatement les bons reperes : rejoindre son quartier, entrer en relation et agir sans friction.",
+    "journey": {
+      "join": {
+        "title": "Rejoindre son quartier",
+        "description": "Une entree simple pour s'inscrire, verifier son adresse et comprendre instantanement ce que la plateforme apporte."
+      },
+      "connect": {
+        "title": "Trouver les bonnes interactions",
+        "description": "Les habitants reperent rapidement les evenements, les services, les documents ou les discussions utiles selon leur besoin."
+      },
+      "contribute": {
+        "title": "Participer en confiance",
+        "description": "Chaque interaction est pensee pour rester lisible, rassurante et encourageante, meme avant le branchement de l'API."
+      }
+    },
+    "communityTitle": "Le concept BobConnect en trois promesses",
+    "communityDescription": "Au-dela d'un simple portail, BobConnect veut devenir un point de rencontre numerique pour la confiance, la coordination et la participation locale.",
+    "community": {
+      "trust": {
+        "title": "Confiance numerique",
+        "description": "Authentification renforcee, documents signes et parcours clairs donnent un cadre credible aux interactions entre habitants."
+      },
+      "local": {
+        "title": "Impact concret sur le quartier",
+        "description": "Services, votes, evenements et messagerie reunissent les usages essentiels dans une seule interface orienteuse."
+      },
+      "inclusion": {
+        "title": "Experience accessible",
+        "description": "Une interface moderne et lisible permet d'accueillir aussi bien les habitants, les moderateurs que l'administration."
+      }
+    }
+  },
+  "footer": {
+    "eyebrow": "Vision produit",
+    "title": "BobConnect donne une presence numerique elegante et utile a la vie de quartier.",
+    "description": "Cette premiere version de la page d'accueil pose l'univers visuel, le discours produit et les points d'entree pour les futurs modules.",
+    "sections": {
+      "platformTitle": "Une plateforme commune",
+      "platformDescription": "Un point d'acces unique pour entraide, documents, messagerie, evenements et participation citoyenne locale.",
+      "trustTitle": "Une base credible",
+      "trustDescription": "Le front prepare deja les parcours de connexion, les etats utilisateur et les futurs flux d'authentification.",
+      "futureTitle": "Une fondation evolutive",
+      "futureDescription": "La structure actuelle permet d'ajouter ensuite le hero final, les pages internes, l'API et les integrations metier."
     }
   },
   "errors": {

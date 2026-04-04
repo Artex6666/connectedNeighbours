@@ -5,8 +5,7 @@ Monorepo en preparation pour la plateforme de quartier BobConnect.
 ## Structure
 
 - `front/` : application web React + TypeScript + Vite
-- `DESCRIPTIF_FONCTIONNEL.md` : cadrage produit
-- `TECHNOLOGIES.md` : choix techniques cibles
+- `externals/` : Documentation et références techniques.
 
 ## Commandes
 

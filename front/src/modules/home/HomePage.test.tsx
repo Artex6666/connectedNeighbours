@@ -1,26 +1,41 @@
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
+import { routes } from '@/shared/config/routes'
 import { HomePage } from '@/modules/home/HomePage'
+import { PublicLayout } from '@/shared/layout/PublicLayout'
 import '@/shared/i18n'
 
 describe('HomePage', () => {
-  it('renders the frontend foundation content', () => {
-    render(
-      <MemoryRouter>
-        <HomePage />
-      </MemoryRouter>,
+  it('renders the landing page and auth entrypoints', () => {
+    const router = createMemoryRouter(
+      [
+        {
+          path: routes.home,
+          element: <PublicLayout />,
+          children: [
+            {
+              index: true,
+              element: <HomePage />,
+            },
+          ],
+        },
+      ],
+      {
+        initialEntries: ['/'],
+      },
     )
 
-    expect(
-      screen.getByRole('heading', {
-        name: /une base react propre pour construire bobconnect/i,
-      }),
-    ).toBeInTheDocument()
+    render(<RouterProvider router={router} />)
+
+    expect(screen.getByRole('heading', { name: /le reseau local/i })).toBeInTheDocument()
 
     expect(
       screen.getByRole('link', {
-        name: /construire le hero menu/i,
+        name: /decouvrir le concept/i,
       }),
     ).toBeInTheDocument()
+
+    expect(screen.getByRole('button', { name: /connexion/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /inscription/i })).toBeInTheDocument()
   })
 })

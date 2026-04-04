@@ -5,41 +5,122 @@
   "navigation": {
     "ariaLabel": "Main navigation",
     "home": "Home",
+    "concept": "Concept",
     "services": "Services",
-    "documents": "Documents",
     "events": "Events",
-    "messaging": "Messaging"
+    "messaging": "Messaging",
+    "footer": "Vision"
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "connected": "Connected",
+    "modal": {
+      "eyebrow": "Quick access",
+      "close": "Close",
+      "chooseForm": "Choose a form",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Jane Doe",
+      "email": "Email",
+      "emailPlaceholder": "jane@bobconnect.com",
+      "password": "Password",
+      "passwordPlaceholder": "********",
+      "district": "District",
+      "districtPlaceholder": "City center",
+      "submitLogin": "Log in",
+      "submitRegister": "Create my account",
+      "hint": "Frontend mock only: no API is connected yet."
+    }
   },
   "home": {
-    "badge": "Frontend foundation",
-    "title": "A clean React base to build BobConnect",
-    "description": "The frontend is ready for layout work, hero menu integration, future routes and the main product modules.",
-    "primaryCta": "Build the hero menu",
-    "secondaryCta": "See the architecture",
-    "highlightsTitle": "Foundation already in place",
-    "highlightsDescription": "This base covers code organization, navigation, global styles, internationalization and day to day scripts.",
-    "sections": {
-      "architecture": {
-        "title": "Modular architecture",
-        "description": "Feature based organization with a simple MVC split: controller, model and view inside each module."
+    "badge": "Next generation neighborhood platform",
+    "title": "The local network that brings residents of the same district closer together.",
+    "description": "BobConnect brings mutual aid, messaging, events and digital signatures into a modern, reassuring and easy to use experience.",
+    "primaryCta": "Discover the concept",
+    "secondaryCta": "See the product vision",
+    "metrics": {
+      "neighbors": {
+        "value": "1 district",
+        "label": "one connected community around a shared space"
       },
-      "routing": {
-        "title": "Clean routing",
-        "description": "React Router is configured for public pages, authenticated spaces and future administration routes."
+      "documents": {
+        "value": "100%",
+        "label": "of signatures and exchanges centralized"
       },
-      "tooling": {
-        "title": "Production tooling",
-        "description": "Vite, TypeScript, ESLint, Vitest and pnpm are connected to dev, build, preview, lint, typecheck and test scripts."
+      "events": {
+        "value": "24/7",
+        "label": "visibility into local life and neighborhood needs"
       }
     },
-    "roadmapTitle": "Modules to plug in next",
-    "roadmapDescription": "The structure is ready for authentication, listings, signatures, events, messaging and voting.",
-    "roadmap": {
-      "auth": "Authentication, MFA and roles",
-      "services": "Neighbor services and listings",
-      "documents": "PDF documents and digital signatures",
-      "events": "Neighborhood events and recommendations",
-      "messaging": "Realtime messaging and presence"
+    "highlightsTitle": "A platform designed for neighborhood life",
+    "highlightsDescription": "Each module strengthens proximity between residents while providing a reliable frame to collaborate, share and organize local life.",
+    "sections": {
+      "services": {
+        "eyebrow": "Services",
+        "title": "Useful neighborhood help and listings",
+        "description": "Publishing help requests, offering a service or finding an available neighbor becomes natural with a clear view of local needs."
+      },
+      "documents": {
+        "eyebrow": "Documents",
+        "title": "Smooth digital signatures",
+        "description": "Contracts and PDF documents move through a clear workspace with signature fields, tracking and MFA verification for sensitive actions."
+      },
+      "events": {
+        "eyebrow": "Events",
+        "title": "Visible and engaging local life",
+        "description": "Workshops, collections, meetings and district activities are presented in an interface that encourages participation and recommendations."
+      },
+      "messaging": {
+        "eyebrow": "Messaging",
+        "title": "Direct and secure conversations",
+        "description": "Messages, photos, online presence and private exchanges strengthen local connections without leaving the platform."
+      }
+    },
+    "journeyTitle": "A clear experience from first access to action",
+    "journeyDescription": "The homepage immediately provides the right landmarks: join the district, connect with others and take action without friction.",
+    "journey": {
+      "join": {
+        "title": "Join your district",
+        "description": "A simple entry point to sign up, verify your address and quickly understand what the platform brings."
+      },
+      "connect": {
+        "title": "Find the right interactions",
+        "description": "Residents can quickly spot events, services, documents or discussions that matter to them."
+      },
+      "contribute": {
+        "title": "Participate with confidence",
+        "description": "Every interaction is designed to stay clear, reassuring and engaging, even before the API is connected."
+      }
+    },
+    "communityTitle": "The BobConnect concept in three promises",
+    "communityDescription": "Beyond a simple portal, BobConnect aims to become a digital meeting point for trust, coordination and local participation.",
+    "community": {
+      "trust": {
+        "title": "Digital trust",
+        "description": "Stronger authentication, signed documents and clear flows provide a credible framework for resident interactions."
+      },
+      "local": {
+        "title": "Concrete district impact",
+        "description": "Services, votes, events and messaging bring essential neighborhood uses together inside a single guiding interface."
+      },
+      "inclusion": {
+        "title": "Accessible experience",
+        "description": "A modern and readable interface can welcome residents, moderators and administrators alike."
+      }
+    }
+  },
+  "footer": {
+    "eyebrow": "Product vision",
+    "title": "BobConnect gives neighborhood life an elegant and useful digital presence.",
+    "description": "This first homepage version establishes the visual universe, product story and entry points for the next modules.",
+    "sections": {
+      "platformTitle": "One shared platform",
+      "platformDescription": "A single access point for mutual aid, documents, messaging, events and local civic participation.",
+      "trustTitle": "A credible base",
+      "trustDescription": "The frontend already prepares login flows, user states and future authentication journeys.",
+      "futureTitle": "An evolutive foundation",
+      "futureDescription": "The current structure makes it easy to add the final hero, internal pages, API and business integrations next."
     }
   },
   "errors": {

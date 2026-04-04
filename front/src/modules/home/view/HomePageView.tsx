@@ -25,21 +25,47 @@ export function HomePageView({ content }: HomePageViewProps) {
               </a>
             ))}
           </div>
+
+          <div className="hero-metrics">
+            {content.metrics.map((metric) => (
+              <article key={metric.id} className="metric-card">
+                <strong>{metric.value}</strong>
+                <span>{metric.label}</span>
+              </article>
+            ))}
+          </div>
         </div>
 
-        <aside className="hero-panel__summary">
-          <span className="eyebrow">Front / React</span>
-          <ul className="stack-list">
-            <li>Vite + TypeScript</li>
-            <li>React Router</li>
-            <li>i18next</li>
-            <li>Vitest + Testing Library</li>
-            <li>Architecture modulaire</li>
-          </ul>
+        <aside className="hero-panel__summary" aria-label="Vue produit">
+          <div className="dashboard-card">
+            <div className="dashboard-card__header">
+              <span className="eyebrow">Vue de quartier</span>
+              <span className="status-pill">En ligne</span>
+            </div>
+
+            <div className="dashboard-grid">
+              <div className="dashboard-tile dashboard-tile--primary">
+                <span>Messagerie</span>
+                <strong>12 voisins actifs</strong>
+              </div>
+              <div className="dashboard-tile">
+                <span>Evenement</span>
+                <strong>Atelier jardinage samedi</strong>
+              </div>
+              <div className="dashboard-tile">
+                <span>Documents</span>
+                <strong>3 signatures en attente</strong>
+              </div>
+              <div className="dashboard-tile dashboard-tile--accent">
+                <span>Services</span>
+                <strong>4 annonces proches</strong>
+              </div>
+            </div>
+          </div>
         </aside>
       </section>
 
-      <section className="content-section" id="architecture">
+      <section className="content-section" id="concept">
         <div className="section-heading">
           <h2>{content.highlightsTitle}</h2>
           <p>{content.highlightsDescription}</p>
@@ -49,6 +75,7 @@ export function HomePageView({ content }: HomePageViewProps) {
           {content.highlights.map((highlight) => (
             <FeatureCard
               key={highlight.id}
+              eyebrow={highlight.eyebrow}
               title={highlight.title}
               description={highlight.description}
             />
@@ -56,17 +83,48 @@ export function HomePageView({ content }: HomePageViewProps) {
         </div>
       </section>
 
-      <section className="content-section" id="roadmap">
+      <section className="content-section" id="services">
         <div className="section-heading">
-          <h2>{content.roadmapTitle}</h2>
-          <p>{content.roadmapDescription}</p>
+          <h2>{content.journeyTitle}</h2>
+          <p>{content.journeyDescription}</p>
         </div>
 
-        <ul className="roadmap-list">
-          {content.roadmapItems.map((item) => (
-            <li key={item}>{item}</li>
+        <div className="journey-grid">
+          {content.journeySteps.map((item) => (
+            <article key={item.id} className="journey-card">
+              <span className="journey-card__step">{item.step}</span>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </article>
           ))}
-        </ul>
+        </div>
+      </section>
+
+      <section className="content-section content-section--split" id="events">
+        <div className="section-heading">
+          <h2>{content.communityTitle}</h2>
+          <p>{content.communityDescription}</p>
+        </div>
+
+        <div className="pillar-list">
+          {content.communityPillars.map((pillar) => (
+            <article key={pillar.id} className="pillar-card">
+              <h3>{pillar.title}</h3>
+              <p>{pillar.description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="content-section content-section--cta" id="messaging">
+        <div className="cta-banner">
+          <span className="eyebrow">BobConnect</span>
+          <h2>Un meme espace pour s&apos;entraider, signer, echanger et participer.</h2>
+          <p>
+            Cette base front est prete pour brancher les prochaines routes, les vrais flux
+            d&apos;authentification et les modules metier.
+          </p>
+        </div>
       </section>
     </div>
   )
