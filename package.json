@@ -8,6 +8,8 @@
     "preview": "pnpm --dir front preview",
     "lint": "pnpm --dir front lint",
     "typecheck": "pnpm --dir front typecheck",
-    "test": "pnpm --dir front test"
+    "test": "pnpm --dir front test",
+    "docker:build": "docker compose build front",
+    "docker:up": "docker compose up --build front"
   }
 }
