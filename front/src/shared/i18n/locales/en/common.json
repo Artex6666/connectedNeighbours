@@ -1,0 +1,49 @@
+{
+  "app": {
+    "tagline": "Neighborhood platform for mutual aid and local life"
+  },
+  "navigation": {
+    "ariaLabel": "Main navigation",
+    "home": "Home",
+    "services": "Services",
+    "documents": "Documents",
+    "events": "Events",
+    "messaging": "Messaging"
+  },
+  "home": {
+    "badge": "Frontend foundation",
+    "title": "A clean React base to build BobConnect",
+    "description": "The frontend is ready for layout work, hero menu integration, future routes and the main product modules.",
+    "primaryCta": "Build the hero menu",
+    "secondaryCta": "See the architecture",
+    "highlightsTitle": "Foundation already in place",
+    "highlightsDescription": "This base covers code organization, navigation, global styles, internationalization and day to day scripts.",
+    "sections": {
+      "architecture": {
+        "title": "Modular architecture",
+        "description": "Feature based organization with a simple MVC split: controller, model and view inside each module."
+      },
+      "routing": {
+        "title": "Clean routing",
+        "description": "React Router is configured for public pages, authenticated spaces and future administration routes."
+      },
+      "tooling": {
+        "title": "Production tooling",
+        "description": "Vite, TypeScript, ESLint, Vitest and pnpm are connected to dev, build, preview, lint, typecheck and test scripts."
+      }
+    },
+    "roadmapTitle": "Modules to plug in next",
+    "roadmapDescription": "The structure is ready for authentication, listings, signatures, events, messaging and voting.",
+    "roadmap": {
+      "auth": "Authentication, MFA and roles",
+      "services": "Neighbor services and listings",
+      "documents": "PDF documents and digital signatures",
+      "events": "Neighborhood events and recommendations",
+      "messaging": "Realtime messaging and presence"
+    }
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The requested route does not exist yet in the BobConnect frontend."
+  }
+}

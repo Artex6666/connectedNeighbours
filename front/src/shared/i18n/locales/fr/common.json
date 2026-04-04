@@ -1,0 +1,49 @@
+{
+  "app": {
+    "tagline": "Plateforme de voisinage, entraide et vie locale"
+  },
+  "navigation": {
+    "ariaLabel": "Navigation principale",
+    "home": "Accueil",
+    "services": "Services",
+    "documents": "Documents",
+    "events": "Evenements",
+    "messaging": "Messagerie"
+  },
+  "home": {
+    "badge": "Base front-end",
+    "title": "Une base React propre pour construire BobConnect",
+    "description": "Le front est pret pour la mise en page, l'ajout du hero menu, les futures routes et les modules metier du projet.",
+    "primaryCta": "Construire le hero menu",
+    "secondaryCta": "Voir l'architecture",
+    "highlightsTitle": "Socle deja en place",
+    "highlightsDescription": "Cette base couvre l'organisation du code, la navigation, les styles globaux, l'internationalisation et les scripts de travail.",
+    "sections": {
+      "architecture": {
+        "title": "Architecture modulaire",
+        "description": "Decoupage par fonctionnalite avec un modele MVC simple : controller, model et view par module."
+      },
+      "routing": {
+        "title": "Routing propre",
+        "description": "React Router est configure pour accueillir les pages publiques, les espaces connectes et les futures routes d'administration."
+      },
+      "tooling": {
+        "title": "Tooling de production",
+        "description": "Vite, TypeScript, ESLint, Vitest et pnpm sont relies a des scripts dev, build, preview, lint, typecheck et test."
+      }
+    },
+    "roadmapTitle": "Modules a brancher ensuite",
+    "roadmapDescription": "La structure est prete pour accueillir l'authentification, les annonces, les signatures, les evenements, la messagerie et les votes.",
+    "roadmap": {
+      "auth": "Authentification, MFA et roles",
+      "services": "Annonces et services entre voisins",
+      "documents": "Documents PDF et signatures numeriques",
+      "events": "Evenements de quartier et recommandations",
+      "messaging": "Messagerie temps reel et presence"
+    }
+  },
+  "errors": {
+    "notFoundTitle": "Page introuvable",
+    "notFoundDescription": "La route demandee n'existe pas encore dans le front BobConnect."
+  }
+}

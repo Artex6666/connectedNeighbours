@@ -1,0 +1,13 @@
+{
+  "name": "bobconnect",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "pnpm --dir front dev",
+    "build": "pnpm --dir front build",
+    "preview": "pnpm --dir front preview",
+    "lint": "pnpm --dir front lint",
+    "typecheck": "pnpm --dir front typecheck",
+    "test": "pnpm --dir front test"
+  }
+}
