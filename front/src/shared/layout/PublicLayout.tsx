@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { navItems } from '@/shared/config/nav-items'
 import { AuthModal } from '@/shared/ui/AuthModal'
+import { ChatWidget } from '@/shared/ui/ChatWidget'
 
 export function PublicLayout() {
   const { t } = useTranslation()
@@ -109,6 +110,8 @@ export function PublicLayout() {
           }}
         />
       ) : null}
+
+      <ChatWidget />
     </div>
   )
 }

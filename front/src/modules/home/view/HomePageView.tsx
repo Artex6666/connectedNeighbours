@@ -1,5 +1,12 @@
+import { lazy, Suspense } from 'react'
 import type { HomePageContent } from '@/modules/home/model/home-page-content'
 import { FeatureCard } from '@/shared/ui/FeatureCard'
+
+const NeighborhoodMap = lazy(async () =>
+  import('@/shared/ui/NeighborhoodMap').then((module) => ({
+    default: module.NeighborhoodMap,
+  })),
+)
 
 type HomePageViewProps = {
   content: HomePageContent
@@ -61,6 +68,10 @@ export function HomePageView({ content }: HomePageViewProps) {
                 <strong>4 annonces proches</strong>
               </div>
             </div>
+
+            <Suspense fallback={<div className="neighborhood-map neighborhood-map--loading">Chargement de la carte...</div>}>
+              <NeighborhoodMap />
+            </Suspense>
           </div>
         </aside>
       </section>

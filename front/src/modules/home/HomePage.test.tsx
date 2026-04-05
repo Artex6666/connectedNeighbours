@@ -5,6 +5,10 @@ import { HomePage } from '@/modules/home/HomePage'
 import { PublicLayout } from '@/shared/layout/PublicLayout'
 import '@/shared/i18n'
 
+vi.mock('@/shared/ui/NeighborhoodMap', () => ({
+  NeighborhoodMap: () => <div>Carte du quartier</div>,
+}))
+
 describe('HomePage', () => {
   it('renders the landing page and auth entrypoints', () => {
     const router = createMemoryRouter(
