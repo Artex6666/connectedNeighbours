@@ -1,98 +1,29 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import inboxIcon from '@/assets/inbox.png'
 import vocalIcon from '@/assets/vocal.png'
+import {
+  messagesApi,
+  type AuthSession,
+  type ConversationDetails,
+  type ConversationMessage,
+  type ConversationSummary,
+} from '@/shared/lib/api'
 
-type ChatMessage = {
-  id: string
-  author: 'me' | 'other'
-  type: 'text' | 'voice'
-  content: string
-  timestamp: string
+function formatRole(role: string) {
+  if (role === 'resident') {
+    return 'Habitant'
+  }
+
+  if (role === 'moderator') {
+    return 'Moderateur'
+  }
+
+  if (role === 'admin') {
+    return 'Administrateur'
+  }
+
+  return role
 }
-
-type Conversation = {
-  id: string
-  name: string
-  role: string
-  avatar: string
-  messages: ChatMessage[]
-}
-
-const initialConversations: Conversation[] = [
-  {
-    id: '1',
-    name: 'Camille Martin',
-    role: 'Voisine - Rue de Charonne',
-    avatar: 'CM',
-    messages: [
-      {
-        id: '1-1',
-        author: 'other',
-        type: 'text',
-        content: 'Je peux passer pour les plantes demain vers 18h si tu veux.',
-        timestamp: '2026-04-04T20:15:00.000Z',
-      },
-      {
-        id: '1-2',
-        author: 'me',
-        type: 'text',
-        content: 'Oui parfait, je te laisse le digicode en prive.',
-        timestamp: '2026-04-04T19:42:00.000Z',
-      },
-      {
-        id: '1-3',
-        author: 'other',
-        type: 'voice',
-        content: 'Message vocal - 0:18',
-        timestamp: '2026-04-04T18:05:00.000Z',
-      },
-    ],
-  },
-  {
-    id: '2',
-    name: 'Nassim Leroy',
-    role: 'Moderateur - Quartier Saint-Ambroise',
-    avatar: 'NL',
-    messages: [
-      {
-        id: '2-1',
-        author: 'other',
-        type: 'text',
-        content: 'La collecte de samedi est confirmee, on ouvre les inscriptions ce soir.',
-        timestamp: '2026-04-04T17:30:00.000Z',
-      },
-      {
-        id: '2-2',
-        author: 'me',
-        type: 'text',
-        content: 'Super, je relaie l info sur le groupe de voisins.',
-        timestamp: '2026-04-04T16:50:00.000Z',
-      },
-    ],
-  },
-  {
-    id: '3',
-    name: 'Sarah Benali',
-    role: 'Voisine - Bastille',
-    avatar: 'SB',
-    messages: [
-      {
-        id: '3-1',
-        author: 'me',
-        type: 'text',
-        content: 'Merci pour le document signe, je l ai bien recu.',
-        timestamp: '2026-04-03T12:05:00.000Z',
-      },
-      {
-        id: '3-2',
-        author: 'other',
-        type: 'text',
-        content: 'Parfait, je te renvoie aussi la version PDF archivee.',
-        timestamp: '2026-04-03T11:42:00.000Z',
-      },
-    ],
-  },
-]
 
 function formatTimestamp(value: string) {
   return new Intl.DateTimeFormat('fr-FR', {
@@ -103,44 +34,109 @@ function formatTimestamp(value: string) {
   }).format(new Date(value))
 }
 
-export function ChatWidget() {
+type ChatWidgetProps = {
+  isAuthenticated: boolean
+  session: AuthSession | null
+  onRequireAuth: () => void
+}
+
+export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [conversations, setConversations] = useState(initialConversations)
-  const [selectedConversationId, setSelectedConversationId] = useState(initialConversations[0].id)
+  const [conversations, setConversations] = useState<ConversationSummary[]>([])
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
+  const [activeConversation, setActiveConversation] = useState<ConversationDetails | null>(null)
   const [draft, setDraft] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const sortedConversations = useMemo(() => {
     return [...conversations].sort((first, second) => {
-      const firstDate = new Date(first.messages[0]?.timestamp ?? 0).getTime()
-      const secondDate = new Date(second.messages[0]?.timestamp ?? 0).getTime()
+      const firstDate = new Date(first.lastTimestamp).getTime()
+      const secondDate = new Date(second.lastTimestamp).getTime()
       return secondDate - firstDate
     })
   }, [conversations])
 
   const selectedConversation =
-    sortedConversations.find((conversation) => conversation.id === selectedConversationId) ??
-    sortedConversations[0]
+    sortedConversations.find((conversation) => conversation.userId === selectedConversationId) ??
+    sortedConversations[0] ??
+    null
 
-  const appendMessage = (type: ChatMessage['type'], content: string) => {
-    if (!selectedConversation) {
+  useEffect(() => {
+    if (isAuthenticated) {
       return
     }
 
-    const nextMessage: ChatMessage = {
-      id: `${selectedConversation.id}-${Date.now()}`,
-      author: 'me',
-      type,
-      content,
-      timestamp: new Date().toISOString(),
+    setIsOpen(false)
+    setConversations([])
+    setSelectedConversationId(null)
+    setActiveConversation(null)
+    setDraft('')
+    setErrorMessage(null)
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    if (!isOpen || !isAuthenticated || !session) {
+      return
     }
 
-    setConversations((current) =>
-      current.map((conversation) =>
-        conversation.id === selectedConversation.id
-          ? { ...conversation, messages: [nextMessage, ...conversation.messages] }
-          : conversation,
-      ),
-    )
+    const fetchConversations = async () => {
+      setIsLoading(true)
+      setErrorMessage(null)
+
+      try {
+        const nextConversations = await messagesApi.list(session.token)
+        setConversations(nextConversations)
+        setSelectedConversationId((current) => current ?? nextConversations[0]?.userId ?? null)
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'Impossible de charger la messagerie.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    void fetchConversations()
+  }, [isAuthenticated, isOpen, session])
+
+  useEffect(() => {
+    if (!isOpen || !session || !selectedConversationId) {
+      return
+    }
+
+    const fetchConversation = async () => {
+      try {
+        const conversation = await messagesApi.getConversation(session.token, selectedConversationId)
+        setActiveConversation(conversation)
+      } catch (error) {
+        setErrorMessage(
+          error instanceof Error ? error.message : 'Impossible de charger la conversation.',
+        )
+      }
+    }
+
+    void fetchConversation()
+  }, [isOpen, selectedConversationId, session])
+
+  const refreshConversations = async (focusUserId?: string) => {
+    if (!session) {
+      return
+    }
+
+    const nextConversations = await messagesApi.list(session.token)
+    setConversations(nextConversations)
+    setSelectedConversationId(focusUserId ?? nextConversations[0]?.userId ?? null)
+  }
+
+  const appendMessage = async (type: 'text' | 'audio', content: string) => {
+    if (!selectedConversation || !session) {
+      return
+    }
+
+    await messagesApi.sendMessage(session.token, selectedConversation.userId, { content, type })
+    await refreshConversations(selectedConversation.userId)
+
+    const nextConversation = await messagesApi.getConversation(session.token, selectedConversation.userId)
+    setActiveConversation(nextConversation)
   }
 
   return (
@@ -150,13 +146,20 @@ export function ChatWidget() {
           className="chat-bubble"
           type="button"
           aria-label="Ouvrir la messagerie"
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            if (!isAuthenticated) {
+              onRequireAuth()
+              return
+            }
+
+            setIsOpen(true)
+          }}
         >
           <img src={inboxIcon} alt="" />
         </button>
       ) : null}
 
-      {isOpen && selectedConversation ? (
+      {isOpen ? (
         <section className="chat-panel" aria-label="Messagerie recente">
           <header className="chat-panel__header">
             <div>
@@ -173,25 +176,29 @@ export function ChatWidget() {
             </button>
           </header>
 
+          {errorMessage ? <p className="chat-panel__error">{errorMessage}</p> : null}
+
           <div className="chat-panel__body">
             <aside className="chat-sidebar">
-              {sortedConversations.map((conversation) => {
-                const latestMessage = conversation.messages[0]
+              {isLoading && sortedConversations.length === 0 ? (
+                <p className="chat-empty-state">Chargement des conversations...</p>
+              ) : null}
 
+              {sortedConversations.map((conversation) => {
                 return (
                   <button
-                    key={conversation.id}
+                    key={conversation.userId}
                     className={`chat-thread ${
-                      selectedConversation.id === conversation.id ? 'chat-thread--active' : ''
+                      selectedConversation?.userId === conversation.userId ? 'chat-thread--active' : ''
                     }`}
                     type="button"
-                    onClick={() => setSelectedConversationId(conversation.id)}
+                    onClick={() => setSelectedConversationId(conversation.userId)}
                   >
                     <span className="chat-thread__avatar">{conversation.avatar}</span>
                     <span className="chat-thread__content">
                       <strong>{conversation.name}</strong>
-                      <small>{conversation.role}</small>
-                      <span>{latestMessage?.content}</span>
+                      <small>{formatRole(conversation.role)}</small>
+                      <span>{conversation.lastMessage}</span>
                     </span>
                   </button>
                 )
@@ -201,33 +208,41 @@ export function ChatWidget() {
             <div className="chat-conversation">
               <div className="chat-conversation__header">
                 <div>
-                  <strong>{selectedConversation.name}</strong>
-                  <small>{selectedConversation.role}</small>
+                  <strong>{selectedConversation?.name ?? 'Conversation'}</strong>
+                  <small>{selectedConversation ? formatRole(selectedConversation.role) : 'Voisin'}</small>
                 </div>
                 <span className="status-pill">En ligne</span>
               </div>
 
               <div className="chat-messages">
-                {selectedConversation.messages.map((message) => (
-                  <article
-                    key={message.id}
-                    className={`chat-message ${
-                      message.author === 'me' ? 'chat-message--me' : 'chat-message--other'
-                    }`}
-                  >
-                    <div className="chat-message__meta">
-                      <strong>{message.author === 'me' ? 'Vous' : selectedConversation.name}</strong>
-                      <span>{formatTimestamp(message.timestamp)}</span>
-                    </div>
-                    <p>{message.content}</p>
-                    {message.type === 'voice' ? <span className="chat-voice-tag">Vocal</span> : null}
-                  </article>
-                ))}
+                {activeConversation?.messages.length ? (
+                  activeConversation.messages.map((message: ConversationMessage) => {
+                    const isMine = message.senderId === session?.user._id
+
+                    return (
+                      <article
+                        key={message._id}
+                        className={`chat-message ${
+                          isMine ? 'chat-message--me' : 'chat-message--other'
+                        }`}
+                      >
+                        <div className="chat-message__meta">
+                          <strong>{isMine ? 'Vous' : activeConversation.participant.name}</strong>
+                          <span>{formatTimestamp(message.createdAt)}</span>
+                        </div>
+                        <p>{message.content}</p>
+                        {message.type === 'audio' ? <span className="chat-voice-tag">Vocal</span> : null}
+                      </article>
+                    )
+                  })
+                ) : (
+                  <p className="chat-empty-state">Aucun message pour le moment.</p>
+                )}
               </div>
 
               <form
                 className="chat-composer"
-                onSubmit={(event) => {
+                onSubmit={async (event) => {
                   event.preventDefault()
 
                   const trimmedDraft = draft.trim()
@@ -235,7 +250,7 @@ export function ChatWidget() {
                     return
                   }
 
-                  appendMessage('text', trimmedDraft)
+                  await appendMessage('text', trimmedDraft)
                   setDraft('')
                 }}
               >
@@ -251,7 +266,7 @@ export function ChatWidget() {
                     className="chat-voice-button"
                     type="button"
                     aria-label="Envoyer un vocal"
-                    onClick={() => appendMessage('voice', 'Message vocal - 0:09')}
+                    onClick={async () => appendMessage('audio', 'Message vocal - 0:09')}
                   >
                     <img src={vocalIcon} alt="" />
                   </button>

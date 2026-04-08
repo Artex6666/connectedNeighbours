@@ -1,8 +1,14 @@
 import neo4j, { Driver } from 'neo4j-driver';
+import { isNeo4jEnabled } from './runtime';
 
 let driver: Driver;
 
 export async function connectNeo4j(retries = 10, delayMs = 5000): Promise<void> {
+  if (!isNeo4jEnabled()) {
+    console.log('[neo4j] Disabled for this environment');
+    return;
+  }
+
   const uri = process.env.NEO4J_URI;
   const user = process.env.NEO4J_USER ?? 'neo4j';
   const password = process.env.NEO4J_PASSWORD ?? '';

@@ -9,10 +9,18 @@ import router from './routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 const app = express();
+const allowedOrigins = process.env.FRONTEND_URL
+  ?.split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 // Global middlewares
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigins?.length ? allowedOrigins : true,
+  }),
+);
 app.use(morgan('dev'));
 app.use(express.json());
 

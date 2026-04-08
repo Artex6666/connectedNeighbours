@@ -4,16 +4,69 @@ import { useTranslation } from 'react-i18next'
 import { navItems } from '@/shared/config/nav-items'
 import { AuthModal } from '@/shared/ui/AuthModal'
 import { ChatWidget } from '@/shared/ui/ChatWidget'
+import { authApi, type AuthFormPayload, type AuthSession } from '@/shared/lib/api'
+
+const authStorageKey = 'bobconnect.auth.session'
 
 export function PublicLayout() {
   const { t } = useTranslation()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [session, setSession] = useState<AuthSession | null>(() => {
+    const storedSession = window.localStorage.getItem(authStorageKey)
+    if (!storedSession) {
+      return null
+    }
+
+    try {
+      return JSON.parse(storedSession) as AuthSession
+    } catch {
+      window.localStorage.removeItem(authStorageKey)
+      return null
+    }
+  })
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
+  const [isSubmittingAuth, setIsSubmittingAuth] = useState(false)
+
+  const isAuthenticated = session !== null
 
   const openAuthModal = (mode: 'login' | 'register') => {
     setAuthMode(mode)
+    setAuthError(null)
     setIsAuthModalOpen(true)
+  }
+
+  const persistSession = (nextSession: AuthSession | null) => {
+    setSession(nextSession)
+
+    if (nextSession) {
+      window.localStorage.setItem(authStorageKey, JSON.stringify(nextSession))
+      return
+    }
+
+    window.localStorage.removeItem(authStorageKey)
+  }
+
+  const handleAuthSubmit = async (payload: AuthFormPayload) => {
+    setAuthError(null)
+    setIsSubmittingAuth(true)
+
+    try {
+      const activeSession =
+        authMode === 'login'
+          ? await authApi.login(payload.email, payload.password)
+          : await (async () => {
+              await authApi.register(payload)
+              return authApi.login(payload.email, payload.password)
+            })()
+
+      persistSession(activeSession)
+      setIsAuthModalOpen(false)
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Une erreur est survenue.')
+    } finally {
+      setIsSubmittingAuth(false)
+    }
   }
 
   return (
@@ -39,11 +92,13 @@ export function PublicLayout() {
           <div className="topbar__actions">
             {isAuthenticated ? (
               <>
-                <span className="session-badge">{t('auth.connected')}</span>
+                <span className="session-badge">
+                  {t('auth.connected')} {session?.user.firstName}
+                </span>
                 <button
                   className="button button--secondary"
                   type="button"
-                  onClick={() => setIsAuthenticated(false)}
+                  onClick={() => persistSession(null)}
                 >
                   {t('auth.logout')}
                 </button>
@@ -103,15 +158,21 @@ export function PublicLayout() {
         <AuthModal
           mode={authMode}
           onClose={() => setIsAuthModalOpen(false)}
-          onModeChange={setAuthMode}
-          onSubmit={() => {
-            setIsAuthenticated(true)
-            setIsAuthModalOpen(false)
+          onModeChange={(mode) => {
+            setAuthMode(mode)
+            setAuthError(null)
           }}
+          onSubmit={handleAuthSubmit}
+          isSubmitting={isSubmittingAuth}
+          errorMessage={authError}
         />
       ) : null}
 
-      <ChatWidget />
+      <ChatWidget
+        isAuthenticated={isAuthenticated}
+        session={session}
+        onRequireAuth={() => openAuthModal('login')}
+      />
     </div>
   )
 }

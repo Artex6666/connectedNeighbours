@@ -584,6 +584,11 @@ button {
   margin-top: 6px;
 }
 
+.auth-modal__error {
+  margin: 0;
+  color: #ffb4b4;
+}
+
 .chat-bubble {
   position: fixed;
   right: 24px;
@@ -617,6 +622,12 @@ button {
   backdrop-filter: blur(22px);
   overflow: hidden;
   z-index: 95;
+}
+
+.chat-panel__error {
+  margin: 0;
+  padding: 0 22px 12px;
+  color: #ffb4b4;
 }
 
 .chat-panel__header {
@@ -802,6 +813,12 @@ button {
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
+}
+
+.chat-empty-state {
+  margin: 0;
+  padding: 8px 4px;
+  color: var(--color-text-muted);
 }
 
 .chat-voice-button {

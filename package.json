@@ -3,13 +3,20 @@
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "dev": "pnpm --dir front dev",
-    "build": "pnpm --dir front build",
-    "preview": "pnpm --dir front preview",
-    "lint": "pnpm --dir front lint",
-    "typecheck": "pnpm --dir front typecheck",
-    "test": "pnpm --dir front test",
-    "docker:build": "docker compose build front",
-    "docker:up": "docker compose up --build front"
+    "dev": "concurrently \"npm run dev:back\" \"npm run dev:front\"",
+    "dev:front": "npm --prefix front run dev",
+    "dev:back": "npm --prefix back run dev",
+    "build": "npm run build:back && npm run build:front",
+    "build:front": "npm --prefix front run build",
+    "build:back": "npm --prefix back run build",
+    "preview": "npm --prefix front run preview",
+    "lint": "npm --prefix front run lint",
+    "typecheck": "npm --prefix front run typecheck",
+    "test": "npm --prefix front run test && npm --prefix back run test",
+    "docker:build:front": "docker build -f front/Dockerfile -t bobconnect-front .",
+    "docker:build:back": "docker build -f back/Dockerfile -t bobconnect-back back"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
