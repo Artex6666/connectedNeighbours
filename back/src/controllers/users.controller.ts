@@ -1,27 +1,44 @@
 import { Request, Response } from 'express';
-import { success } from '../utils/response.utils';
+import bcrypt from 'bcryptjs';
+import { success, error } from '../utils/response.utils';
+import User from '../models/User.model';
 
-export async function getMe(_req: Request, res: Response) {
-  // TODO: retourner req.user complet depuis la BDD
-  return success(res, null);
+export async function getMe(req: Request, res: Response) {
+  const user = await User.findById(req.user!._id).select('-password -mfaSecret');
+  if (!user) return error(res, 'Utilisateur introuvable', 404);
+  return success(res, user);
 }
 
-export async function updateMe(_req: Request, res: Response) {
-  // TODO: mettre à jour firstName, lastName, phone, address
-  return success(res, null);
+export async function updateMe(req: Request, res: Response) {
+  const allowed = ['firstName', 'lastName', 'phone', 'address'];
+  const updates: Record<string, string> = {};
+
+  for (const key of allowed) {
+    if (req.body[key] !== undefined) updates[key] = req.body[key];
+  }
+
+  if (req.body.password) {
+    updates['password'] = await bcrypt.hash(req.body.password, 10);
+  }
+
+  const user = await User.findByIdAndUpdate(req.user!._id, updates, { new: true }).select('-password -mfaSecret');
+  if (!user) return error(res, 'Utilisateur introuvable', 404);
+  return success(res, user);
 }
 
-export async function getUserById(_req: Request, res: Response) {
-  // TODO: retourner le profil public d'un utilisateur par ID
-  return success(res, null);
+export async function getUserById(req: Request, res: Response) {
+  const user = await User.findById(req.params.id).select('-password -mfaSecret');
+  if (!user) return error(res, 'Utilisateur introuvable', 404);
+  return success(res, user);
 }
 
 export async function listUsers(_req: Request, res: Response) {
-  // TODO: retourner la liste paginée des habitants du quartier
-  return success(res, []);
+  const users = await User.find().select('-password -mfaSecret').sort({ createdAt: -1 });
+  return success(res, users);
 }
 
-export async function deleteUser(_req: Request, res: Response) {
-  // TODO: anonymiser et supprimer le compte
-  return success(res, { message: 'deleteUser — not implemented' });
+export async function deleteUser(req: Request, res: Response) {
+  const user = await User.findByIdAndDelete(req.params.id);
+  if (!user) return error(res, 'Utilisateur introuvable', 404);
+  return success(res, { message: 'Compte supprimé' });
 }

@@ -1,14 +1,54 @@
 import { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
 import { success, error } from '../utils/response.utils';
+import { signToken } from '../utils/jwt.utils';
+import User from '../models/User.model';
 
-export async function register(_req: Request, res: Response) {
-  // TODO: valider le body, géocoder l'adresse, créer le User, envoyer l'email de confirmation
-  return success(res, { message: 'register — not implemented' }, 201);
+export async function register(req: Request, res: Response) {
+  const { firstName, lastName, email, password, phone, address } = req.body;
+
+  if (!firstName || !lastName || !email || !password || !phone || !address) {
+    return error(res, 'Tous les champs sont requis', 400);
+  }
+
+  const existing = await User.findOne({ email });
+  if (existing) return error(res, 'Email déjà utilisé', 409);
+
+  const hashed = await bcrypt.hash(password, 10);
+  const user = await User.create({ firstName, lastName, email, password: hashed, phone, address });
+
+  return success(res, {
+    _id: user._id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+  }, 201);
 }
 
-export async function login(_req: Request, res: Response) {
-  // TODO: vérifier email + password, retourner JWT
-  return success(res, { token: null });
+export async function login(req: Request, res: Response) {
+  const { email, password } = req.body;
+
+  if (!email || !password) return error(res, 'Email et mot de passe requis', 400);
+
+  const user = await User.findOne({ email });
+  if (!user) return error(res, 'Identifiants invalides', 401);
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) return error(res, 'Identifiants invalides', 401);
+
+  const token = signToken({ id: user._id.toString(), email: user.email, role: user.role });
+
+  return success(res, {
+    token,
+    user: {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+    },
+  });
 }
 
 export async function verifyEmail(_req: Request, res: Response) {
