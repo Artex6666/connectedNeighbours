@@ -9,6 +9,10 @@ vi.mock('@/shared/ui/NeighborhoodMap', () => ({
   NeighborhoodMap: () => <div>Carte du quartier</div>,
 }))
 
+vi.mock('@/shared/ui/ChatWidget', () => ({
+  ChatWidget: () => null,
+}))
+
 describe('HomePage', () => {
   it('renders the landing page and auth entrypoints', () => {
     const router = createMemoryRouter(

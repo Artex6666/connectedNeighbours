@@ -1,6 +1,6 @@
 # Front BobConnect
 
-Base front-end du projet BobConnect construite avec React, TypeScript, Vite et pnpm.
+Base front-end du projet BobConnect construite avec React, TypeScript et Vite.
 
 ## Scripts
 
@@ -12,6 +12,18 @@ Base front-end du projet BobConnect construite avec React, TypeScript, Vite et p
 - `pnpm typecheck` : verification TypeScript
 - `pnpm test` : tests unitaires
 - `pnpm test:watch` : tests en watch
+
+## API
+
+Le front consomme l'API via `VITE_API_BASE_URL`.
+
+Valeur par defaut :
+
+```text
+http://localhost:3000/api/v1
+```
+
+Un exemple est fourni dans `front/.env.example`.
 
 ## Architecture
 

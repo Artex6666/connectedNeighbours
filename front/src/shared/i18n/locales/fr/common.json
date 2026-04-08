@@ -26,11 +26,14 @@
       "emailPlaceholder": "jean@bobconnect.fr",
       "password": "Mot de passe",
       "passwordPlaceholder": "********",
-      "district": "Quartier",
-      "districtPlaceholder": "Centre-ville",
+      "phone": "Telephone",
+      "phonePlaceholder": "0601020304",
+      "address": "Adresse",
+      "addressPlaceholder": "12 rue de Charonne, 75011 Paris",
       "submitLogin": "Se connecter",
       "submitRegister": "Creer mon compte",
-      "hint": "Maquette front uniquement : aucune API n'est branchee pour le moment."
+      "loading": "Chargement...",
+      "hint": "Le front est maintenant relie a l'API de developpement locale."
     }
   },
   "home": {

@@ -26,11 +26,14 @@
       "emailPlaceholder": "jane@bobconnect.com",
       "password": "Password",
       "passwordPlaceholder": "********",
-      "district": "District",
-      "districtPlaceholder": "City center",
+      "phone": "Phone",
+      "phonePlaceholder": "0601020304",
+      "address": "Address",
+      "addressPlaceholder": "12 rue de Charonne, 75011 Paris",
       "submitLogin": "Log in",
       "submitRegister": "Create my account",
-      "hint": "Frontend mock only: no API is connected yet."
+      "loading": "Loading...",
+      "hint": "The frontend is now connected to the local development API."
     }
   },
   "home": {
