@@ -1,8 +1,9 @@
 {
   "name": "bobconnect-api",
   "version": "1.0.0",
-  "description": "BobConnect — API REST back-end (Node.js + TypeScript + Express)",
+  "description": "Connected Neighbours — REST API back-end (Node.js + TypeScript + Express)",
   "main": "dist/server.js",
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",

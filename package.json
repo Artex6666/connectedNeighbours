@@ -3,18 +3,18 @@
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "dev": "concurrently \"npm run dev:back\" \"npm run dev:front\"",
-    "dev:front": "npm --prefix front run dev",
-    "dev:back": "npm --prefix back run dev",
-    "build": "npm run build:back && npm run build:front",
-    "build:front": "npm --prefix front run build",
-    "build:back": "npm --prefix back run build",
-    "preview": "npm --prefix front run preview",
-    "lint": "npm --prefix front run lint",
-    "typecheck": "npm --prefix front run typecheck",
-    "test": "npm --prefix front run test && npm --prefix back run test",
-    "docker:build:front": "docker build -f front/Dockerfile -t bobconnect-front .",
-    "docker:build:back": "docker build -f back/Dockerfile -t bobconnect-back back"
+    "dev": "concurrently \"pnpm run dev:back\" \"pnpm run dev:front\"",
+    "dev:front": "pnpm --filter front run dev",
+    "dev:back": "pnpm --filter bobconnect-api run dev",
+    "build": "pnpm run build:back && pnpm run build:front",
+    "build:front": "pnpm --filter front run build",
+    "build:back": "pnpm --filter bobconnect-api run build",
+    "preview": "pnpm --filter front run preview",
+    "lint": "pnpm --filter front run lint",
+    "typecheck": "pnpm --filter front run typecheck",
+    "test": "pnpm --filter front run test && pnpm --filter bobconnect-api run test",
+    "docker:build:front": "docker build -f front/Dockerfile -t cn-front .",
+    "docker:build:back": "docker build -f back/Dockerfile -t cn-back ."
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
