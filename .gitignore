@@ -4,3 +4,9 @@ coverage/
 *.log
 .idea/
 .DS_Store
+
+# Java / Maven
+desktop/target/
+*.class
+*.jar
+.claude/settings.local.json
