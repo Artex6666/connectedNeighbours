@@ -3,7 +3,7 @@ import * as usersController from '../controllers/users.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { requireRole } from '../middlewares/role.middleware';
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authMiddleware);
 

@@ -1,5 +1,7 @@
 import { apiBaseUrl } from '@/shared/config/env'
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 export type AuthUser = {
   _id: string
   firstName: string
@@ -7,11 +9,12 @@ export type AuthUser = {
   email: string
   phone?: string
   address?: string
-  role: string
+  role: 'resident' | 'moderator' | 'admin'
 }
 
 export type AuthSession = {
-  token: string
+  accessToken: string
+  refreshToken: string
   user: AuthUser
 }
 
@@ -52,15 +55,10 @@ export type ConversationDetails = {
   messages: ConversationMessage[]
 }
 
-type ApiSuccessResponse<T> = {
-  success: true
-  data: T
-}
+type ApiSuccessResponse<T> = { success: true; data: T }
+type ApiErrorResponse = { success: false; message?: string }
 
-type ApiErrorResponse = {
-  success: false
-  message?: string
-}
+// ─── Core request ─────────────────────────────────────────────────────────────
 
 async function apiRequest<T>(path: string, init?: RequestInit, token?: string): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
@@ -76,38 +74,35 @@ async function apiRequest<T>(path: string, init?: RequestInit, token?: string): 
 
   if (!response.ok || !('success' in payload) || !payload.success) {
     throw new Error(
-      'message' in payload && payload.message ? payload.message : 'Une erreur API est survenue.',
+      'message' in payload && payload.message ? payload.message : 'An API error occurred.',
     )
   }
 
   return payload.data
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 function splitFullName(fullName: string) {
   const trimmed = fullName.trim()
-  if (!trimmed) {
-    return { firstName: '', lastName: '' }
-  }
-
+  if (!trimmed) return { firstName: '', lastName: '' }
   const parts = trimmed.split(/\s+/)
   const [firstName, ...rest] = parts
-
-  return {
-    firstName,
-    lastName: rest.join(' ') || firstName,
-  }
+  return { firstName, lastName: rest.join(' ') || firstName }
 }
 
+// ─── Auth API ─────────────────────────────────────────────────────────────────
+
 export const authApi = {
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<AuthSession> {
     return apiRequest<AuthSession>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     })
   },
-  async register(payload: AuthFormPayload) {
-    const { firstName, lastName } = splitFullName(payload.fullName)
 
+  async register(payload: AuthFormPayload): Promise<AuthUser> {
+    const { firstName, lastName } = splitFullName(payload.fullName)
     return apiRequest<AuthUser>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({
@@ -120,7 +115,23 @@ export const authApi = {
       }),
     })
   },
+
+  async refresh(refreshToken: string): Promise<{ accessToken: string }> {
+    return apiRequest<{ accessToken: string }>('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    })
+  },
+
+  async logout(refreshToken: string): Promise<void> {
+    return apiRequest('/auth/logout', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    })
+  },
 }
+
+// ─── Messages API ─────────────────────────────────────────────────────────────
 
 export const messagesApi = {
   async list(token: string) {
@@ -136,10 +147,7 @@ export const messagesApi = {
   ) {
     return apiRequest<ConversationMessage>(
       `/messages/${userId}`,
-      {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      },
+      { method: 'POST', body: JSON.stringify(payload) },
       token,
     )
   },
