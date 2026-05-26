@@ -3,7 +3,8 @@
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "dev": "concurrently \"pnpm run dev:back\" \"pnpm run dev:front\"",
+    "dev": "docker compose -f docker-compose.dev.yml up -d && concurrently \"pnpm run dev:back\" \"pnpm run dev:front\"",
+    "dev:stop": "docker compose -f docker-compose.dev.yml down",
     "dev:front": "pnpm --filter front run dev",
     "dev:back": "pnpm --filter bobconnect-api run dev",
     "build": "pnpm run build:back && pnpm run build:front",

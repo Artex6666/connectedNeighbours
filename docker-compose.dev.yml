@@ -1,0 +1,28 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: cn_mongodb_dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: connectedneighbours
+
+  # Neo4j is disabled in dev by default (NEO4J_ENABLED=false in .env)
+  # Uncomment when working on the recommendations/social graph feature
+  # neo4j:
+  #   image: neo4j:5
+  #   container_name: cn_neo4j_dev
+  #   ports:
+  #     - "7474:7474"
+  #     - "7687:7687"
+  #   volumes:
+  #     - neo4j_dev_data:/data
+  #   environment:
+  #     NEO4J_AUTH: neo4j/password
+
+volumes:
+  mongodb_dev_data:
+  # neo4j_dev_data:
