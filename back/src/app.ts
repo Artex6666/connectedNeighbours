@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -8,7 +8,7 @@ import { swaggerSpec } from './config/swagger';
 import router from './routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
-const app = express();
+const app: Application = express();
 const allowedOrigins = process.env.FRONTEND_URL
   ?.split(',')
   .map((origin) => origin.trim())

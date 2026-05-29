@@ -1,73 +1,18 @@
-import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { navItems } from '@/shared/config/nav-items'
-import { AuthModal } from '@/shared/ui/AuthModal'
 import { ChatWidget } from '@/shared/ui/ChatWidget'
-import { authApi, type AuthFormPayload, type AuthSession } from '@/shared/lib/api'
-
-const authStorageKey = 'bobconnect.auth.session'
+import { useAuth } from '@/shared/context/AuthContext'
+import { routes } from '@/shared/config/routes'
 
 export function PublicLayout() {
   const { t } = useTranslation()
-  const [session, setSession] = useState<AuthSession | null>(() => {
-    const storedSession = window.localStorage.getItem(authStorageKey)
-    if (!storedSession) {
-      return null
-    }
+  const { user, isAuthenticated, logout, accessToken } = useAuth()
 
-    try {
-      return JSON.parse(storedSession) as AuthSession
-    } catch {
-      window.localStorage.removeItem(authStorageKey)
-      return null
-    }
-  })
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-  const [authError, setAuthError] = useState<string | null>(null)
-  const [isSubmittingAuth, setIsSubmittingAuth] = useState(false)
-
-  const isAuthenticated = session !== null
-
-  const openAuthModal = (mode: 'login' | 'register') => {
-    setAuthMode(mode)
-    setAuthError(null)
-    setIsAuthModalOpen(true)
-  }
-
-  const persistSession = (nextSession: AuthSession | null) => {
-    setSession(nextSession)
-
-    if (nextSession) {
-      window.localStorage.setItem(authStorageKey, JSON.stringify(nextSession))
-      return
-    }
-
-    window.localStorage.removeItem(authStorageKey)
-  }
-
-  const handleAuthSubmit = async (payload: AuthFormPayload) => {
-    setAuthError(null)
-    setIsSubmittingAuth(true)
-
-    try {
-      const activeSession =
-        authMode === 'login'
-          ? await authApi.login(payload.email, payload.password)
-          : await (async () => {
-              await authApi.register(payload)
-              return authApi.login(payload.email, payload.password)
-            })()
-
-      persistSession(activeSession)
-      setIsAuthModalOpen(false)
-    } catch (error) {
-      setAuthError(error instanceof Error ? error.message : 'Une erreur est survenue.')
-    } finally {
-      setIsSubmittingAuth(false)
-    }
-  }
+  // Build a minimal session object for ChatWidget compatibility
+  const chatSession = isAuthenticated && accessToken
+    ? { accessToken, refreshToken: '', user: user! }
+    : null
 
   return (
     <div>
@@ -92,33 +37,25 @@ export function PublicLayout() {
           <div className="topbar__actions">
             {isAuthenticated ? (
               <>
-                <span className="session-badge">
-                  {t('auth.connected')} {session?.user.firstName}
-                </span>
+                <Link to={routes.dashboard} className="session-badge">
+                  {t('auth.connected')} {user?.firstName}
+                </Link>
                 <button
                   className="button button--secondary"
                   type="button"
-                  onClick={() => persistSession(null)}
+                  onClick={() => void logout()}
                 >
                   {t('auth.logout')}
                 </button>
               </>
             ) : (
               <>
-                <button
-                  className="button button--ghost"
-                  type="button"
-                  onClick={() => openAuthModal('login')}
-                >
+                <Link to={routes.login} className="button button--ghost">
                   {t('auth.login')}
-                </button>
-                <button
-                  className="button"
-                  type="button"
-                  onClick={() => openAuthModal('register')}
-                >
+                </Link>
+                <Link to={routes.register} className="button">
                   {t('auth.register')}
-                </button>
+                </Link>
               </>
             )}
           </div>
@@ -154,24 +91,10 @@ export function PublicLayout() {
         </footer>
       </div>
 
-      {isAuthModalOpen ? (
-        <AuthModal
-          mode={authMode}
-          onClose={() => setIsAuthModalOpen(false)}
-          onModeChange={(mode) => {
-            setAuthMode(mode)
-            setAuthError(null)
-          }}
-          onSubmit={handleAuthSubmit}
-          isSubmitting={isSubmittingAuth}
-          errorMessage={authError}
-        />
-      ) : null}
-
       <ChatWidget
         isAuthenticated={isAuthenticated}
-        session={session}
-        onRequireAuth={() => openAuthModal('login')}
+        session={chatSession}
+        onRequireAuth={() => void 0}
       />
     </div>
   )

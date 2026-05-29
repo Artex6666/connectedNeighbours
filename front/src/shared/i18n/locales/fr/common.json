@@ -15,7 +15,14 @@
     "login": "Connexion",
     "register": "Inscription",
     "logout": "Se deconnecter",
-    "connected": "Connecte",
+    "connected": "Connecte,",
+    "loginSubtitle": "Bon retour parmi vos voisins.",
+    "registerSubtitle": "Rejoignez votre quartier en quelques secondes.",
+    "noAccount": "Pas encore inscrit ?",
+    "hasAccount": "Deja un compte ?",
+    "errors": {
+      "generic": "Une erreur est survenue. Veuillez reessayer."
+    },
     "modal": {
       "eyebrow": "Acces rapide",
       "close": "Fermer",
@@ -126,8 +133,13 @@
       "futureDescription": "La structure actuelle permet d'ajouter ensuite le hero final, les pages internes, l'API et les integrations metier."
     }
   },
+  "dashboard": {
+    "welcome": "Bienvenue, {{name}} !",
+    "subtitle": "Votre espace quartier vous attend.",
+    "comingSoon": "Bientot disponible"
+  },
   "errors": {
     "notFoundTitle": "Page introuvable",
-    "notFoundDescription": "La route demandee n'existe pas encore dans le front BobConnect."
+    "notFoundDescription": "La route demandee n'existe pas encore dans le front."
   }
 }

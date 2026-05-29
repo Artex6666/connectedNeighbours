@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as servicesController from '../controllers/services.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authMiddleware);
 
