@@ -64,6 +64,7 @@ export async function login(req: Request, res: Response) {
       id: user._id.toString(),
       email: user.email,
       role: user.role,
+      neighborhoodId: user.neighborhoodId?.toString(),
     });
 
     const refreshToken = signRefreshToken(user._id.toString());

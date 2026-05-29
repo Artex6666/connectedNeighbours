@@ -27,18 +27,24 @@ export function PublicLayout() {
           </a>
 
           <nav className="topbar__nav" aria-label={t('navigation.ariaLabel')}>
-            {navItems.map((item) => (
-              <a key={item.href} href={item.href}>
-                {t(item.labelKey)}
-              </a>
-            ))}
+            {isAuthenticated ? (
+              <>
+                <Link to={routes.dashboard} className="topbar__nav a">Mon espace</Link>
+                <Link to={routes.services}>🤝 Services</Link>
+                <Link to={routes.events}>📅 Événements</Link>
+              </>
+            ) : (
+              navItems.map((item) => (
+                <a key={item.href} href={item.href}>{t(item.labelKey)}</a>
+              ))
+            )}
           </nav>
 
           <div className="topbar__actions">
             {isAuthenticated ? (
               <>
-                <Link to={routes.dashboard} className="session-badge">
-                  {t('auth.connected')} {user?.firstName}
+                <Link to={routes.profile} className="session-badge">
+                  👤 {user?.firstName}
                 </Link>
                 <button
                   className="button button--secondary"
