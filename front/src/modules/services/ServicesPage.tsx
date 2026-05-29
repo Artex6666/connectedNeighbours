@@ -1,23 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
 import { servicesApi, type Service, type ServiceCategory } from '@/shared/lib/api'
 import { AppLayout } from '@/shared/layout/AppLayout'
 import { ServiceCard } from './ServiceCard'
 import { CreateServiceModal } from './CreateServiceModal'
 
-const CATEGORIES: { value: ServiceCategory | ''; label: string }[] = [
-  { value: '', label: 'Toutes les catégories' },
-  { value: 'bricolage', label: '🔨 Bricolage' },
-  { value: 'jardinage', label: '🌱 Jardinage' },
-  { value: 'garde_animaux', label: '🐾 Garde d\'animaux' },
-  { value: 'cours_particuliers', label: '📚 Cours particuliers' },
-  { value: 'demenagement', label: '📦 Déménagement' },
-  { value: 'autre', label: '✨ Autre' },
-]
-
 type Tab = 'all' | 'mine'
 
 export function ServicesPage() {
+  const { t } = useTranslation()
   const { accessToken, user } = useAuth()
 
   const [tab, setTab] = useState<Tab>('all')
@@ -30,6 +22,16 @@ export function ServicesPage() {
   const [onlyFree, setOnlyFree] = useState(false)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 
+  const CATEGORIES: { value: ServiceCategory | ''; label: string }[] = [
+    { value: '', label: t('services.filterAllCategories') },
+    { value: 'bricolage', label: t('services.category.bricolageFull') },
+    { value: 'jardinage', label: t('services.category.jardinageFull') },
+    { value: 'garde_animaux', label: t('services.category.garde_animauxFull') },
+    { value: 'cours_particuliers', label: t('services.category.cours_particuliersFull') },
+    { value: 'demenagement', label: t('services.category.demenagementFull') },
+    { value: 'autre', label: t('services.category.autreFull') },
+  ]
+
   const loadAll = useCallback(async () => {
     if (!accessToken) return
     setIsLoading(true)
@@ -41,11 +43,11 @@ export function ServicesPage() {
       })
       setServices(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors du chargement')
+      setError(err instanceof Error ? err.message : t('auth.errors.generic'))
     } finally {
       setIsLoading(false)
     }
-  }, [accessToken, category, onlyFree])
+  }, [accessToken, category, onlyFree, t])
 
   const loadMine = useCallback(async () => {
     if (!accessToken) return
@@ -56,11 +58,11 @@ export function ServicesPage() {
       setMyPosted(data.posted)
       setMyAccepted(data.accepted)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors du chargement')
+      setError(err instanceof Error ? err.message : t('auth.errors.generic'))
     } finally {
       setIsLoading(false)
     }
-  }, [accessToken])
+  }, [accessToken, t])
 
   useEffect(() => {
     if (tab === 'all') void loadAll()
@@ -73,17 +75,17 @@ export function ServicesPage() {
       await servicesApi.accept(accessToken, id)
       void loadAll()
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erreur')
+      alert(err instanceof Error ? err.message : t('auth.errors.generic'))
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!accessToken || !confirm('Supprimer cette annonce ?')) return
+    if (!accessToken || !confirm(t('services.actions.confirmDelete'))) return
     try {
       await servicesApi.delete(accessToken, id)
       tab === 'all' ? void loadAll() : void loadMine()
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erreur')
+      alert(err instanceof Error ? err.message : t('auth.errors.generic'))
     }
   }
 
@@ -95,7 +97,7 @@ export function ServicesPage() {
   })
 
   const renderGrid = (list: Service[], emptyMsg: string) => {
-    if (isLoading) return <div className="text-center py-16" style={{ color: 'var(--color-text-muted)' }}>Chargement...</div>
+    if (isLoading) return <div className="text-center py-16" style={{ color: 'var(--color-text-muted)' }}>{t('common.loading')}</div>
     if (error) return <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#ffb4b4' }}>{error}</div>
     if (list.length === 0) return (
       <div className="text-center py-16" style={{ color: 'var(--color-text-muted)' }}>
@@ -126,20 +128,20 @@ export function ServicesPage() {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-2xl font-bold m-0" style={{ color: 'var(--color-text)' }}>
-              Services du quartier
+              {t('services.pageTitle')}
             </h1>
             <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>
-              Offrez ou demandez un service à vos voisins
+              {t('services.pageSubtitle')}
             </p>
           </div>
           <button className="button" onClick={() => setIsCreateOpen(true)}>
-            + Publier une annonce
+            {t('services.publishBtn')}
           </button>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-2">
-          {([['all', 'Toutes les annonces'], ['mine', 'Mes annonces']] as [Tab, string][]).map(([value, label]) => (
+          {([['all', t('services.tabAll')], ['mine', t('services.tabMine')]] as [Tab, string][]).map(([value, label]) => (
             <button
               key={value}
               onClick={() => setTab(value)}
@@ -166,30 +168,30 @@ export function ServicesPage() {
             </select>
             <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: 'var(--color-text-muted)' }}>
               <input type="checkbox" checked={onlyFree} onChange={(e) => setOnlyFree(e.target.checked)} className="accent-blue-400" />
-              Gratuit uniquement
+              {t('services.filterFreeOnly')}
             </label>
             <span className="text-sm ml-auto" style={{ color: 'var(--color-text-muted)' }}>
-              {services.length} annonce{services.length !== 1 ? 's' : ''}
+              {t('services.count', { count: services.length })}
             </span>
           </div>
         )}
 
         {/* Content */}
-        {tab === 'all' && renderGrid(services, 'Aucune annonce pour le moment. Soyez le premier à publier !')}
+        {tab === 'all' && renderGrid(services, t('services.emptyAll'))}
 
         {tab === 'mine' && (
           <div className="flex flex-col gap-8">
             <div>
               <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-text)' }}>
-                Mes annonces publiées ({myPosted.length})
+                {t('services.myPosted', { count: myPosted.length })}
               </h2>
-              {renderGrid(myPosted, 'Vous n\'avez pas encore publié d\'annonce.')}
+              {renderGrid(myPosted, t('services.emptyPosted'))}
             </div>
             <div>
               <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-text)' }}>
-                Services que j'ai acceptés ({myAccepted.length})
+                {t('services.myAccepted', { count: myAccepted.length })}
               </h2>
-              {renderGrid(myAccepted, 'Vous n\'avez pas encore accepté de service.')}
+              {renderGrid(myAccepted, t('services.emptyAccepted'))}
             </div>
           </div>
         )}

@@ -230,6 +230,69 @@ export const servicesApi = {
   },
 }
 
+// ─── Events API ───────────────────────────────────────────────────────────────
+
+export type EventParticipant = {
+  _id: string
+  firstName: string
+  lastName: string
+  role: string
+}
+
+export type Event = {
+  _id: string
+  title: string
+  description: string
+  date: string
+  location: string
+  maxParticipants: number
+  organizerId: EventParticipant
+  neighborhoodId: string
+  participants: EventParticipant[]
+  waitingList: EventParticipant[]
+  isCancelled: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export type CreateEventPayload = {
+  title: string
+  description: string
+  date: string
+  location: string
+  maxParticipants: number
+}
+
+export const eventsApi = {
+  async list(token: string) {
+    return apiRequest<Event[]>('/events', undefined, token)
+  },
+
+  async get(token: string, id: string) {
+    return apiRequest<Event>(`/events/${id}`, undefined, token)
+  },
+
+  async create(token: string, payload: CreateEventPayload) {
+    return apiRequest<Event>('/events', { method: 'POST', body: JSON.stringify(payload) }, token)
+  },
+
+  async update(token: string, id: string, payload: Partial<CreateEventPayload>) {
+    return apiRequest<Event>(`/events/${id}`, { method: 'PUT', body: JSON.stringify(payload) }, token)
+  },
+
+  async cancel(token: string, id: string) {
+    return apiRequest(`/events/${id}`, { method: 'DELETE' }, token)
+  },
+
+  async register(token: string, id: string) {
+    return apiRequest<Event>(`/events/${id}/register`, { method: 'POST' }, token)
+  },
+
+  async unregister(token: string, id: string) {
+    return apiRequest<Event>(`/events/${id}/register`, { method: 'DELETE' }, token)
+  },
+}
+
 // ─── Messages API ─────────────────────────────────────────────────────────────
 
 export const messagesApi = {

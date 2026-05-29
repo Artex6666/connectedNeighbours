@@ -4,17 +4,17 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
 import { routes } from '@/shared/config/routes'
 
-const NAV_ITEMS = [
-  { href: routes.dashboard, label: 'Accueil' },
-  { href: routes.services, label: '🤝 Services' },
-  { href: routes.events, label: '📅 Événements' },
-  { href: routes.profile, label: '👤 Profil' },
-]
-
 type Props = { children: ReactNode }
 
 export function AppLayout({ children }: Props) {
   const { t } = useTranslation()
+
+  const NAV_ITEMS = [
+    { href: routes.dashboard, label: t('appNav.home') },
+    { href: routes.services, label: `🤝 ${t('appNav.services')}` },
+    { href: routes.events, label: `📅 ${t('appNav.events')}` },
+    { href: routes.profile, label: `👤 ${t('appNav.profile')}` },
+  ]
   const { user, logout } = useAuth()
   const location = useLocation()
 

@@ -1,15 +1,7 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { routes } from '@/shared/config/routes'
 import type { Service } from '@/shared/lib/api'
-
-const CATEGORY_LABELS: Record<string, string> = {
-  bricolage: '🔨 Bricolage',
-  jardinage: '🌱 Jardinage',
-  garde_animaux: '🐾 Animaux',
-  cours_particuliers: '📚 Cours',
-  demenagement: '📦 Déménagement',
-  autre: '✨ Autre',
-}
 
 const STATUS_COLORS: Record<string, string> = {
   open: '#93f0c0',
@@ -17,14 +9,6 @@ const STATUS_COLORS: Record<string, string> = {
   done: '#9fb1c9',
   cancelled: '#ffb4b4',
   pending: '#ffd580',
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  open: 'Disponible',
-  in_progress: 'En cours',
-  done: 'Terminé',
-  cancelled: 'Annulé',
-  pending: 'En attente',
 }
 
 type Props = {
@@ -35,6 +19,7 @@ type Props = {
 }
 
 export function ServiceCard({ service, currentUserId, onAccept, onDelete }: Props) {
+  const { t } = useTranslation()
   const isOwner = service.authorId._id === currentUserId
   const canAccept = service.status === 'open' && !isOwner
 
@@ -53,13 +38,13 @@ export function ServiceCard({ service, currentUserId, onAccept, onDelete }: Prop
           className="text-xs font-bold px-2.5 py-1 rounded-full"
           style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary)' }}
         >
-          {CATEGORY_LABELS[service.category] ?? service.category}
+          {t(`services.category.${service.category}`, service.category)}
         </span>
         <span
           className="text-xs font-bold px-2.5 py-1 rounded-full"
           style={{ background: 'rgba(255,255,255,0.06)', color: STATUS_COLORS[service.status] }}
         >
-          {STATUS_LABELS[service.status] ?? service.status}
+          {t(`services.status.${service.status}`, service.status)}
         </span>
       </div>
 
@@ -87,14 +72,14 @@ export function ServiceCard({ service, currentUserId, onAccept, onDelete }: Prop
             className="text-sm font-bold px-2.5 py-1 rounded-full"
             style={{ background: 'var(--color-secondary-soft)', color: '#c8b7ff' }}
           >
-            {service.points} pts
+            {t('services.points', { count: service.points })}
           </span>
         ) : (
           <span
             className="text-sm font-bold px-2.5 py-1 rounded-full"
             style={{ background: 'var(--color-success-soft)', color: '#93f0c0' }}
           >
-            Gratuit
+            {t('common.free')}
           </span>
         )}
       </div>
@@ -107,7 +92,7 @@ export function ServiceCard({ service, currentUserId, onAccept, onDelete }: Prop
             style={{ minHeight: '38px' }}
             onClick={() => onAccept(service._id)}
           >
-            Accepter
+            {t('services.actions.accept')}
           </button>
         )}
         {isOwner && service.status === 'open' && (
@@ -116,7 +101,7 @@ export function ServiceCard({ service, currentUserId, onAccept, onDelete }: Prop
             style={{ minHeight: '38px' }}
             onClick={() => onDelete(service._id)}
           >
-            Supprimer
+            {t('common.delete')}
           </button>
         )}
       </div>

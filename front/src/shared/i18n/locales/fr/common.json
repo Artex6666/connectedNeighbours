@@ -11,20 +11,26 @@
     "messaging": "Messagerie",
     "footer": "Vision"
   },
+  "appNav": {
+    "home": "Accueil",
+    "services": "Services",
+    "events": "Événements",
+    "profile": "Profil"
+  },
   "auth": {
     "login": "Connexion",
     "register": "Inscription",
-    "logout": "Se deconnecter",
+    "logout": "Se déconnecter",
     "connected": "Connecté",
     "loginSubtitle": "Bon retour parmi vos voisins.",
     "registerSubtitle": "Rejoignez votre quartier en quelques secondes.",
     "noAccount": "Pas encore inscrit ?",
-    "hasAccount": "Deja un compte ?",
+    "hasAccount": "Déjà un compte ?",
     "errors": {
-      "generic": "Une erreur est survenue. Veuillez reessayer."
+      "generic": "Une erreur est survenue. Veuillez réessayer."
     },
     "modal": {
-      "eyebrow": "Acces rapide",
+      "eyebrow": "Accès rapide",
       "close": "Fermer",
       "chooseForm": "Choisir un formulaire",
       "fullName": "Nom complet",
@@ -33,38 +39,176 @@
       "emailPlaceholder": "jean@bobconnect.fr",
       "password": "Mot de passe",
       "passwordPlaceholder": "********",
-      "phone": "Telephone",
+      "phone": "Téléphone",
       "phonePlaceholder": "0601020304",
       "address": "Adresse",
       "addressPlaceholder": "12 rue de Charonne, 75011 Paris",
       "submitLogin": "Se connecter",
-      "submitRegister": "Creer mon compte",
+      "submitRegister": "Créer mon compte",
       "loading": "Chargement...",
-      "hint": "Le front est maintenant relie a l'API de developpement locale."
+      "hint": "Le front est maintenant relié à l'API de développement locale."
     }
   },
+  "common": {
+    "loading": "Chargement...",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "free": "Gratuit",
+    "back": "Retour"
+  },
+  "services": {
+    "pageTitle": "Services du quartier",
+    "pageSubtitle": "Offrez ou demandez un service à vos voisins",
+    "publishBtn": "+ Publier une annonce",
+    "tabAll": "Toutes les annonces",
+    "tabMine": "Mes annonces",
+    "filterAllCategories": "Toutes les catégories",
+    "filterFreeOnly": "Gratuit uniquement",
+    "count_one": "{{count}} annonce",
+    "count_other": "{{count}} annonces",
+    "emptyAll": "Aucune annonce pour le moment. Soyez le premier à publier !",
+    "emptyPosted": "Vous n'avez pas encore publié d'annonce.",
+    "emptyAccepted": "Vous n'avez pas encore accepté de service.",
+    "myPosted": "Mes annonces publiées ({{count}})",
+    "myAccepted": "Services que j'ai acceptés ({{count}})",
+    "backToList": "← Retour aux annonces",
+    "publishedOn": "Publié le {{date}}",
+    "notFound": "Annonce introuvable",
+    "status": {
+      "open": "Disponible",
+      "in_progress": "En cours",
+      "done": "Terminé",
+      "cancelled": "Annulé",
+      "pending": "En attente"
+    },
+    "category": {
+      "bricolage": "🔨 Bricolage",
+      "jardinage": "🌱 Jardinage",
+      "garde_animaux": "🐾 Animaux",
+      "cours_particuliers": "📚 Cours",
+      "demenagement": "📦 Déménagement",
+      "autre": "✨ Autre",
+      "bricolageFull": "🔨 Bricolage",
+      "jardinageFull": "🌱 Jardinage",
+      "garde_animauxFull": "🐾 Garde d'animaux",
+      "cours_particuliersFull": "📚 Cours particuliers",
+      "demenagementFull": "📦 Déménagement",
+      "autreFull": "✨ Autre"
+    },
+    "points": "{{count}} pts",
+    "actions": {
+      "accept": "✅ Accepter ce service",
+      "complete": "🎉 Marquer comme terminé",
+      "contact": "💬 Contacter",
+      "actionLoading": "En cours...",
+      "confirmDelete": "Supprimer cette annonce ?"
+    },
+    "modal": {
+      "title": "Publier une annonce",
+      "titleLabel": "Titre",
+      "titlePlaceholder": "Ex: Cours de guitare pour débutants",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Décrivez votre service...",
+      "categoryLabel": "Catégorie",
+      "paid": "Service payant (en points)",
+      "pointsLabel": "Points :",
+      "submit": "Publier",
+      "submitting": "Publication..."
+    }
+  },
+  "events": {
+    "pageTitle": "Événements du quartier",
+    "pageSubtitle": "Retrouvez vos voisins lors d'activités locales",
+    "createBtn": "+ Créer un événement",
+    "count_one": "{{count}} événement à venir",
+    "count_other": "{{count}} événements à venir",
+    "empty": "Aucun événement à venir. Soyez le premier à en organiser un !",
+    "backToList": "← Retour aux événements",
+    "notFound": "Événement introuvable",
+    "participantsRatio": "{{current}}/{{max}} participants",
+    "participantsTitle": "Participants ({{count}})",
+    "waitingListTitle": "Liste d'attente ({{count}})",
+    "noParticipants": "Aucun participant pour l'instant.",
+    "organizedBy": "Par {{firstName}} {{lastName}}",
+    "badges": {
+      "organizer": "Organisateur",
+      "registered": "Inscrit ✓",
+      "waiting": "Liste d'attente",
+      "full": "Complet",
+      "spots_one": "{{count}} place",
+      "spots_other": "{{count}} places"
+    },
+    "cancelled": "Annulé",
+    "actions": {
+      "join": "Rejoindre",
+      "joinFull": "Liste d'attente",
+      "unregister": "Se désinscrire",
+      "unregisterWaiting": "Se désinscrire (liste d'attente)",
+      "cancelEvent": "Annuler l'événement",
+      "joinFullDetail": "Rejoindre la liste d'attente",
+      "confirmUnregister": "Se désinscrire de cet événement ?",
+      "confirmCancel": "Annuler cet événement ? Cette action est irréversible."
+    },
+    "modal": {
+      "title": "Créer un événement",
+      "titleLabel": "Titre",
+      "titlePlaceholder": "Ex: Repas de quartier",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Décrivez votre événement...",
+      "dateLabel": "Date et heure",
+      "maxLabel": "Places max",
+      "locationLabel": "Lieu",
+      "locationPlaceholder": "Ex: Place de la République, 75011 Paris",
+      "submit": "Créer",
+      "submitting": "Création..."
+    }
+  },
+  "profile": {
+    "title": "Mon profil",
+    "languageSection": "Langue de l'interface",
+    "editBtn": "✏️ Modifier",
+    "cancelBtn": "Annuler",
+    "saveBtn": "💾 Enregistrer",
+    "saving": "Enregistrement...",
+    "successMsg": "Profil mis à jour avec succès !",
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "phone": "Téléphone",
+      "address": "Adresse"
+    },
+    "roles": {
+      "resident": "🏠 Résident",
+      "moderator": "🛡️ Modérateur",
+      "admin": "⚙️ Administrateur"
+    },
+    "neighborhood": "Mon quartier"
+  },
   "home": {
-    "badge": "Voisinage nouvelle generation",
-    "title": "Le reseau local qui rapproche les habitants d'un meme quartier.",
-    "description": "BobConnect centralise l'entraide, la messagerie, les evenements et les signatures numeriques dans une experience moderne, rassurante et simple a prendre en main.",
-    "primaryCta": "Decouvrir le concept",
+    "badge": "Voisinage nouvelle génération",
+    "title": "Le réseau local qui rapproche les habitants d'un même quartier.",
+    "description": "BobConnect centralise l'entraide, la messagerie, les événements et les signatures numériques dans une expérience moderne, rassurante et simple à prendre en main.",
+    "primaryCta": "Découvrir le concept",
     "secondaryCta": "Voir la vision produit",
     "metrics": {
       "neighbors": {
         "value": "1 quartier",
-        "label": "une communaute reliee autour d'un meme espace"
+        "label": "une communauté reliée autour d'un même espace"
       },
       "documents": {
         "value": "100%",
-        "label": "de signatures et echanges centralises"
+        "label": "de signatures et échanges centralisés"
       },
       "events": {
         "value": "24/7",
-        "label": "de visibilite sur la vie locale et les besoins"
+        "label": "de visibilité sur la vie locale et les besoins"
       }
     },
-    "highlightsTitle": "Une plateforme pensee pour la vie de quartier",
-    "highlightsDescription": "Chaque module renforce la proximite entre habitants, tout en donnant un cadre fiable pour collaborer, partager et organiser la vie locale.",
+    "highlightsTitle": "Une plateforme pensée pour la vie de quartier",
+    "highlightsDescription": "Chaque module renforce la proximité entre habitants, tout en donnant un cadre fiable pour collaborer, partager et organiser la vie locale.",
     "sections": {
       "services": {
         "eyebrow": "Services",
@@ -73,73 +217,73 @@
       },
       "documents": {
         "eyebrow": "Documents",
-        "title": "Des signatures numeriques fluides",
-        "description": "Les contrats et documents PDF circulent dans un espace clair, avec zones de signature, suivi et verification MFA sur les actions sensibles."
+        "title": "Des signatures numériques fluides",
+        "description": "Les contrats et documents PDF circulent dans un espace clair, avec zones de signature, suivi et vérification MFA sur les actions sensibles."
       },
       "events": {
-        "eyebrow": "Evenements",
+        "eyebrow": "Événements",
         "title": "Une vie locale visible et engageante",
-        "description": "Ateliers, collectes, reunions ou activites de quartier sont presentes dans une interface qui facilite la participation et la recommandation."
+        "description": "Ateliers, collectes, réunions ou activités de quartier sont présentés dans une interface qui facilite la participation et la recommandation."
       },
       "messaging": {
         "eyebrow": "Messagerie",
-        "title": "Des conversations directes et securisees",
-        "description": "Messages, photos, presence en ligne et echanges prives renforcent le lien local sans sortir de la plateforme."
+        "title": "Des conversations directes et sécurisées",
+        "description": "Messages, photos, présence en ligne et échanges privés renforcent le lien local sans sortir de la plateforme."
       }
     },
-    "journeyTitle": "Une experience claire, du premier acces a l'action",
-    "journeyDescription": "La page d'accueil donne immediatement les bons reperes : rejoindre son quartier, entrer en relation et agir sans friction.",
+    "journeyTitle": "Une expérience claire, du premier accès à l'action",
+    "journeyDescription": "La page d'accueil donne immédiatement les bons repères : rejoindre son quartier, entrer en relation et agir sans friction.",
     "journey": {
       "join": {
         "title": "Rejoindre son quartier",
-        "description": "Une entree simple pour s'inscrire, verifier son adresse et comprendre instantanement ce que la plateforme apporte."
+        "description": "Une entrée simple pour s'inscrire, vérifier son adresse et comprendre instantanément ce que la plateforme apporte."
       },
       "connect": {
         "title": "Trouver les bonnes interactions",
-        "description": "Les habitants reperent rapidement les evenements, les services, les documents ou les discussions utiles selon leur besoin."
+        "description": "Les habitants repèrent rapidement les événements, les services, les documents ou les discussions utiles selon leur besoin."
       },
       "contribute": {
         "title": "Participer en confiance",
-        "description": "Chaque interaction est pensee pour rester lisible, rassurante et encourageante, meme avant le branchement de l'API."
+        "description": "Chaque interaction est pensée pour rester lisible, rassurante et encourageante, même avant le branchement de l'API."
       }
     },
     "communityTitle": "Le concept BobConnect en trois promesses",
-    "communityDescription": "Au-dela d'un simple portail, BobConnect veut devenir un point de rencontre numerique pour la confiance, la coordination et la participation locale.",
+    "communityDescription": "Au-delà d'un simple portail, BobConnect veut devenir un point de rencontre numérique pour la confiance, la coordination et la participation locale.",
     "community": {
       "trust": {
-        "title": "Confiance numerique",
-        "description": "Authentification renforcee, documents signes et parcours clairs donnent un cadre credible aux interactions entre habitants."
+        "title": "Confiance numérique",
+        "description": "Authentification renforcée, documents signés et parcours clairs donnent un cadre crédible aux interactions entre habitants."
       },
       "local": {
         "title": "Impact concret sur le quartier",
-        "description": "Services, votes, evenements et messagerie reunissent les usages essentiels dans une seule interface orienteuse."
+        "description": "Services, votes, événements et messagerie réunissent les usages essentiels dans une seule interface orienteuse."
       },
       "inclusion": {
-        "title": "Experience accessible",
-        "description": "Une interface moderne et lisible permet d'accueillir aussi bien les habitants, les moderateurs que l'administration."
+        "title": "Expérience accessible",
+        "description": "Une interface moderne et lisible permet d'accueillir aussi bien les habitants, les modérateurs que l'administration."
       }
     }
   },
   "footer": {
     "eyebrow": "Vision produit",
-    "title": "BobConnect donne une presence numerique elegante et utile a la vie de quartier.",
-    "description": "Cette premiere version de la page d'accueil pose l'univers visuel, le discours produit et les points d'entree pour les futurs modules.",
+    "title": "BobConnect donne une présence numérique élégante et utile à la vie de quartier.",
+    "description": "Cette première version de la page d'accueil pose l'univers visuel, le discours produit et les points d'entrée pour les futurs modules.",
     "sections": {
       "platformTitle": "Une plateforme commune",
-      "platformDescription": "Un point d'acces unique pour entraide, documents, messagerie, evenements et participation citoyenne locale.",
-      "trustTitle": "Une base credible",
-      "trustDescription": "Le front prepare deja les parcours de connexion, les etats utilisateur et les futurs flux d'authentification.",
-      "futureTitle": "Une fondation evolutive",
-      "futureDescription": "La structure actuelle permet d'ajouter ensuite le hero final, les pages internes, l'API et les integrations metier."
+      "platformDescription": "Un point d'accès unique pour entraide, documents, messagerie, événements et participation citoyenne locale.",
+      "trustTitle": "Une base crédible",
+      "trustDescription": "Le front prépare déjà les parcours de connexion, les états utilisateur et les futurs flux d'authentification.",
+      "futureTitle": "Une fondation évolutive",
+      "futureDescription": "La structure actuelle permet d'ajouter ensuite le hero final, les pages internes, l'API et les intégrations métier."
     }
   },
   "dashboard": {
     "welcome": "Bienvenue, {{name}} !",
     "subtitle": "Votre espace quartier vous attend.",
-    "comingSoon": "Bientot disponible"
+    "comingSoon": "Bientôt disponible"
   },
   "errors": {
     "notFoundTitle": "Page introuvable",
-    "notFoundDescription": "La route demandee n'existe pas encore dans le front."
+    "notFoundDescription": "La route demandée n'existe pas encore dans le front."
   }
 }

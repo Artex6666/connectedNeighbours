@@ -1,26 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
 import { servicesApi, messagesApi, type Service } from '@/shared/lib/api'
 import { AppLayout } from '@/shared/layout/AppLayout'
 import { routes } from '@/shared/config/routes'
-
-const CATEGORY_LABELS: Record<string, string> = {
-  bricolage: '🔨 Bricolage',
-  jardinage: '🌱 Jardinage',
-  garde_animaux: '🐾 Garde d\'animaux',
-  cours_particuliers: '📚 Cours particuliers',
-  demenagement: '📦 Déménagement',
-  autre: '✨ Autre',
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  open: 'Disponible',
-  in_progress: 'En cours',
-  done: 'Terminé',
-  cancelled: 'Annulé',
-  pending: 'En attente',
-}
 
 const STATUS_COLORS: Record<string, string> = {
   open: '#93f0c0',
@@ -31,6 +15,7 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export function ServiceDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const { accessToken, user } = useAuth()
   const navigate = useNavigate()
@@ -45,9 +30,9 @@ export function ServiceDetailPage() {
     setIsLoading(true)
     servicesApi.get(accessToken, id)
       .then(setService)
-      .catch((err) => setError(err instanceof Error ? err.message : 'Erreur'))
+      .catch((err) => setError(err instanceof Error ? err.message : t('auth.errors.generic')))
       .finally(() => setIsLoading(false))
-  }, [accessToken, id])
+  }, [accessToken, id, t])
 
   const refetch = async () => {
     if (!accessToken || !id) return
@@ -62,7 +47,7 @@ export function ServiceDetailPage() {
       await servicesApi.accept(accessToken, id)
       await refetch()
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erreur')
+      alert(err instanceof Error ? err.message : t('auth.errors.generic'))
     } finally {
       setActionLoading(false)
     }
@@ -75,7 +60,7 @@ export function ServiceDetailPage() {
       await servicesApi.complete(accessToken, id)
       await refetch()
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erreur')
+      alert(err instanceof Error ? err.message : t('auth.errors.generic'))
     } finally {
       setActionLoading(false)
     }
@@ -83,12 +68,10 @@ export function ServiceDetailPage() {
 
   const handleContact = async () => {
     if (!accessToken || !service || !user) return
-    // Open conversation with the other party
     const otherUserId = service.authorId._id === user._id
       ? (service as any).accepterId
       : service.authorId._id
     if (!otherUserId) return
-    // Send an initial message to open the conversation
     try {
       await messagesApi.sendMessage(accessToken, otherUserId, {
         content: `Bonjour, je vous contacte au sujet de votre annonce : "${service.title}"`,
@@ -101,24 +84,24 @@ export function ServiceDetailPage() {
   }
 
   const handleDelete = async () => {
-    if (!accessToken || !id || !confirm('Supprimer cette annonce ?')) return
+    if (!accessToken || !id || !confirm(t('services.actions.confirmDelete'))) return
     try {
       await servicesApi.delete(accessToken, id)
       navigate(routes.services)
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erreur')
+      alert(err instanceof Error ? err.message : t('auth.errors.generic'))
     }
   }
 
   if (isLoading) return (
     <AppLayout>
-      <div className="text-center py-20" style={{ color: 'var(--color-text-muted)' }}>Chargement...</div>
+      <div className="text-center py-20" style={{ color: 'var(--color-text-muted)' }}>{t('common.loading')}</div>
     </AppLayout>
   )
 
   if (error || !service) return (
     <AppLayout>
-      <div className="text-center py-20" style={{ color: '#ffb4b4' }}>{error ?? 'Annonce introuvable'}</div>
+      <div className="text-center py-20" style={{ color: '#ffb4b4' }}>{error ?? t('services.notFound')}</div>
     </AppLayout>
   )
 
@@ -131,12 +114,10 @@ export function ServiceDetailPage() {
     <AppLayout>
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
 
-        {/* Back */}
         <Link to={routes.services} className="text-sm flex items-center gap-1" style={{ color: 'var(--color-text-muted)' }}>
-          ← Retour aux annonces
+          {t('services.backToList')}
         </Link>
 
-        {/* Main card */}
         <div
           className="rounded-3xl p-8 flex flex-col gap-6"
           style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-strong)' }}
@@ -147,13 +128,13 @@ export function ServiceDetailPage() {
               className="text-xs font-bold px-3 py-1.5 rounded-full"
               style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary)' }}
             >
-              {CATEGORY_LABELS[service.category]}
+              {t(`services.category.${service.category}Full`, service.category)}
             </span>
             <span
               className="text-xs font-bold px-3 py-1.5 rounded-full"
               style={{ background: 'rgba(255,255,255,0.06)', color: STATUS_COLORS[service.status] }}
             >
-              {STATUS_LABELS[service.status]}
+              {t(`services.status.${service.status}`, service.status)}
             </span>
             {service.isPaid ? (
               <span
@@ -167,7 +148,7 @@ export function ServiceDetailPage() {
                 className="text-xs font-bold px-3 py-1.5 rounded-full ml-auto"
                 style={{ background: 'var(--color-success-soft)', color: '#93f0c0' }}
               >
-                Gratuit
+                {t('common.free')}
               </span>
             )}
           </div>
@@ -202,7 +183,7 @@ export function ServiceDetailPage() {
               </p>
             </div>
             <p className="text-xs ml-auto" style={{ color: 'var(--color-text-muted)' }}>
-              Publié le {new Date(service.createdAt).toLocaleDateString('fr-FR')}
+              {t('services.publishedOn', { date: new Date(service.createdAt).toLocaleDateString() })}
             </p>
           </div>
 
@@ -210,17 +191,17 @@ export function ServiceDetailPage() {
           <div className="flex gap-3 flex-wrap">
             {canAccept && (
               <button className="button flex-1" disabled={actionLoading} onClick={handleAccept}>
-                {actionLoading ? 'En cours...' : '✅ Accepter ce service'}
+                {actionLoading ? t('services.actions.actionLoading') : t('services.actions.accept')}
               </button>
             )}
             {canComplete && (
               <button className="button flex-1" disabled={actionLoading} onClick={handleComplete}>
-                {actionLoading ? 'En cours...' : '🎉 Marquer comme terminé'}
+                {actionLoading ? t('services.actions.actionLoading') : t('services.actions.complete')}
               </button>
             )}
             {canContact && (
               <button className="button button--secondary flex-1" onClick={handleContact}>
-                💬 Contacter
+                {t('services.actions.contact')}
               </button>
             )}
             {isOwner && service.status === 'open' && (
@@ -229,7 +210,7 @@ export function ServiceDetailPage() {
                 style={{ borderColor: 'rgba(255,80,80,0.3)', color: '#ffb4b4' }}
                 onClick={handleDelete}
               >
-                Supprimer
+                {t('common.delete')}
               </button>
             )}
           </div>

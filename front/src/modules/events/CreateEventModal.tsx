@@ -1,34 +1,25 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
-import { servicesApi, type ServiceCategory } from '@/shared/lib/api'
+import { eventsApi } from '@/shared/lib/api'
 
 type Props = {
   onClose: () => void
   onCreated: () => void
 }
 
-export function CreateServiceModal({ onClose, onCreated }: Props) {
+export function CreateEventModal({ onClose, onCreated }: Props) {
   const { t } = useTranslation()
   const { accessToken } = useAuth()
   const [form, setForm] = useState({
     title: '',
     description: '',
-    category: 'autre' as ServiceCategory,
-    isPaid: false,
-    points: 1,
+    date: '',
+    location: '',
+    maxParticipants: 20,
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const CATEGORIES: { value: ServiceCategory; label: string }[] = [
-    { value: 'bricolage', label: t('services.category.bricolageFull') },
-    { value: 'jardinage', label: t('services.category.jardinageFull') },
-    { value: 'garde_animaux', label: t('services.category.garde_animauxFull') },
-    { value: 'cours_particuliers', label: t('services.category.cours_particuliersFull') },
-    { value: 'demenagement', label: t('services.category.demenagementFull') },
-    { value: 'autre', label: t('services.category.autreFull') },
-  ]
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault()
@@ -36,10 +27,7 @@ export function CreateServiceModal({ onClose, onCreated }: Props) {
     setIsLoading(true)
     setError(null)
     try {
-      await servicesApi.create(accessToken, {
-        ...form,
-        points: form.isPaid ? form.points : 0,
-      })
+      await eventsApi.create(accessToken, form)
       onCreated()
     } catch (err) {
       setError(err instanceof Error ? err.message : t('auth.errors.generic'))
@@ -72,7 +60,7 @@ export function CreateServiceModal({ onClose, onCreated }: Props) {
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold m-0" style={{ color: 'var(--color-text)' }}>
-            {t('services.modal.title')}
+            {t('events.modal.title')}
           </h2>
           <button className="icon-button" onClick={onClose}>✕</button>
         </div>
@@ -86,13 +74,13 @@ export function CreateServiceModal({ onClose, onCreated }: Props) {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold uppercase tracking-wide" style={labelStyle}>
-              {t('services.modal.titleLabel')}
+              {t('events.modal.titleLabel')}
             </label>
             <input
               type="text"
               value={form.title}
               onChange={(e) => setForm(p => ({ ...p, title: e.target.value }))}
-              placeholder={t('services.modal.titlePlaceholder')}
+              placeholder={t('events.modal.titlePlaceholder')}
               required
               className="h-11 px-4 rounded-xl outline-none"
               style={inputStyle}
@@ -101,12 +89,12 @@ export function CreateServiceModal({ onClose, onCreated }: Props) {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold uppercase tracking-wide" style={labelStyle}>
-              {t('services.modal.descriptionLabel')}
+              {t('events.modal.descriptionLabel')}
             </label>
             <textarea
               value={form.description}
               onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))}
-              placeholder={t('services.modal.descriptionPlaceholder')}
+              placeholder={t('events.modal.descriptionPlaceholder')}
               required
               rows={3}
               className="px-4 py-3 rounded-xl outline-none resize-none"
@@ -114,47 +102,50 @@ export function CreateServiceModal({ onClose, onCreated }: Props) {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wide" style={labelStyle}>
-              {t('services.modal.categoryLabel')}
-            </label>
-            <select
-              value={form.category}
-              onChange={(e) => setForm(p => ({ ...p, category: e.target.value as ServiceCategory }))}
-              className="h-11 px-4 rounded-xl outline-none"
-              style={inputStyle}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>{c.label}</option>
-              ))}
-            </select>
+          <div className="flex gap-3">
+            <div className="flex flex-col gap-1.5 flex-1">
+              <label className="text-xs font-semibold uppercase tracking-wide" style={labelStyle}>
+                {t('events.modal.dateLabel')}
+              </label>
+              <input
+                type="datetime-local"
+                value={form.date}
+                onChange={(e) => setForm(p => ({ ...p, date: e.target.value }))}
+                required
+                className="h-11 px-4 rounded-xl outline-none"
+                style={inputStyle}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5 w-28">
+              <label className="text-xs font-semibold uppercase tracking-wide" style={labelStyle}>
+                {t('events.modal.maxLabel')}
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={500}
+                value={form.maxParticipants}
+                onChange={(e) => setForm(p => ({ ...p, maxParticipants: parseInt(e.target.value) || 1 }))}
+                required
+                className="h-11 px-4 rounded-xl outline-none"
+                style={inputStyle}
+              />
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer text-sm" style={labelStyle}>
-              <input
-                type="checkbox"
-                checked={form.isPaid}
-                onChange={(e) => setForm(p => ({ ...p, isPaid: e.target.checked }))}
-                className="accent-blue-400"
-              />
-              {t('services.modal.paid')}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold uppercase tracking-wide" style={labelStyle}>
+              {t('events.modal.locationLabel')}
             </label>
-
-            {form.isPaid && (
-              <div className="flex items-center gap-2 ml-auto">
-                <label className="text-sm" style={labelStyle}>{t('services.modal.pointsLabel')}</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={form.points}
-                  onChange={(e) => setForm(p => ({ ...p, points: parseInt(e.target.value) || 1 }))}
-                  className="w-16 h-9 px-3 rounded-lg text-center outline-none"
-                  style={inputStyle}
-                />
-              </div>
-            )}
+            <input
+              type="text"
+              value={form.location}
+              onChange={(e) => setForm(p => ({ ...p, location: e.target.value }))}
+              placeholder={t('events.modal.locationPlaceholder')}
+              required
+              className="h-11 px-4 rounded-xl outline-none"
+              style={inputStyle}
+            />
           </div>
 
           <div className="flex gap-3 mt-2">
@@ -162,7 +153,7 @@ export function CreateServiceModal({ onClose, onCreated }: Props) {
               {t('common.cancel')}
             </button>
             <button type="submit" className="button flex-1" disabled={isLoading}>
-              {isLoading ? t('services.modal.submitting') : t('services.modal.submit')}
+              {isLoading ? t('events.modal.submitting') : t('events.modal.submit')}
             </button>
           </div>
         </form>

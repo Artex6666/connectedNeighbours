@@ -7,6 +7,8 @@ import { RegisterPage } from '@/modules/auth/RegisterPage'
 import { DashboardPage } from '@/modules/dashboard/DashboardPage'
 import { ServicesPage } from '@/modules/services/ServicesPage'
 import { ServiceDetailPage } from '@/modules/services/ServiceDetailPage'
+import { EventsPage } from '@/modules/events/EventsPage'
+import { EventDetailPage } from '@/modules/events/EventDetailPage'
 import { ProfilePage } from '@/modules/profile/ProfilePage'
 import { NotFoundPage } from '@/modules/not-found/NotFoundPage'
 import { routes } from '@/shared/config/routes'
@@ -32,6 +34,8 @@ export const router = createBrowserRouter([
       { path: routes.dashboard, element: <DashboardPage /> },
       { path: routes.services, element: <ServicesPage /> },
       { path: `${routes.services}/:id`, element: <ServiceDetailPage /> },
+      { path: routes.events, element: <EventsPage /> },
+      { path: `${routes.events}/:id`, element: <EventDetailPage /> },
       { path: routes.profile, element: <ProfilePage /> },
     ],
   },
