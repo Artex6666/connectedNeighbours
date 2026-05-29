@@ -11,11 +11,24 @@
     "messaging": "Messaging",
     "footer": "Vision"
   },
+  "appNav": {
+    "home": "Home",
+    "services": "Services",
+    "events": "Events",
+    "profile": "Profile"
+  },
   "auth": {
     "login": "Log in",
     "register": "Sign up",
     "logout": "Log out",
     "connected": "Connected",
+    "loginSubtitle": "Welcome back to your neighborhood.",
+    "registerSubtitle": "Join your district in seconds.",
+    "noAccount": "Not registered yet?",
+    "hasAccount": "Already have an account?",
+    "errors": {
+      "generic": "An error occurred. Please try again."
+    },
     "modal": {
       "eyebrow": "Quick access",
       "close": "Close",
@@ -35,6 +48,144 @@
       "loading": "Loading...",
       "hint": "The frontend is now connected to the local development API."
     }
+  },
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save",
+    "saving": "Saving...",
+    "free": "Free",
+    "back": "Back"
+  },
+  "services": {
+    "pageTitle": "Neighborhood services",
+    "pageSubtitle": "Offer or request a service from your neighbors",
+    "publishBtn": "+ Post a listing",
+    "tabAll": "All listings",
+    "tabMine": "My listings",
+    "filterAllCategories": "All categories",
+    "filterFreeOnly": "Free only",
+    "count_one": "{{count}} listing",
+    "count_other": "{{count}} listings",
+    "emptyAll": "No listings yet. Be the first to post one!",
+    "emptyPosted": "You haven't posted any listings yet.",
+    "emptyAccepted": "You haven't accepted any services yet.",
+    "myPosted": "My posted listings ({{count}})",
+    "myAccepted": "Services I've accepted ({{count}})",
+    "backToList": "← Back to listings",
+    "publishedOn": "Posted on {{date}}",
+    "notFound": "Listing not found",
+    "status": {
+      "open": "Available",
+      "in_progress": "In progress",
+      "done": "Done",
+      "cancelled": "Cancelled",
+      "pending": "Pending"
+    },
+    "category": {
+      "bricolage": "🔨 DIY",
+      "jardinage": "🌱 Gardening",
+      "garde_animaux": "🐾 Pet care",
+      "cours_particuliers": "📚 Tutoring",
+      "demenagement": "📦 Moving",
+      "autre": "✨ Other",
+      "bricolageFull": "🔨 DIY",
+      "jardinageFull": "🌱 Gardening",
+      "garde_animauxFull": "🐾 Pet sitting",
+      "cours_particuliersFull": "📚 Private lessons",
+      "demenagementFull": "📦 Moving help",
+      "autreFull": "✨ Other"
+    },
+    "points": "{{count}} pts",
+    "actions": {
+      "accept": "✅ Accept this service",
+      "complete": "🎉 Mark as complete",
+      "contact": "💬 Contact",
+      "actionLoading": "Loading...",
+      "confirmDelete": "Delete this listing?"
+    },
+    "modal": {
+      "title": "Post a listing",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. Guitar lessons for beginners",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe your service...",
+      "categoryLabel": "Category",
+      "paid": "Paid service (in points)",
+      "pointsLabel": "Points:",
+      "submit": "Post",
+      "submitting": "Posting..."
+    }
+  },
+  "events": {
+    "pageTitle": "Neighborhood events",
+    "pageSubtitle": "Meet your neighbors at local activities",
+    "createBtn": "+ Create an event",
+    "count_one": "{{count}} upcoming event",
+    "count_other": "{{count}} upcoming events",
+    "empty": "No upcoming events. Be the first to organize one!",
+    "backToList": "← Back to events",
+    "notFound": "Event not found",
+    "participantsRatio": "{{current}}/{{max}} participants",
+    "participantsTitle": "Participants ({{count}})",
+    "waitingListTitle": "Waiting list ({{count}})",
+    "noParticipants": "No participants yet.",
+    "organizedBy": "By {{firstName}} {{lastName}}",
+    "badges": {
+      "organizer": "Organizer",
+      "registered": "Registered ✓",
+      "waiting": "Waiting list",
+      "full": "Full",
+      "spots_one": "{{count}} spot",
+      "spots_other": "{{count}} spots"
+    },
+    "cancelled": "Cancelled",
+    "actions": {
+      "join": "Join",
+      "joinFull": "Waiting list",
+      "unregister": "Unregister",
+      "unregisterWaiting": "Unregister (waiting list)",
+      "cancelEvent": "Cancel event",
+      "joinFullDetail": "Join the waiting list",
+      "confirmUnregister": "Unregister from this event?",
+      "confirmCancel": "Cancel this event? This action cannot be undone."
+    },
+    "modal": {
+      "title": "Create an event",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. Neighborhood dinner",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe your event...",
+      "dateLabel": "Date and time",
+      "maxLabel": "Max spots",
+      "locationLabel": "Location",
+      "locationPlaceholder": "e.g. Place de la République, 75011 Paris",
+      "submit": "Create",
+      "submitting": "Creating..."
+    }
+  },
+  "profile": {
+    "title": "My profile",
+    "languageSection": "Interface language",
+    "editBtn": "✏️ Edit",
+    "cancelBtn": "Cancel",
+    "saveBtn": "💾 Save",
+    "saving": "Saving...",
+    "successMsg": "Profile updated successfully!",
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address"
+    },
+    "roles": {
+      "resident": "🏠 Resident",
+      "moderator": "🛡️ Moderator",
+      "admin": "⚙️ Administrator"
+    },
+    "neighborhood": "My neighborhood"
   },
   "home": {
     "badge": "Next generation neighborhood platform",
@@ -125,6 +276,11 @@
       "futureTitle": "An evolutive foundation",
       "futureDescription": "The current structure makes it easy to add the final hero, internal pages, API and business integrations next."
     }
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}!",
+    "subtitle": "Your neighborhood space is waiting.",
+    "comingSoon": "Coming soon"
   },
   "errors": {
     "notFoundTitle": "Page not found",

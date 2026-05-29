@@ -1,17 +1,24 @@
 import { useState, useEffect } from 'react'
 import { MapContainer, Polygon, TileLayer } from 'react-leaflet'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
 import { usersApi, type UserProfile, type UpdateProfilePayload } from '@/shared/lib/api'
 import { AppLayout } from '@/shared/layout/AppLayout'
+import i18n from '@/shared/i18n'
 
-const ROLE_LABELS: Record<string, string> = {
-  resident: '🏠 Résident',
-  moderator: '🛡️ Modérateur',
-  admin: '⚙️ Administrateur',
-}
+const LANGUAGES = [
+  { code: 'fr', label: '🇫🇷 Français' },
+  { code: 'en', label: '🇬🇧 English' },
+]
 
 export function ProfilePage() {
+  const { t, i18n: i18nHook } = useTranslation()
   const { accessToken } = useAuth()
+
+  const handleLanguageChange = (code: string) => {
+    void i18n.changeLanguage(code)
+    localStorage.setItem('bobconnect_lang', code)
+  }
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
@@ -28,9 +35,9 @@ export function ProfilePage() {
         setProfile(data)
         setForm({ firstName: data.firstName, lastName: data.lastName, phone: data.phone, address: data.address })
       })
-      .catch((err) => setFetchError(err instanceof Error ? err.message : 'Erreur lors du chargement'))
+      .catch((err) => setFetchError(err instanceof Error ? err.message : t('auth.errors.generic')))
       .finally(() => setIsLoading(false))
-  }, [accessToken])
+  }, [accessToken, t])
 
   const handleSave = async () => {
     if (!accessToken) return
@@ -44,7 +51,7 @@ export function ProfilePage() {
       setSaveSuccess(true)
       setTimeout(() => setSaveSuccess(false), 3000)
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde')
+      setSaveError(err instanceof Error ? err.message : t('auth.errors.generic'))
     } finally {
       setIsSaving(false)
     }
@@ -58,7 +65,7 @@ export function ProfilePage() {
 
   if (isLoading) return (
     <AppLayout>
-      <div className="text-center py-20" style={{ color: 'var(--color-text-muted)' }}>Chargement...</div>
+      <div className="text-center py-20" style={{ color: 'var(--color-text-muted)' }}>{t('common.loading')}</div>
     </AppLayout>
   )
 
@@ -81,10 +88,17 @@ export function ProfilePage() {
       ]
     : [48.8578, 2.3812]
 
+  const FIELDS: { key: keyof UpdateProfilePayload; labelKey: string; value: string; readonly?: boolean }[] = [
+    { key: 'firstName', labelKey: 'profile.fields.firstName', value: profile.firstName },
+    { key: 'lastName', labelKey: 'profile.fields.lastName', value: profile.lastName },
+    { key: 'email' as never, labelKey: 'profile.fields.email', value: profile.email, readonly: true },
+    { key: 'phone', labelKey: 'profile.fields.phone', value: profile.phone ?? '' },
+  ]
+
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text)' }}>Mon profil</h1>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text)' }}>{t('profile.title')}</h1>
 
         {/* Profile card */}
         <div className="rounded-3xl p-8 flex flex-col gap-6" style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-strong)' }}>
@@ -103,7 +117,7 @@ export function ProfilePage() {
               </h2>
               <div className="flex items-center gap-3 mt-1">
                 <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                  {ROLE_LABELS[profile.role] ?? profile.role}
+                  {t(`profile.roles.${profile.role}`, profile.role)}
                 </span>
                 <span
                   className="text-xs font-bold px-2.5 py-1 rounded-full"
@@ -118,13 +132,13 @@ export function ProfilePage() {
               style={{ minHeight: '38px' }}
               onClick={() => { setIsEditing(!isEditing); setSaveError(null) }}
             >
-              {isEditing ? 'Annuler' : '✏️ Modifier'}
+              {isEditing ? t('profile.cancelBtn') : t('profile.editBtn')}
             </button>
           </div>
 
           {saveSuccess && (
             <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'var(--color-success-soft)', color: '#93f0c0' }}>
-              Profil mis à jour avec succès !
+              {t('profile.successMsg')}
             </div>
           )}
           {saveError && (
@@ -135,20 +149,15 @@ export function ProfilePage() {
 
           {/* Fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              { key: 'firstName', label: 'Prénom', value: profile.firstName },
-              { key: 'lastName', label: 'Nom', value: profile.lastName },
-              { key: 'email', label: 'Email', value: profile.email, readonly: true },
-              { key: 'phone', label: 'Téléphone', value: profile.phone },
-            ].map(({ key, label, value, readonly }) => (
+            {FIELDS.map(({ key, labelKey, value, readonly }) => (
               <div key={key} className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
-                  {label}
+                  {t(labelKey)}
                 </label>
                 {isEditing && !readonly ? (
                   <input
                     type="text"
-                    value={form[key as keyof UpdateProfilePayload] ?? value}
+                    value={form[key] ?? value}
                     onChange={(e) => setForm(p => ({ ...p, [key]: e.target.value }))}
                     className="h-11 px-4 rounded-xl outline-none"
                     style={inputStyle}
@@ -163,7 +172,7 @@ export function ProfilePage() {
 
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
-                Adresse
+                {t('profile.fields.address')}
               </label>
               {isEditing ? (
                 <input
@@ -181,16 +190,40 @@ export function ProfilePage() {
 
           {isEditing && (
             <button className="button" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? 'Enregistrement...' : '💾 Enregistrer'}
+              {isSaving ? t('profile.saving') : t('profile.saveBtn')}
             </button>
           )}
+        </div>
+
+        {/* Language card */}
+        <div className="rounded-3xl p-6 flex flex-col gap-4" style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-strong)' }}>
+          <span className="eyebrow">{t('profile.languageSection')}</span>
+          <div className="flex gap-2">
+            {LANGUAGES.map(({ code, label }) => {
+              const isActive = i18nHook.language === code
+              return (
+                <button
+                  key={code}
+                  onClick={() => handleLanguageChange(code)}
+                  className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                  style={{
+                    background: isActive ? 'var(--color-primary-soft)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${isActive ? 'var(--color-border-strong)' : 'var(--color-border)'}`,
+                    color: isActive ? 'var(--color-text)' : 'var(--color-text-muted)',
+                  }}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         {/* Neighborhood card */}
         {neighborhood && (
           <div className="rounded-3xl p-6 flex flex-col gap-4" style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-strong)' }}>
             <div className="flex items-center gap-3">
-              <span className="eyebrow">Mon quartier</span>
+              <span className="eyebrow">{t('profile.neighborhood')}</span>
               <h2 className="text-lg font-bold m-0 ml-1" style={{ color: 'var(--color-text)' }}>
                 {neighborhood.name}
               </h2>

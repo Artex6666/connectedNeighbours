@@ -6,7 +6,7 @@ import { routes } from '@/shared/config/routes'
 
 const modules = [
   { icon: '🤝', titleKey: 'home.sections.services.title', descKey: 'home.sections.services.description', href: routes.services, available: true },
-  { icon: '📅', titleKey: 'home.sections.events.title', descKey: 'home.sections.events.description', href: routes.events, available: false },
+  { icon: '📅', titleKey: 'home.sections.events.title', descKey: 'home.sections.events.description', href: routes.events, available: true },
   { icon: '💬', titleKey: 'home.sections.messaging.title', descKey: 'home.sections.messaging.description', href: '#', available: false },
   { icon: '📄', titleKey: 'home.sections.documents.title', descKey: 'home.sections.documents.description', href: '#', available: false },
 ]

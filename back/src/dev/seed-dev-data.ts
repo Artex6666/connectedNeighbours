@@ -3,6 +3,7 @@ import Message from '../models/Message.model';
 import User from '../models/User.model';
 import Neighborhood from '../models/Neighborhood.model';
 import Service from '../models/Service.model';
+import Event from '../models/Event.model';
 
 function createConversationId(a: string, b: string) {
   return [a, b].sort().join('__');
@@ -10,11 +11,19 @@ function createConversationId(a: string, b: string) {
 
 export async function ensureDevSeedData() {
   const usersCount = await User.countDocuments();
-  if (usersCount > 0) return;
 
+  if (usersCount === 0) {
+    await seedUsersAndBase();
+  }
+
+  await seedEventsIfMissing();
+}
+
+// ─── Users, neighborhood, services, messages ──────────────────────────────────
+
+async function seedUsersAndBase() {
   const hashedPassword = await bcrypt.hash('bobconnect123', 10);
 
-  // ── Create admin first (needed for neighborhood adminId) ──────────────────
   const admin = await User.create({
     firstName: 'Alice', lastName: 'Bernard',
     email: 'admin@bobconnect.fr', password: hashedPassword,
@@ -22,7 +31,6 @@ export async function ensureDevSeedData() {
     role: 'admin', points: 100, isVerified: true,
   });
 
-  // ── Neighborhood ──────────────────────────────────────────────────────────
   const neighborhood = await Neighborhood.create({
     name: 'Paris 11e — République / Bastille',
     description: 'Quartier entre République et Bastille, Paris 11e arrondissement.',
@@ -39,10 +47,8 @@ export async function ensureDevSeedData() {
     adminId: admin._id,
   });
 
-  // Assign neighborhood to admin
   await User.findByIdAndUpdate(admin._id, { neighborhoodId: neighborhood._id });
 
-  // ── Other users ───────────────────────────────────────────────────────────
   const [jean, camille, nassim, sarah] = await User.create([
     {
       firstName: 'Jean', lastName: 'Dupont',
@@ -74,7 +80,6 @@ export async function ensureDevSeedData() {
     },
   ]);
 
-  // ── Services ──────────────────────────────────────────────────────────────
   await Service.insertMany([
     {
       title: 'Cours de guitare — débutants bienvenus',
@@ -108,7 +113,6 @@ export async function ensureDevSeedData() {
     },
   ]);
 
-  // ── Messages ──────────────────────────────────────────────────────────────
   const now = Date.now();
   await Message.insertMany([
     {
@@ -131,5 +135,79 @@ export async function ensureDevSeedData() {
     },
   ]);
 
-  console.log('[seed] Demo data created (neighborhood + users + services + messages)');
+  console.log('[seed] Base data created (neighborhood + users + services + messages)');
+}
+
+// ─── Events (incrémental — s'exécute même si les users existent déjà) ─────────
+
+async function seedEventsIfMissing() {
+  const eventsCount = await Event.countDocuments();
+  if (eventsCount > 0) return;
+
+  // Récupère les users de démo par email
+  const [nassim, camille, jean, sarah] = await Promise.all([
+    User.findOne({ email: 'nassim@bobconnect.fr' }),
+    User.findOne({ email: 'camille@bobconnect.fr' }),
+    User.findOne({ email: 'jean@bobconnect.fr' }),
+    User.findOne({ email: 'sarah@bobconnect.fr' }),
+  ]);
+
+  if (!nassim || !camille || !jean || !sarah) {
+    console.warn('[seed] Users de démo introuvables, skip events');
+    return;
+  }
+
+  const neighborhoodId = nassim.neighborhoodId;
+  if (!neighborhoodId) {
+    console.warn('[seed] Quartier introuvable sur nassim, skip events');
+    return;
+  }
+
+  const today = new Date();
+  const days = (n: number) => new Date(today.getTime() + n * 24 * 60 * 60 * 1000);
+
+  await Event.insertMany([
+    {
+      title: 'Repas de quartier — Place Léon Blum',
+      description: 'Grande tablée conviviale pour se retrouver entre voisins. Chacun apporte un plat à partager. Boissons et couverts fournis.',
+      date: days(5),
+      location: 'Place Léon Blum, 75011 Paris',
+      maxParticipants: 40,
+      organizerId: nassim._id,
+      neighborhoodId,
+      participants: [nassim._id, camille._id],
+    },
+    {
+      title: 'Atelier jardinage partagé',
+      description: 'Venez apprendre à faire pousser des herbes aromatiques sur votre balcon. Graines et pots fournis, amenez vos gants !',
+      date: days(12),
+      location: 'Jardin partagé Saint-Ambroise, 75011 Paris',
+      maxParticipants: 15,
+      organizerId: camille._id,
+      neighborhoodId,
+      participants: [camille._id, sarah._id],
+    },
+    {
+      title: 'Collecte de vêtements solidaire',
+      description: 'Nous organisons une collecte de vêtements pour les associations locales. Apportez vos dons entre 10h et 17h.',
+      date: days(3),
+      location: 'Salle polyvalente, 23 rue de la Roquette, 75011 Paris',
+      maxParticipants: 20,
+      organizerId: nassim._id,
+      neighborhoodId,
+      participants: [nassim._id, camille._id, sarah._id],
+    },
+    {
+      title: 'Tournoi de pétanque du quartier',
+      description: 'Tournoi amical ouvert à tous ! Équipes de 2 personnes. Inscription sur place. Petite collation offerte aux participants.',
+      date: days(19),
+      location: 'Square de la République, 75011 Paris',
+      maxParticipants: 24,
+      organizerId: jean._id,
+      neighborhoodId,
+      participants: [jean._id],
+    },
+  ]);
+
+  console.log('[seed] Events de démo créés (4 événements)');
 }
