@@ -4,7 +4,9 @@ import { success, error } from '../utils/response.utils';
 import User from '../models/User.model';
 
 export async function getMe(req: Request, res: Response) {
-  const user = await User.findById(req.user!._id).select('-password -mfaSecret');
+  const user = await User.findById(req.user!._id)
+    .select('-password -mfaSecret')
+    .populate('neighborhoodId', 'name description polygon');
   if (!user) return error(res, 'Utilisateur introuvable', 404);
   return success(res, user);
 }

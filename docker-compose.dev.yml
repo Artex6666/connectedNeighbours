@@ -8,7 +8,7 @@ services:
     volumes:
       - mongodb_dev_data:/data/db
     environment:
-      MONGO_INITDB_DATABASE: connectedneighbours
+      MONGO_INITDB_DATABASE: bobconnect
 
   # Neo4j is disabled in dev by default (NEO4J_ENABLED=false in .env)
   # Uncomment when working on the recommendations/social graph feature

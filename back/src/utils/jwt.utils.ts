@@ -7,6 +7,7 @@ export interface JwtPayload {
   id: string;
   email: string;
   role: string;
+  neighborhoodId?: string;
 }
 
 /** Access token — short-lived (15 minutes) */

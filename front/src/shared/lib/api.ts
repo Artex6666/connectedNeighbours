@@ -131,6 +131,105 @@ export const authApi = {
   },
 }
 
+// ─── Users API ───────────────────────────────────────────────────────────────
+
+export type UserProfile = AuthUser & {
+  phone: string
+  address: string
+  points: number
+  isVerified: boolean
+  neighborhoodId?: {
+    _id: string
+    name: string
+    description: string
+    polygon: { type: 'Polygon'; coordinates: number[][][] }
+  }
+}
+
+export type UpdateProfilePayload = {
+  firstName?: string
+  lastName?: string
+  phone?: string
+  address?: string
+  password?: string
+}
+
+export const usersApi = {
+  async getMe(token: string) {
+    return apiRequest<UserProfile>('/users/me', undefined, token)
+  },
+  async updateMe(token: string, payload: UpdateProfilePayload) {
+    return apiRequest<UserProfile>('/users/me', { method: 'PUT', body: JSON.stringify(payload) }, token)
+  },
+}
+
+// ─── Services API ────────────────────────────────────────────────────────────
+
+export type ServiceCategory = 'bricolage' | 'jardinage' | 'garde_animaux' | 'cours_particuliers' | 'demenagement' | 'autre'
+export type ServiceStatus = 'open' | 'pending' | 'in_progress' | 'done' | 'cancelled'
+
+export type Service = {
+  _id: string
+  title: string
+  description: string
+  category: ServiceCategory
+  isPaid: boolean
+  points: number
+  authorId: { _id: string; firstName: string; lastName: string; role: string; points: number }
+  neighborhoodId: string
+  status: ServiceStatus
+  photos: string[]
+  createdAt: string
+  updatedAt: string
+}
+
+export type CreateServicePayload = {
+  title: string
+  description: string
+  category: ServiceCategory
+  isPaid: boolean
+  points?: number
+}
+
+export const servicesApi = {
+  async list(token: string, filters?: { category?: ServiceCategory; status?: ServiceStatus; isPaid?: boolean }) {
+    const params = new URLSearchParams()
+    if (filters?.category) params.set('category', filters.category)
+    if (filters?.status) params.set('status', filters.status)
+    if (filters?.isPaid !== undefined) params.set('isPaid', String(filters.isPaid))
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return apiRequest<Service[]>(`/services${query}`, undefined, token)
+  },
+
+  async get(token: string, id: string) {
+    return apiRequest<Service>(`/services/${id}`, undefined, token)
+  },
+
+  async create(token: string, payload: CreateServicePayload) {
+    return apiRequest<Service>('/services', { method: 'POST', body: JSON.stringify(payload) }, token)
+  },
+
+  async update(token: string, id: string, payload: Partial<CreateServicePayload>) {
+    return apiRequest<Service>(`/services/${id}`, { method: 'PUT', body: JSON.stringify(payload) }, token)
+  },
+
+  async delete(token: string, id: string) {
+    return apiRequest(`/services/${id}`, { method: 'DELETE' }, token)
+  },
+
+  async accept(token: string, id: string) {
+    return apiRequest<Service>(`/services/${id}/accept`, { method: 'POST' }, token)
+  },
+
+  async complete(token: string, id: string) {
+    return apiRequest<Service>(`/services/${id}/complete`, { method: 'POST' }, token)
+  },
+
+  async mine(token: string) {
+    return apiRequest<{ posted: Service[]; accepted: Service[] }>('/services/mine', undefined, token)
+  },
+}
+
 // ─── Messages API ─────────────────────────────────────────────────────────────
 
 export const messagesApi = {
