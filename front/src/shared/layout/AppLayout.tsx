@@ -27,7 +27,7 @@ export function AppLayout({ children }: Props) {
       >
         <div className="mx-auto px-4 flex items-center gap-6" style={{ maxWidth: 'var(--container-width)' }}>
           <Link to={routes.home} className="brand shrink-0">
-            <span className="brand__mark">CN</span>
+            <span className="brand__mark">BC</span>
           </Link>
 
           <nav className="flex items-center gap-1 flex-1">

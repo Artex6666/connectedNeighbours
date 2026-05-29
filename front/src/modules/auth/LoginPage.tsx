@@ -43,7 +43,7 @@ export function LoginPage() {
       >
         {/* Brand */}
         <Link to={routes.home} className="inline-flex items-center gap-3 mb-8">
-          <span className="brand__mark">CN</span>
+          <span className="brand__mark">BC</span>
           <span className="font-semibold" style={{ color: 'var(--color-text)' }}>
             Connected Neighbours
           </span>
