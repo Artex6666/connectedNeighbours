@@ -13,7 +13,7 @@ RUN pnpm install --frozen-lockfile
 COPY back/tsconfig.json ./back/
 COPY back/src ./back/src
 
-RUN pnpm --filter back run build
+RUN pnpm --filter bobconnect-api run build
 
 # ── Production image ──────────────────────────────────────────────────────────
 
@@ -29,6 +29,8 @@ COPY back/package.json ./back/
 RUN pnpm install --frozen-lockfile --prod
 
 COPY --from=build /app/back/dist ./back/dist
+
+COPY back/src ./back/src
 
 WORKDIR /app/back
 
