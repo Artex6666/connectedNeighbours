@@ -3,7 +3,7 @@ import * as documentsController from '../controllers/documents.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { mfaMiddleware } from '../middlewares/mfa.middleware';
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authMiddleware);
 

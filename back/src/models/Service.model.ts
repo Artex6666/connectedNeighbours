@@ -17,6 +17,7 @@ export interface IService extends Document {
   isPaid: boolean;
   points: number;
   authorId: Types.ObjectId;
+  accepterId?: Types.ObjectId;
   neighborhoodId: Types.ObjectId;
   status: ServiceStatus;
   photos: string[];
@@ -36,6 +37,7 @@ const ServiceSchema = new Schema<IService>(
     isPaid: { type: Boolean, default: false },
     points: { type: Number, default: 0, min: 0 },
     authorId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    accepterId: { type: Schema.Types.ObjectId, ref: 'User' },
     neighborhoodId: { type: Schema.Types.ObjectId, ref: 'Neighborhood', required: true },
     status: {
       type: String,

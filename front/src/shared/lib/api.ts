@@ -1,5 +1,7 @@
 import { apiBaseUrl } from '@/shared/config/env'
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 export type AuthUser = {
   _id: string
   firstName: string
@@ -7,11 +9,12 @@ export type AuthUser = {
   email: string
   phone?: string
   address?: string
-  role: string
+  role: 'resident' | 'moderator' | 'admin'
 }
 
 export type AuthSession = {
-  token: string
+  accessToken: string
+  refreshToken: string
   user: AuthUser
 }
 
@@ -52,15 +55,10 @@ export type ConversationDetails = {
   messages: ConversationMessage[]
 }
 
-type ApiSuccessResponse<T> = {
-  success: true
-  data: T
-}
+type ApiSuccessResponse<T> = { success: true; data: T }
+type ApiErrorResponse = { success: false; message?: string }
 
-type ApiErrorResponse = {
-  success: false
-  message?: string
-}
+// ─── Core request ─────────────────────────────────────────────────────────────
 
 async function apiRequest<T>(path: string, init?: RequestInit, token?: string): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
@@ -76,38 +74,35 @@ async function apiRequest<T>(path: string, init?: RequestInit, token?: string): 
 
   if (!response.ok || !('success' in payload) || !payload.success) {
     throw new Error(
-      'message' in payload && payload.message ? payload.message : 'Une erreur API est survenue.',
+      'message' in payload && payload.message ? payload.message : 'An API error occurred.',
     )
   }
 
   return payload.data
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 function splitFullName(fullName: string) {
   const trimmed = fullName.trim()
-  if (!trimmed) {
-    return { firstName: '', lastName: '' }
-  }
-
+  if (!trimmed) return { firstName: '', lastName: '' }
   const parts = trimmed.split(/\s+/)
   const [firstName, ...rest] = parts
-
-  return {
-    firstName,
-    lastName: rest.join(' ') || firstName,
-  }
+  return { firstName, lastName: rest.join(' ') || firstName }
 }
 
+// ─── Auth API ─────────────────────────────────────────────────────────────────
+
 export const authApi = {
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<AuthSession> {
     return apiRequest<AuthSession>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     })
   },
-  async register(payload: AuthFormPayload) {
-    const { firstName, lastName } = splitFullName(payload.fullName)
 
+  async register(payload: AuthFormPayload): Promise<AuthUser> {
+    const { firstName, lastName } = splitFullName(payload.fullName)
     return apiRequest<AuthUser>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({
@@ -120,7 +115,185 @@ export const authApi = {
       }),
     })
   },
+
+  async refresh(refreshToken: string): Promise<{ accessToken: string }> {
+    return apiRequest<{ accessToken: string }>('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    })
+  },
+
+  async logout(refreshToken: string): Promise<void> {
+    return apiRequest('/auth/logout', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    })
+  },
 }
+
+// ─── Users API ───────────────────────────────────────────────────────────────
+
+export type UserProfile = AuthUser & {
+  phone: string
+  address: string
+  points: number
+  isVerified: boolean
+  neighborhoodId?: {
+    _id: string
+    name: string
+    description: string
+    polygon: { type: 'Polygon'; coordinates: number[][][] }
+  }
+}
+
+export type UpdateProfilePayload = {
+  firstName?: string
+  lastName?: string
+  phone?: string
+  address?: string
+  password?: string
+}
+
+export const usersApi = {
+  async getMe(token: string) {
+    return apiRequest<UserProfile>('/users/me', undefined, token)
+  },
+  async updateMe(token: string, payload: UpdateProfilePayload) {
+    return apiRequest<UserProfile>('/users/me', { method: 'PUT', body: JSON.stringify(payload) }, token)
+  },
+}
+
+// ─── Services API ────────────────────────────────────────────────────────────
+
+export type ServiceCategory = 'bricolage' | 'jardinage' | 'garde_animaux' | 'cours_particuliers' | 'demenagement' | 'autre'
+export type ServiceStatus = 'open' | 'pending' | 'in_progress' | 'done' | 'cancelled'
+
+export type Service = {
+  _id: string
+  title: string
+  description: string
+  category: ServiceCategory
+  isPaid: boolean
+  points: number
+  authorId: { _id: string; firstName: string; lastName: string; role: string; points: number }
+  neighborhoodId: string
+  status: ServiceStatus
+  photos: string[]
+  createdAt: string
+  updatedAt: string
+}
+
+export type CreateServicePayload = {
+  title: string
+  description: string
+  category: ServiceCategory
+  isPaid: boolean
+  points?: number
+}
+
+export const servicesApi = {
+  async list(token: string, filters?: { category?: ServiceCategory; status?: ServiceStatus; isPaid?: boolean }) {
+    const params = new URLSearchParams()
+    if (filters?.category) params.set('category', filters.category)
+    if (filters?.status) params.set('status', filters.status)
+    if (filters?.isPaid !== undefined) params.set('isPaid', String(filters.isPaid))
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return apiRequest<Service[]>(`/services${query}`, undefined, token)
+  },
+
+  async get(token: string, id: string) {
+    return apiRequest<Service>(`/services/${id}`, undefined, token)
+  },
+
+  async create(token: string, payload: CreateServicePayload) {
+    return apiRequest<Service>('/services', { method: 'POST', body: JSON.stringify(payload) }, token)
+  },
+
+  async update(token: string, id: string, payload: Partial<CreateServicePayload>) {
+    return apiRequest<Service>(`/services/${id}`, { method: 'PUT', body: JSON.stringify(payload) }, token)
+  },
+
+  async delete(token: string, id: string) {
+    return apiRequest(`/services/${id}`, { method: 'DELETE' }, token)
+  },
+
+  async accept(token: string, id: string) {
+    return apiRequest<Service>(`/services/${id}/accept`, { method: 'POST' }, token)
+  },
+
+  async complete(token: string, id: string) {
+    return apiRequest<Service>(`/services/${id}/complete`, { method: 'POST' }, token)
+  },
+
+  async mine(token: string) {
+    return apiRequest<{ posted: Service[]; accepted: Service[] }>('/services/mine', undefined, token)
+  },
+}
+
+// ─── Events API ───────────────────────────────────────────────────────────────
+
+export type EventParticipant = {
+  _id: string
+  firstName: string
+  lastName: string
+  role: string
+}
+
+export type Event = {
+  _id: string
+  title: string
+  description: string
+  date: string
+  location: string
+  maxParticipants: number
+  organizerId: EventParticipant
+  neighborhoodId: string
+  participants: EventParticipant[]
+  waitingList: EventParticipant[]
+  isCancelled: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export type CreateEventPayload = {
+  title: string
+  description: string
+  date: string
+  location: string
+  maxParticipants: number
+}
+
+export const eventsApi = {
+  async list(token: string) {
+    return apiRequest<Event[]>('/events', undefined, token)
+  },
+
+  async get(token: string, id: string) {
+    return apiRequest<Event>(`/events/${id}`, undefined, token)
+  },
+
+  async create(token: string, payload: CreateEventPayload) {
+    return apiRequest<Event>('/events', { method: 'POST', body: JSON.stringify(payload) }, token)
+  },
+
+  async update(token: string, id: string, payload: Partial<CreateEventPayload>) {
+    return apiRequest<Event>(`/events/${id}`, { method: 'PUT', body: JSON.stringify(payload) }, token)
+  },
+
+  async cancel(token: string, id: string) {
+    return apiRequest(`/events/${id}`, { method: 'DELETE' }, token)
+  },
+
+  async register(token: string, id: string) {
+    return apiRequest<Event>(`/events/${id}/register`, { method: 'POST' }, token)
+  },
+
+  async unregister(token: string, id: string) {
+    return apiRequest<Event>(`/events/${id}/register`, { method: 'DELETE' }, token)
+  },
+}
+
+// ─── Messages API ─────────────────────────────────────────────────────────────
 
 export const messagesApi = {
   async list(token: string) {
@@ -136,10 +309,7 @@ export const messagesApi = {
   ) {
     return apiRequest<ConversationMessage>(
       `/messages/${userId}`,
-      {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      },
+      { method: 'POST', body: JSON.stringify(payload) },
       token,
     )
   },

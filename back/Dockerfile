@@ -1,24 +1,37 @@
 FROM node:20-alpine AS build
 
+RUN npm install -g pnpm@10.33.0
+
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+# Copy workspace config first for better layer caching
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY back/package.json ./back/
 
-COPY tsconfig.json ./
-COPY src ./src
+RUN pnpm install --frozen-lockfile
 
-RUN npm run build
+COPY back/tsconfig.json ./back/
+COPY back/src ./back/src
+
+RUN pnpm --filter back run build
+
+# ── Production image ──────────────────────────────────────────────────────────
 
 FROM node:20-alpine AS production
 
+RUN npm install -g pnpm@10.33.0
+
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --omit=dev
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY back/package.json ./back/
 
-COPY --from=build /app/dist ./dist
+RUN pnpm install --frozen-lockfile --prod
+
+COPY --from=build /app/back/dist ./back/dist
+
+WORKDIR /app/back
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]

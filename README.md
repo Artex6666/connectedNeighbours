@@ -1,41 +1,61 @@
-# BobConnect
+# Connected Neighbours — "Voisins, services et bonne humeur"
 
-Monorepo en preparation pour la plateforme de quartier BobConnect.
+Plateforme collaborative de quartier permettant aux habitants d'échanger des services, signer des documents numériques, participer à des événements et communiquer via une messagerie multimédia.
 
-## Structure
+## Structure du projet
 
-- `back/` : API Node.js + TypeScript + Express
-- `front/` : application web React + TypeScript + Vite
-- `externals/` : Documentation et références techniques.
+```
+connectedNeighbours/
+├── back/          # API Node.js + Express + TypeScript
+├── front/         # Client Web React + Vite (utilisateurs)
+├── desktop/       # Application Java JavaFX (administrateur)
+├── externals/     # Documentation fonctionnelle et technique
+└── docker-compose.yml
+```
 
-## Commandes
+## Stack technique
 
-Depuis la racine du repo :
+| Composant | Technologies |
+|-----------|-------------|
+| **Backend** | Node.js, Express, TypeScript, MongoDB, Neo4j |
+| **Frontend** | React 19, Vite, TypeScript, Leaflet, i18next |
+| **Desktop** | Java 21, JavaFX, Maven, SQLite (offline) |
+| **DevOps** | Docker, Docker Compose |
 
-- `npm run dev` : lance le back et le front ensemble
-- `npm run dev:back` : lance l'API avec Mongo local
-- `npm run dev:front` : lance le front
-- `npm run build` : build back + front
-- `npm run lint` : lint du front
-- `npm run typecheck` : verification TypeScript du front
-- `npm run test` : tests front + back
+## Démarrage rapide
 
-## Developpement local
+### Prérequis
+- Node.js 20+, pnpm 10+
+- Docker + Docker Compose
+- Java 21+ (pour le client desktop)
 
-Le back tourne par defaut avec Mongo local sur `mongodb://127.0.0.1:27017/bobconnect`.
-Neo4j est desactive en local par defaut.
-Si la base est vide, un seed de demo est insere automatiquement au premier lancement.
+### Développement local
 
-Compte de demo disponible :
+```bash
+# Backend + Frontend ensemble
+pnpm dev
 
-- `jean@bobconnect.fr`
-- `bobconnect123`
+# Ou séparément
+pnpm dev:back
+pnpm dev:front
+```
 
-Le front consomme l'API sur `http://localhost:3000/api/v1`.
+Le back tourne par défaut avec Mongo local sur `mongodb://127.0.0.1:27017/bobconnect`.
+Neo4j est désactivé en local par défaut.
+Si la base est vide, un seed de démo est inséré automatiquement au premier lancement.
 
-## Docker
+### Avec Docker (environnement complet)
 
-Builds separes :
+```bash
+docker compose up --build
+```
 
-- `npm run docker:build:front`
-- `npm run docker:build:back`
+## Documentation API
+
+Swagger disponible sur : `http://localhost:3000/api-docs`
+
+## Comptes de démonstration
+
+| Rôle | Email | Mot de passe |
+|------|-------|--------------|
+| Résident | jean@bobconnect.fr | bobconnect123 |

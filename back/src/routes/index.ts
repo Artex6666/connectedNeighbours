@@ -8,7 +8,7 @@ import messagesRoutes from './messages.routes';
 import votesRoutes from './votes.routes';
 import documentsRoutes from './documents.routes';
 
-const router = Router();
+const router: Router = Router();
 
 router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);

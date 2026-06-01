@@ -2,12 +2,6 @@ import { Request, Response } from 'express';
 import Message from '../models/Message.model';
 import User from '../models/User.model';
 import { success, error } from '../utils/response.utils';
-import { isInMemoryMode } from '../config/runtime';
-import {
-  getInMemoryConversation,
-  listInMemoryConversations,
-  sendInMemoryMessage,
-} from '../dev/in-memory-store';
 
 function createConversationId(firstUserId: string, secondUserId: string) {
   return [firstUserId, secondUserId].sort().join('__');
@@ -18,10 +12,6 @@ function createAvatar(firstName: string, lastName: string) {
 }
 
 export async function listConversations(req: Request, res: Response) {
-  if (isInMemoryMode()) {
-    return success(res, listInMemoryConversations(req.user!._id.toString()));
-  }
-
   const currentUserId = req.user!._id.toString();
   const messages = await Message.find({
     $or: [{ senderId: currentUserId }, { receiverId: currentUserId }],
@@ -74,15 +64,6 @@ export async function listConversations(req: Request, res: Response) {
 }
 
 export async function getConversation(req: Request, res: Response) {
-  if (isInMemoryMode()) {
-    const conversation = getInMemoryConversation(req.user!._id.toString(), req.params.userId);
-    if (!conversation) {
-      return error(res, 'Conversation introuvable', 404);
-    }
-
-    return success(res, conversation);
-  }
-
   const currentUserId = req.user!._id.toString();
   const participant = await User.findById(req.params.userId).select('firstName lastName role').lean();
   if (!participant) {
@@ -112,23 +93,6 @@ export async function getConversation(req: Request, res: Response) {
 }
 
 export async function sendMessage(req: Request, res: Response) {
-  if (isInMemoryMode()) {
-    const { content, type = 'text' } = req.body;
-
-    if (!content) {
-      return error(res, 'Le contenu du message est requis', 400);
-    }
-
-    const message = sendInMemoryMessage({
-      senderId: req.user!._id.toString(),
-      receiverId: req.params.userId,
-      content,
-      type,
-    });
-
-    return success(res, message, 201);
-  }
-
   const { content, type = 'text' } = req.body;
   if (!content) {
     return error(res, 'Le contenu du message est requis', 400);
@@ -163,10 +127,6 @@ export async function sendMessage(req: Request, res: Response) {
 }
 
 export async function deleteMessage(req: Request, res: Response) {
-  if (isInMemoryMode()) {
-    return success(res, { message: 'deleteMessage — not implemented' });
-  }
-
   const deletedMessage = await Message.findOneAndDelete({
     _id: req.params.id,
     senderId: req.user!._id,

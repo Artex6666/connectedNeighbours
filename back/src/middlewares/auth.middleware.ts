@@ -13,7 +13,12 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
 
   try {
     const payload = verifyToken(token);
-    req.user = { _id: payload.id as never, email: payload.email, role: payload.role as never };
+    req.user = {
+      _id: payload.id as never,
+      email: payload.email,
+      role: payload.role as never,
+      neighborhoodId: payload.neighborhoodId as never,
+    };
     return next();
   } catch {
     return error(res, 'Invalid or expired token', 401);
