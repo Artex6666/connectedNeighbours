@@ -332,13 +332,137 @@
           "description": "Superviser et annuler les événements du quartier."
         },
         "incidents": {
-          "title": "Incidents & alertes",
-          "description": "Suivre les signalements et publier des alertes."
+          "title": "Incidents",
+          "description": "Suivre les signalements remontés par les voisins."
+        },
+        "alertes": {
+          "title": "Alertes",
+          "description": "Publier des annonces importantes aux habitants du quartier."
         },
         "votes": {
           "title": "Votes",
           "description": "Créer et suivre les votes du quartier."
         }
+      }
+    },
+    "users": {
+      "title": "Gestion des utilisateurs",
+      "subtitle": "Lister, filtrer, changer les rôles, rattacher à un quartier ou supprimer.",
+      "searchPlaceholder": "Rechercher par nom ou email…",
+      "filterAllRoles": "Tous les rôles",
+      "noNeighborhood": "Sans quartier",
+      "confirmDelete": "Supprimer définitivement ce compte ?",
+      "cannotEditSelf": "Vous ne pouvez pas modifier votre propre compte",
+      "empty": "Aucun utilisateur ne correspond aux filtres.",
+      "count_one": "{{count}} utilisateur",
+      "count_other": "{{count}} utilisateurs",
+      "col": {
+        "name": "Nom",
+        "email": "Email",
+        "role": "Rôle",
+        "neighborhood": "Quartier",
+        "points": "Points",
+        "actions": "Actions"
+      }
+    },
+    "services": {
+      "title": "Modération des services",
+      "subtitle": "Tous les services publiés, tous quartiers confondus.",
+      "filterAllStatus": "Tous les statuts",
+      "confirmDelete": "Supprimer ce service ?",
+      "empty": "Aucun service ne correspond aux filtres.",
+      "count_one": "{{count}} service",
+      "count_other": "{{count}} services",
+      "col": {
+        "title": "Titre",
+        "author": "Auteur",
+        "category": "Catégorie",
+        "status": "Statut",
+        "points": "Prix",
+        "actions": "Actions"
+      }
+    },
+    "events": {
+      "title": "Modération des événements",
+      "subtitle": "Tous les événements (actifs et annulés), tous quartiers confondus.",
+      "confirmCancel": "Annuler cet événement ?",
+      "empty": "Aucun événement.",
+      "statusActive": "Actif",
+      "count_one": "{{count}} événement",
+      "count_other": "{{count}} événements",
+      "col": {
+        "title": "Titre",
+        "organizer": "Organisateur",
+        "date": "Date",
+        "location": "Lieu",
+        "participants": "Inscrits",
+        "status": "Statut",
+        "actions": "Actions"
+      }
+    },
+    "incidents": {
+      "title": "Gestion des incidents",
+      "subtitle": "Suivi des signalements remontés par les habitants.",
+      "create": "Nouvel incident",
+      "filterAllStatus": "Tous les statuts",
+      "confirmDelete": "Supprimer cet incident ?",
+      "empty": "Aucun incident pour le moment.",
+      "count_one": "{{count}} incident",
+      "count_other": "{{count}} incidents",
+      "status": {
+        "open": "Ouvert",
+        "in_progress": "En cours",
+        "resolved": "Résolu"
+      },
+      "priority": {
+        "low": "Faible",
+        "medium": "Moyenne",
+        "high": "Élevée"
+      },
+      "col": {
+        "title": "Titre",
+        "priority": "Priorité",
+        "status": "Statut",
+        "createdAt": "Créé le",
+        "actions": "Actions"
+      },
+      "modal": {
+        "eyebrow": "Nouveau",
+        "title": "Créer un incident",
+        "titleLabel": "Titre",
+        "descriptionLabel": "Description",
+        "priorityLabel": "Priorité"
+      },
+      "errors": {
+        "fieldsRequired": "Titre et description sont obligatoires."
+      }
+    },
+    "alertes": {
+      "title": "Gestion des alertes",
+      "subtitle": "Diffusez des annonces importantes aux habitants.",
+      "create": "Nouvelle alerte",
+      "empty": "Aucune alerte publiée.",
+      "confirmDelete": "Supprimer cette alerte ?",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Modifier",
+      "level": {
+        "info": "Info",
+        "warning": "Attention",
+        "danger": "Critique"
+      },
+      "modal": {
+        "createEyebrow": "Nouvelle alerte",
+        "createTitle": "Publier une alerte",
+        "editEyebrow": "Modification",
+        "editTitle": "Modifier l'alerte",
+        "titleLabel": "Titre",
+        "messageLabel": "Message",
+        "levelLabel": "Niveau",
+        "activeLabel": "Alerte active immédiatement"
+      },
+      "errors": {
+        "fieldsRequired": "Titre et message sont obligatoires."
       }
     },
     "neighborhoods": {

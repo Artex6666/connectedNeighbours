@@ -14,6 +14,11 @@ import { EventDetailPage } from '@/modules/events/EventDetailPage'
 import { ProfilePage } from '@/modules/profile/ProfilePage'
 import { AdminDashboardPage } from '@/modules/admin/AdminDashboardPage'
 import { AdminNeighborhoodsPage } from '@/modules/admin/neighborhoods/AdminNeighborhoodsPage'
+import { AdminUsersPage } from '@/modules/admin/AdminUsersPage'
+import { AdminServicesPage } from '@/modules/admin/AdminServicesPage'
+import { AdminEventsPage } from '@/modules/admin/AdminEventsPage'
+import { AdminIncidentsPage } from '@/modules/admin/AdminIncidentsPage'
+import { AdminAlertesPage } from '@/modules/admin/AdminAlertesPage'
 import { NotFoundPage } from '@/modules/not-found/NotFoundPage'
 import { routes } from '@/shared/config/routes'
 
@@ -53,6 +58,11 @@ export const router = createBrowserRouter([
         children: [
           { path: routes.admin, element: <AdminDashboardPage /> },
           { path: routes.adminNeighborhoods, element: <AdminNeighborhoodsPage /> },
+          { path: routes.adminUsers, element: <AdminUsersPage /> },
+          { path: routes.adminServices, element: <AdminServicesPage /> },
+          { path: routes.adminEvents, element: <AdminEventsPage /> },
+          { path: routes.adminIncidents, element: <AdminIncidentsPage /> },
+          { path: routes.adminAlertes, element: <AdminAlertesPage /> },
         ],
       },
     ],

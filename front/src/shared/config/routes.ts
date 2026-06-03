@@ -9,4 +9,9 @@ export const routes = {
   profile: '/profile',
   admin: '/admin',
   adminNeighborhoods: '/admin/neighborhoods',
+  adminUsers: '/admin/users',
+  adminServices: '/admin/services',
+  adminEvents: '/admin/events',
+  adminIncidents: '/admin/incidents',
+  adminAlertes: '/admin/alertes',
 } as const

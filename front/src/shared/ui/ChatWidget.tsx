@@ -85,7 +85,7 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
       setErrorMessage(null)
 
       try {
-        const nextConversations = await messagesApi.list(session.token)
+        const nextConversations = await messagesApi.list(session.accessToken)
         setConversations(nextConversations)
         setSelectedConversationId((current) => current ?? nextConversations[0]?.userId ?? null)
       } catch (error) {
@@ -105,7 +105,7 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
 
     const fetchConversation = async () => {
       try {
-        const conversation = await messagesApi.getConversation(session.token, selectedConversationId)
+        const conversation = await messagesApi.getConversation(session.accessToken, selectedConversationId)
         setActiveConversation(conversation)
       } catch (error) {
         setErrorMessage(
@@ -122,7 +122,7 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
       return
     }
 
-    const nextConversations = await messagesApi.list(session.token)
+    const nextConversations = await messagesApi.list(session.accessToken)
     setConversations(nextConversations)
     setSelectedConversationId(focusUserId ?? nextConversations[0]?.userId ?? null)
   }
@@ -132,10 +132,10 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
       return
     }
 
-    await messagesApi.sendMessage(session.token, selectedConversation.userId, { content, type })
+    await messagesApi.sendMessage(session.accessToken, selectedConversation.userId, { content, type })
     await refreshConversations(selectedConversation.userId)
 
-    const nextConversation = await messagesApi.getConversation(session.token, selectedConversation.userId)
+    const nextConversation = await messagesApi.getConversation(session.accessToken, selectedConversation.userId)
     setActiveConversation(nextConversation)
   }
 

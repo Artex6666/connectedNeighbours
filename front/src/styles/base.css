@@ -1245,6 +1245,242 @@ button {
   border-color: var(--color-primary);
 }
 
+/* ─── Admin filters / tables ────────────────────────────────────────────── */
+
+.admin-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-filter-input {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-text);
+  outline: none;
+  font: inherit;
+}
+
+.admin-filter-input:focus {
+  border-color: var(--color-primary);
+}
+
+.admin-count {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.admin-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-soft);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table th {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-table strong {
+  display: block;
+  color: var(--color-text);
+}
+
+.admin-table small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.82rem;
+}
+
+.admin-cell-muted {
+  color: var(--color-text-muted);
+}
+
+.admin-table select {
+  min-height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.admin-table select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-row-action {
+  min-height: 32px;
+  min-width: 32px;
+  padding: 0 10px;
+}
+
+.admin-row--cancelled {
+  opacity: 0.6;
+}
+
+.admin-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.admin-status--open,
+.admin-status--info {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.admin-status--in_progress,
+.admin-status--pending,
+.admin-status--warning {
+  background: rgba(255, 196, 0, 0.14);
+  color: #ffd479;
+}
+
+.admin-status--done,
+.admin-status--resolved {
+  background: var(--color-success-soft);
+  color: #93f0c0;
+}
+
+.admin-status--cancelled,
+.admin-status--danger {
+  background: rgba(255, 100, 100, 0.14);
+  color: #ffb4b4;
+}
+
+.admin-badge {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+}
+
+.admin-badge--ok {
+  background: var(--color-success-soft);
+  color: #93f0c0;
+}
+
+/* ─── Toggle ─────────────────────────────────────────────────────────────── */
+
+.admin-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.admin-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+/* ─── Alertes ──────────────────────────────────────────────────────────── */
+
+.admin-alerte-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.admin-alerte-card {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-soft);
+}
+
+.admin-alerte-card--info {
+  border-color: rgba(120, 173, 255, 0.4);
+}
+
+.admin-alerte-card--warning {
+  border-color: rgba(255, 196, 0, 0.4);
+}
+
+.admin-alerte-card--danger {
+  border-color: rgba(255, 100, 100, 0.4);
+}
+
+.admin-alerte-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-alerte-card header strong {
+  color: var(--color-text);
+  font-size: 1.05rem;
+}
+
+.admin-alerte-card p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.admin-alerte-card footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-alerte-card__actions {
+  display: flex;
+  gap: 8px;
+}
+
 /* ─── Map editor ────────────────────────────────────────────────────────── */
 
 .map-editor {

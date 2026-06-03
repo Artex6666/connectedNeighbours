@@ -332,13 +332,137 @@
           "description": "Supervise and cancel neighborhood events."
         },
         "incidents": {
-          "title": "Incidents & alerts",
-          "description": "Track reports and publish alerts."
+          "title": "Incidents",
+          "description": "Track reports from residents."
+        },
+        "alertes": {
+          "title": "Alerts",
+          "description": "Publish important announcements for neighborhood residents."
         },
         "votes": {
           "title": "Votes",
           "description": "Create and follow neighborhood votes."
         }
+      }
+    },
+    "users": {
+      "title": "User management",
+      "subtitle": "List, filter, change roles, attach to a neighborhood or delete.",
+      "searchPlaceholder": "Search by name or email…",
+      "filterAllRoles": "All roles",
+      "noNeighborhood": "No neighborhood",
+      "confirmDelete": "Permanently delete this account?",
+      "cannotEditSelf": "You cannot edit your own account",
+      "empty": "No user matches the filters.",
+      "count_one": "{{count}} user",
+      "count_other": "{{count}} users",
+      "col": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "neighborhood": "Neighborhood",
+        "points": "Points",
+        "actions": "Actions"
+      }
+    },
+    "services": {
+      "title": "Services moderation",
+      "subtitle": "All services published across every neighborhood.",
+      "filterAllStatus": "All statuses",
+      "confirmDelete": "Delete this service?",
+      "empty": "No service matches the filters.",
+      "count_one": "{{count}} service",
+      "count_other": "{{count}} services",
+      "col": {
+        "title": "Title",
+        "author": "Author",
+        "category": "Category",
+        "status": "Status",
+        "points": "Price",
+        "actions": "Actions"
+      }
+    },
+    "events": {
+      "title": "Events moderation",
+      "subtitle": "All events (active and cancelled), across every neighborhood.",
+      "confirmCancel": "Cancel this event?",
+      "empty": "No event.",
+      "statusActive": "Active",
+      "count_one": "{{count}} event",
+      "count_other": "{{count}} events",
+      "col": {
+        "title": "Title",
+        "organizer": "Organizer",
+        "date": "Date",
+        "location": "Location",
+        "participants": "Registered",
+        "status": "Status",
+        "actions": "Actions"
+      }
+    },
+    "incidents": {
+      "title": "Incidents management",
+      "subtitle": "Track reports raised by residents.",
+      "create": "New incident",
+      "filterAllStatus": "All statuses",
+      "confirmDelete": "Delete this incident?",
+      "empty": "No incident yet.",
+      "count_one": "{{count}} incident",
+      "count_other": "{{count}} incidents",
+      "status": {
+        "open": "Open",
+        "in_progress": "In progress",
+        "resolved": "Resolved"
+      },
+      "priority": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "col": {
+        "title": "Title",
+        "priority": "Priority",
+        "status": "Status",
+        "createdAt": "Created at",
+        "actions": "Actions"
+      },
+      "modal": {
+        "eyebrow": "New",
+        "title": "Create an incident",
+        "titleLabel": "Title",
+        "descriptionLabel": "Description",
+        "priorityLabel": "Priority"
+      },
+      "errors": {
+        "fieldsRequired": "Title and description are required."
+      }
+    },
+    "alertes": {
+      "title": "Alerts management",
+      "subtitle": "Broadcast important announcements to residents.",
+      "create": "New alert",
+      "empty": "No alert published.",
+      "confirmDelete": "Delete this alert?",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "level": {
+        "info": "Info",
+        "warning": "Warning",
+        "danger": "Critical"
+      },
+      "modal": {
+        "createEyebrow": "New alert",
+        "createTitle": "Publish an alert",
+        "editEyebrow": "Edit",
+        "editTitle": "Edit the alert",
+        "titleLabel": "Title",
+        "messageLabel": "Message",
+        "levelLabel": "Level",
+        "activeLabel": "Alert active immediately"
+      },
+      "errors": {
+        "fieldsRequired": "Title and message are required."
       }
     },
     "neighborhoods": {

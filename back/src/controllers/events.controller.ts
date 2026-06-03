@@ -8,9 +8,16 @@ import Event from '../models/Event.model';
 export async function listEvents(req: Request, res: Response) {
   try {
     const neighborhoodId = req.user?.neighborhoodId;
+    const { all, includeCancelled } = req.query;
+    const isAdminAll =
+      all === 'true' && (req.user?.role === 'admin' || req.user?.role === 'moderator');
+    const showCancelled =
+      includeCancelled === 'true' &&
+      (req.user?.role === 'admin' || req.user?.role === 'moderator');
 
-    const filter: Record<string, unknown> = { isCancelled: false };
-    if (neighborhoodId) filter.neighborhoodId = neighborhoodId;
+    const filter: Record<string, unknown> = {};
+    if (!showCancelled) filter.isCancelled = false;
+    if (neighborhoodId && !isAdminAll) filter.neighborhoodId = neighborhoodId;
 
     const events = await Event.find(filter)
       .populate('organizerId', 'firstName lastName role')
