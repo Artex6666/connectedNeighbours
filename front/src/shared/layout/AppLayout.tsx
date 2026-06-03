@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
 import { routes } from '@/shared/config/routes'
+import { AdminQuickButton } from '@/shared/ui/AdminQuickButton'
 
 type Props = { children: ReactNode }
 
@@ -65,6 +66,8 @@ export function AppLayout({ children }: Props) {
       <main className="flex-1 mx-auto w-full px-4 py-8" style={{ maxWidth: 'var(--container-width)' }}>
         {children}
       </main>
+
+      <AdminQuickButton />
     </div>
   )
 }

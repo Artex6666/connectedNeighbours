@@ -285,5 +285,98 @@
   "errors": {
     "notFoundTitle": "Page not found",
     "notFoundDescription": "The requested route does not exist yet in the BobConnect frontend."
+  },
+  "admin": {
+    "brand": {
+      "title": "BobConnect",
+      "subtitle": "Back office"
+    },
+    "backToApp": "Back to the app",
+    "topbar": {
+      "eyebrow": "Administrator area",
+      "greeting": "Hello {{name}}"
+    },
+    "nav": {
+      "ariaLabel": "Back office navigation",
+      "soon": "Soon",
+      "dashboard": "Dashboard",
+      "neighborhoods": "Neighborhoods",
+      "users": "Users",
+      "services": "Services",
+      "events": "Events",
+      "incidents": "Incidents",
+      "alertes": "Alerts",
+      "votes": "Votes",
+      "documents": "Documents",
+      "stats": "Statistics",
+      "rgpd": "GDPR"
+    },
+    "dashboard": {
+      "title": "Back office dashboard",
+      "subtitle": "Steer the BobConnect platform: neighborhoods, moderation and configuration.",
+      "tiles": {
+        "neighborhoods": {
+          "title": "Neighborhoods",
+          "description": "Draw polygons, manage zones and link residents."
+        },
+        "users": {
+          "title": "Users",
+          "description": "List, filter, change roles and disable accounts."
+        },
+        "services": {
+          "title": "Services",
+          "description": "Moderate the listings exchanged between neighbors."
+        },
+        "events": {
+          "title": "Events",
+          "description": "Supervise and cancel neighborhood events."
+        },
+        "incidents": {
+          "title": "Incidents & alerts",
+          "description": "Track reports and publish alerts."
+        },
+        "votes": {
+          "title": "Votes",
+          "description": "Create and follow neighborhood votes."
+        }
+      }
+    },
+    "neighborhoods": {
+      "title": "Neighborhoods management",
+      "subtitle": "Define geographic zones by drawing a polygon on the map.",
+      "create": "New neighborhood",
+      "empty": "No neighborhood defined yet.",
+      "confirmDelete": "Permanently delete this neighborhood?",
+      "card": {
+        "vertices_one": "{{count}} vertex",
+        "vertices_other": "{{count}} vertices",
+        "admin": "Admin: {{admin}}",
+        "edit": "Edit"
+      },
+      "modal": {
+        "createEyebrow": "New neighborhood",
+        "createTitle": "Define a neighborhood",
+        "editEyebrow": "Edit",
+        "editTitle": "Edit the neighborhood",
+        "nameLabel": "Neighborhood name",
+        "namePlaceholder": "e.g. Paris 11e — Bastille / République",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "A short description shown in the app."
+      },
+      "editor": {
+        "toolbarLabel": "Polygon drawing",
+        "undo": "Undo last point",
+        "clear": "Clear",
+        "hintEmpty": "Click on the map to add the first point of the polygon.",
+        "hintAddMore": "Add {{needed}} more point(s) to close the zone.",
+        "hintReady_one": "{{count}} point placed — the zone is valid.",
+        "hintReady_other": "{{count}} points placed — the zone is valid.",
+        "legend": "Tip: double-click a vertex to remove it. Greyed areas are existing neighborhoods."
+      },
+      "errors": {
+        "nameRequired": "The neighborhood name is required.",
+        "polygonTooSmall": "The polygon must have at least 3 points."
+      }
+    }
   }
 }

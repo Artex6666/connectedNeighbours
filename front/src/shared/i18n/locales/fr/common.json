@@ -285,5 +285,98 @@
   "errors": {
     "notFoundTitle": "Page introuvable",
     "notFoundDescription": "La route demandée n'existe pas encore dans le front."
+  },
+  "admin": {
+    "brand": {
+      "title": "BobConnect",
+      "subtitle": "Back office"
+    },
+    "backToApp": "Retour à l'application",
+    "topbar": {
+      "eyebrow": "Espace administrateur",
+      "greeting": "Bonjour {{name}}"
+    },
+    "nav": {
+      "ariaLabel": "Navigation back office",
+      "soon": "Bientôt",
+      "dashboard": "Tableau de bord",
+      "neighborhoods": "Quartiers",
+      "users": "Utilisateurs",
+      "services": "Services",
+      "events": "Événements",
+      "incidents": "Incidents",
+      "alertes": "Alertes",
+      "votes": "Votes",
+      "documents": "Documents",
+      "stats": "Statistiques",
+      "rgpd": "RGPD"
+    },
+    "dashboard": {
+      "title": "Tableau de bord du back office",
+      "subtitle": "Pilotez la plateforme BobConnect : quartiers, modération et configuration.",
+      "tiles": {
+        "neighborhoods": {
+          "title": "Quartiers",
+          "description": "Dessiner les polygones, gérer les zones et rattacher les habitants."
+        },
+        "users": {
+          "title": "Utilisateurs",
+          "description": "Lister, filtrer, changer les rôles et désactiver des comptes."
+        },
+        "services": {
+          "title": "Services",
+          "description": "Modérer les annonces de services entre voisins."
+        },
+        "events": {
+          "title": "Événements",
+          "description": "Superviser et annuler les événements du quartier."
+        },
+        "incidents": {
+          "title": "Incidents & alertes",
+          "description": "Suivre les signalements et publier des alertes."
+        },
+        "votes": {
+          "title": "Votes",
+          "description": "Créer et suivre les votes du quartier."
+        }
+      }
+    },
+    "neighborhoods": {
+      "title": "Gestion des quartiers",
+      "subtitle": "Définissez les zones géographiques en dessinant un polygone sur la carte.",
+      "create": "Nouveau quartier",
+      "empty": "Aucun quartier défini pour le moment.",
+      "confirmDelete": "Supprimer définitivement ce quartier ?",
+      "card": {
+        "vertices_one": "{{count}} sommet",
+        "vertices_other": "{{count}} sommets",
+        "admin": "Admin : {{admin}}",
+        "edit": "Modifier"
+      },
+      "modal": {
+        "createEyebrow": "Nouveau quartier",
+        "createTitle": "Définir un quartier",
+        "editEyebrow": "Modification",
+        "editTitle": "Modifier le quartier",
+        "nameLabel": "Nom du quartier",
+        "namePlaceholder": "Ex : Paris 11e — Bastille / République",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Une courte description visible dans l'application."
+      },
+      "editor": {
+        "toolbarLabel": "Dessin du polygone",
+        "undo": "Annuler le dernier point",
+        "clear": "Effacer",
+        "hintEmpty": "Cliquez sur la carte pour ajouter le premier point du polygone.",
+        "hintAddMore": "Ajoutez encore {{needed}} point(s) pour fermer la zone.",
+        "hintReady_one": "{{count}} point posé — la zone est valide.",
+        "hintReady_other": "{{count}} points posés — la zone est valide.",
+        "legend": "Astuce : double-cliquez sur un sommet pour le supprimer. Les zones grises sont les autres quartiers."
+      },
+      "errors": {
+        "nameRequired": "Le nom du quartier est obligatoire.",
+        "polygonTooSmall": "Le polygone doit comporter au moins 3 points."
+      }
+    }
   }
 }

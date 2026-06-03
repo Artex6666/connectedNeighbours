@@ -293,6 +293,63 @@ export const eventsApi = {
   },
 }
 
+// ─── Neighborhoods API ───────────────────────────────────────────────────────
+
+export type NeighborhoodPolygon = {
+  type: 'Polygon'
+  coordinates: number[][][]
+}
+
+export type Neighborhood = {
+  _id: string
+  name: string
+  description: string
+  polygon: NeighborhoodPolygon
+  adminId:
+    | string
+    | { _id: string; firstName: string; lastName: string; email: string }
+  createdAt: string
+  updatedAt: string
+}
+
+export type CreateNeighborhoodPayload = {
+  name: string
+  description?: string
+  polygon: NeighborhoodPolygon
+}
+
+export type UpdateNeighborhoodPayload = Partial<CreateNeighborhoodPayload>
+
+export const neighborhoodsApi = {
+  async list(token: string) {
+    return apiRequest<Neighborhood[]>('/neighborhoods', undefined, token)
+  },
+  async get(token: string, id: string) {
+    return apiRequest<Neighborhood>(`/neighborhoods/${id}`, undefined, token)
+  },
+  async create(token: string, payload: CreateNeighborhoodPayload) {
+    return apiRequest<Neighborhood>(
+      '/neighborhoods',
+      { method: 'POST', body: JSON.stringify(payload) },
+      token,
+    )
+  },
+  async update(token: string, id: string, payload: UpdateNeighborhoodPayload) {
+    return apiRequest<Neighborhood>(
+      `/neighborhoods/${id}`,
+      { method: 'PUT', body: JSON.stringify(payload) },
+      token,
+    )
+  },
+  async delete(token: string, id: string) {
+    return apiRequest<{ message: string }>(
+      `/neighborhoods/${id}`,
+      { method: 'DELETE' },
+      token,
+    )
+  },
+}
+
 // ─── Messages API ─────────────────────────────────────────────────────────────
 
 export const messagesApi = {
