@@ -1,5 +1,15 @@
 import { apiBaseUrl } from '@/shared/config/env'
 
+// Static uploaded files (chat attachments) live outside the /api/v1 prefix.
+// Strip it to get the bare server origin used to resolve media URLs.
+const serverBaseUrl = apiBaseUrl.replace(/\/api\/v\d+\/?$/, '')
+
+export function resolveMediaUrl(content: string): string {
+  if (/^(https?:|data:|blob:)/.test(content)) return content
+  if (content.startsWith('/')) return `${serverBaseUrl}${content}`
+  return content
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type AuthUser = {
@@ -208,6 +218,17 @@ export const usersApi = {
   async adminDelete(token: string, id: string) {
     return apiRequest<{ message: string }>(`/users/${id}`, { method: 'DELETE' }, token)
   },
+  async listNeighbors(token: string) {
+    return apiRequest<NeighborSummary[]>('/users/neighbors', undefined, token)
+  },
+}
+
+export type NeighborSummary = {
+  _id: string
+  firstName: string
+  lastName: string
+  role: AuthUser['role']
+  neighborhoodId?: string
 }
 
 // ─── Services API ────────────────────────────────────────────────────────────
@@ -513,6 +534,24 @@ export const neighborhoodsApi = {
 
 // ─── Messages API ─────────────────────────────────────────────────────────────
 
+async function apiUpload<T>(path: string, formData: FormData, token: string): Promise<T> {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    method: 'POST',
+    body: formData,
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  const payload = (await response.json()) as ApiSuccessResponse<T> | ApiErrorResponse
+
+  if (!response.ok || !('success' in payload) || !payload.success) {
+    throw new Error(
+      'message' in payload && payload.message ? payload.message : 'Upload failed.',
+    )
+  }
+
+  return payload.data
+}
+
 export const messagesApi = {
   async list(token: string) {
     return apiRequest<ConversationSummary[]>('/messages', undefined, token)
@@ -523,12 +562,28 @@ export const messagesApi = {
   async sendMessage(
     token: string,
     userId: string,
-    payload: { content: string; type: 'text' | 'audio' },
+    payload: { content: string; type?: 'text' },
   ) {
     return apiRequest<ConversationMessage>(
       `/messages/${userId}`,
-      { method: 'POST', body: JSON.stringify(payload) },
+      { method: 'POST', body: JSON.stringify({ ...payload, type: 'text' }) },
       token,
     )
+  },
+  async sendAttachment(
+    token: string,
+    userId: string,
+    file: Blob,
+    type: 'photo' | 'audio',
+    filename?: string,
+  ) {
+    const form = new FormData()
+    form.append('type', type)
+    form.append(
+      'file',
+      file,
+      filename ?? (type === 'audio' ? 'voice-message' : 'image'),
+    )
+    return apiUpload<ConversationMessage>(`/messages/${userId}/upload`, form, token)
   },
 }

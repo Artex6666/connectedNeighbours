@@ -34,6 +34,16 @@ export async function getUserById(req: Request, res: Response) {
   return success(res, user);
 }
 
+export async function listMyNeighbors(req: Request, res: Response) {
+  const neighborhoodId = req.user?.neighborhoodId;
+  const filter: Record<string, unknown> = { _id: { $ne: req.user!._id } };
+  if (neighborhoodId) filter.neighborhoodId = neighborhoodId;
+  const users = await User.find(filter)
+    .select('firstName lastName role neighborhoodId')
+    .sort({ firstName: 1, lastName: 1 });
+  return success(res, users);
+}
+
 export async function listUsers(_req: Request, res: Response) {
   const users = await User.find().select('-password -mfaSecret').sort({ createdAt: -1 });
   return success(res, users);

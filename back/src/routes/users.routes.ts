@@ -24,6 +24,19 @@ router.get('/me', usersController.getMe);
 
 /**
  * @swagger
+ * /users/neighbors:
+ *   get:
+ *     summary: Liste les autres habitants du quartier courant (pour démarrer une conversation)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: Liste des voisins
+ */
+router.get('/neighbors', usersController.listMyNeighbors);
+
+/**
+ * @swagger
  * /users/me:
  *   put:
  *     summary: Met à jour le profil de l'utilisateur connecté
