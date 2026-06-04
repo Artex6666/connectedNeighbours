@@ -800,9 +800,101 @@ button {
   border-radius: 14px;
 }
 
-.chat-message__audio {
+.chat-message--audio,
+.chat-message--photo {
+  padding: 10px 12px;
+  gap: 6px;
+}
+
+.chat-message--audio {
+  width: fit-content;
+  min-width: 280px;
+  max-width: 360px;
+}
+
+.chat-message--photo {
+  width: fit-content;
+}
+
+.chat-message--audio .chat-message__meta {
+  font-size: 0.75rem;
+}
+
+/* ─── Custom voice player (used in preview AND in message bubbles) ────── */
+
+.voice-message {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 14px;
+  background: rgba(138, 106, 255, 0.10);
+  border: 1px solid rgba(138, 106, 255, 0.22);
+}
+
+.chat-message--me .voice-message {
+  background: rgba(126, 176, 255, 0.14);
+  border-color: rgba(126, 176, 255, 0.28);
+}
+
+.voice-message__play {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), #8f95ff);
+  color: #05111e;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.voice-message__play:hover {
+  transform: scale(1.05);
+}
+
+.voice-message__progress {
+  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
-  max-width: 320px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+}
+
+.voice-message__progress::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #ffffff;
+  cursor: pointer;
+}
+
+.voice-message__progress::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #ffffff;
+  cursor: pointer;
+}
+
+.voice-message__time {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 56px;
+  text-align: right;
 }
 
 /* ─── Chat: composer attachment button ─────────────────────────────────── */
@@ -882,15 +974,9 @@ button {
   margin-left: auto;
 }
 
-.chat-voice-preview audio {
+.chat-voice-preview .voice-message {
   flex: 1;
-  min-width: 200px;
-  max-width: 320px;
-}
-
-.chat-voice-preview__duration {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
+  min-width: 240px;
 }
 
 .chat-voice-button--active {

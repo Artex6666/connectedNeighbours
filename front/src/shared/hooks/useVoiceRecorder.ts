@@ -6,6 +6,7 @@ export type UseVoiceRecorderResult = {
   state: RecorderState
   durationSeconds: number
   blob: Blob | null
+  previewUrl: string | null
   error: string | null
   start: () => Promise<void>
   stop: () => void
@@ -34,12 +35,21 @@ export function useVoiceRecorder(): UseVoiceRecorderResult {
   const [state, setState] = useState<RecorderState>('idle')
   const [durationSeconds, setDurationSeconds] = useState(0)
   const [blob, setBlob] = useState<Blob | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const recorderRef = useRef<MediaRecorder | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const timerRef = useRef<number | null>(null)
+  const previewUrlRef = useRef<string | null>(null)
+
+  const revokePreview = () => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current)
+      previewUrlRef.current = null
+    }
+  }
 
   const stopTimer = () => {
     if (timerRef.current !== null) {
@@ -58,9 +68,11 @@ export function useVoiceRecorder(): UseVoiceRecorderResult {
 
   const reset = useCallback(() => {
     cleanupStream()
+    revokePreview()
     setState('idle')
     setDurationSeconds(0)
     setBlob(null)
+    setPreviewUrl(null)
     setError(null)
   }, [])
 
@@ -95,7 +107,11 @@ export function useVoiceRecorder(): UseVoiceRecorderResult {
       recorder.onstop = () => {
         const finalMime = recorder.mimeType || 'audio/webm'
         const finalBlob = new Blob(chunksRef.current, { type: finalMime })
+        revokePreview()
+        const url = URL.createObjectURL(finalBlob)
+        previewUrlRef.current = url
         setBlob(finalBlob)
+        setPreviewUrl(url)
         cleanupStream()
         setState('recorded')
       }
@@ -134,10 +150,11 @@ export function useVoiceRecorder(): UseVoiceRecorderResult {
   useEffect(() => {
     return () => {
       cleanupStream()
+      revokePreview()
     }
   }, [])
 
-  return { state, durationSeconds, blob, error, start, stop, reset }
+  return { state, durationSeconds, blob, previewUrl, error, start, stop, reset }
 }
 
 export function formatDuration(seconds: number): string {

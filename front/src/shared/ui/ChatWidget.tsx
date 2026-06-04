@@ -12,6 +12,7 @@ import {
   type NeighborSummary,
 } from '@/shared/lib/api'
 import { formatDuration, useVoiceRecorder } from '@/shared/hooks/useVoiceRecorder'
+import { VoiceMessage } from '@/shared/ui/VoiceMessage'
 
 function formatRole(role: string) {
   if (role === 'resident') return 'Habitant'
@@ -376,10 +377,16 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
                 ) : activeConversation?.messages.length ? (
                   activeConversation.messages.map((message: ConversationMessage) => {
                     const isMine = message.senderId === session?.user._id
+                    const typeClass =
+                      message.type === 'audio'
+                        ? 'chat-message--audio'
+                        : message.type === 'photo'
+                          ? 'chat-message--photo'
+                          : ''
                     return (
                       <article
                         key={message._id}
-                        className={`chat-message ${isMine ? 'chat-message--me' : 'chat-message--other'}`}
+                        className={`chat-message ${isMine ? 'chat-message--me' : 'chat-message--other'} ${typeClass}`}
                       >
                         <div className="chat-message__meta">
                           <strong>{isMine ? 'Vous' : activeConversation.participant.name}</strong>
@@ -413,12 +420,12 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
                 </div>
               ) : null}
 
-              {recorder.state === 'recorded' && recorder.blob ? (
+              {recorder.state === 'recorded' && recorder.previewUrl ? (
                 <div className="chat-voice-preview">
-                  <audio controls src={URL.createObjectURL(recorder.blob)} />
-                  <span className="chat-voice-preview__duration">
-                    {formatDuration(recorder.durationSeconds)}
-                  </span>
+                  <VoiceMessage
+                    src={recorder.previewUrl}
+                    fallbackDurationSeconds={recorder.durationSeconds}
+                  />
                   <div className="chat-voice-preview__actions">
                     <button type="button" className="button button--ghost" onClick={recorder.reset}>
                       Annuler
@@ -549,14 +556,7 @@ function MessageBody({ message }: { message: ConversationMessage }) {
   }
 
   if (message.type === 'audio') {
-    return (
-      <audio
-        className="chat-message__audio"
-        controls
-        preload="metadata"
-        src={resolveMediaUrl(message.content)}
-      />
-    )
+    return <VoiceMessage src={resolveMediaUrl(message.content)} />
   }
 
   return <p>{message.content}</p>

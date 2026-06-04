@@ -5,7 +5,7 @@ import type { AdminPlugin } from './types'
 // inside `modules/admin/plugins/<id>/` with an `index.ts` that default-exports
 // an `AdminPlugin` is enough — no other file needs to be touched.
 const modules = import.meta.glob<{ default: AdminPlugin }>(
-  '@/modules/admin/plugins/*/index.ts',
+  '../../modules/admin/plugins/*/index.ts',
   { eager: true },
 )
 
