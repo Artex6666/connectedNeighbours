@@ -285,5 +285,222 @@
   "errors": {
     "notFoundTitle": "Page not found",
     "notFoundDescription": "The requested route does not exist yet in the BobConnect frontend."
+  },
+  "admin": {
+    "brand": {
+      "title": "BobConnect",
+      "subtitle": "Back office"
+    },
+    "backToApp": "Back to the app",
+    "topbar": {
+      "eyebrow": "Administrator area",
+      "greeting": "Hello {{name}}"
+    },
+    "nav": {
+      "ariaLabel": "Back office navigation",
+      "soon": "Soon",
+      "dashboard": "Dashboard",
+      "neighborhoods": "Neighborhoods",
+      "users": "Users",
+      "services": "Services",
+      "events": "Events",
+      "incidents": "Incidents",
+      "alertes": "Alerts",
+      "votes": "Votes",
+      "documents": "Documents",
+      "stats": "Statistics",
+      "rgpd": "GDPR"
+    },
+    "dashboard": {
+      "title": "Back office dashboard",
+      "subtitle": "Steer the BobConnect platform: neighborhoods, moderation and configuration.",
+      "tiles": {
+        "neighborhoods": {
+          "title": "Neighborhoods",
+          "description": "Draw polygons, manage zones and link residents."
+        },
+        "users": {
+          "title": "Users",
+          "description": "List, filter, change roles and disable accounts."
+        },
+        "services": {
+          "title": "Services",
+          "description": "Moderate the listings exchanged between neighbors."
+        },
+        "events": {
+          "title": "Events",
+          "description": "Supervise and cancel neighborhood events."
+        },
+        "incidents": {
+          "title": "Incidents",
+          "description": "Track reports from residents."
+        },
+        "alertes": {
+          "title": "Alerts",
+          "description": "Publish important announcements for neighborhood residents."
+        },
+        "votes": {
+          "title": "Votes",
+          "description": "Create and follow neighborhood votes."
+        }
+      }
+    },
+    "users": {
+      "title": "User management",
+      "subtitle": "List, filter, change roles, attach to a neighborhood or delete.",
+      "searchPlaceholder": "Search by name or email…",
+      "filterAllRoles": "All roles",
+      "noNeighborhood": "No neighborhood",
+      "confirmDelete": "Permanently delete this account?",
+      "cannotEditSelf": "You cannot edit your own account",
+      "empty": "No user matches the filters.",
+      "count_one": "{{count}} user",
+      "count_other": "{{count}} users",
+      "col": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "neighborhood": "Neighborhood",
+        "points": "Points",
+        "actions": "Actions"
+      }
+    },
+    "services": {
+      "title": "Services moderation",
+      "subtitle": "All services published across every neighborhood.",
+      "filterAllStatus": "All statuses",
+      "confirmDelete": "Delete this service?",
+      "empty": "No service matches the filters.",
+      "count_one": "{{count}} service",
+      "count_other": "{{count}} services",
+      "col": {
+        "title": "Title",
+        "author": "Author",
+        "category": "Category",
+        "status": "Status",
+        "points": "Price",
+        "actions": "Actions"
+      }
+    },
+    "events": {
+      "title": "Events moderation",
+      "subtitle": "All events (active and cancelled), across every neighborhood.",
+      "confirmCancel": "Cancel this event?",
+      "empty": "No event.",
+      "statusActive": "Active",
+      "count_one": "{{count}} event",
+      "count_other": "{{count}} events",
+      "col": {
+        "title": "Title",
+        "organizer": "Organizer",
+        "date": "Date",
+        "location": "Location",
+        "participants": "Registered",
+        "status": "Status",
+        "actions": "Actions"
+      }
+    },
+    "incidents": {
+      "title": "Incidents management",
+      "subtitle": "Track reports raised by residents.",
+      "create": "New incident",
+      "filterAllStatus": "All statuses",
+      "confirmDelete": "Delete this incident?",
+      "empty": "No incident yet.",
+      "count_one": "{{count}} incident",
+      "count_other": "{{count}} incidents",
+      "status": {
+        "open": "Open",
+        "in_progress": "In progress",
+        "resolved": "Resolved"
+      },
+      "priority": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "col": {
+        "title": "Title",
+        "priority": "Priority",
+        "status": "Status",
+        "createdAt": "Created at",
+        "actions": "Actions"
+      },
+      "modal": {
+        "eyebrow": "New",
+        "title": "Create an incident",
+        "titleLabel": "Title",
+        "descriptionLabel": "Description",
+        "priorityLabel": "Priority"
+      },
+      "errors": {
+        "fieldsRequired": "Title and description are required."
+      }
+    },
+    "alertes": {
+      "title": "Alerts management",
+      "subtitle": "Broadcast important announcements to residents.",
+      "create": "New alert",
+      "empty": "No alert published.",
+      "confirmDelete": "Delete this alert?",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "level": {
+        "info": "Info",
+        "warning": "Warning",
+        "danger": "Critical"
+      },
+      "modal": {
+        "createEyebrow": "New alert",
+        "createTitle": "Publish an alert",
+        "editEyebrow": "Edit",
+        "editTitle": "Edit the alert",
+        "titleLabel": "Title",
+        "messageLabel": "Message",
+        "levelLabel": "Level",
+        "activeLabel": "Alert active immediately"
+      },
+      "errors": {
+        "fieldsRequired": "Title and message are required."
+      }
+    },
+    "neighborhoods": {
+      "title": "Neighborhoods management",
+      "subtitle": "Define geographic zones by drawing a polygon on the map.",
+      "create": "New neighborhood",
+      "empty": "No neighborhood defined yet.",
+      "confirmDelete": "Permanently delete this neighborhood?",
+      "card": {
+        "vertices_one": "{{count}} vertex",
+        "vertices_other": "{{count}} vertices",
+        "admin": "Admin: {{admin}}",
+        "edit": "Edit"
+      },
+      "modal": {
+        "createEyebrow": "New neighborhood",
+        "createTitle": "Define a neighborhood",
+        "editEyebrow": "Edit",
+        "editTitle": "Edit the neighborhood",
+        "nameLabel": "Neighborhood name",
+        "namePlaceholder": "e.g. Paris 11e — Bastille / République",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "A short description shown in the app."
+      },
+      "editor": {
+        "toolbarLabel": "Polygon drawing",
+        "undo": "Undo last point",
+        "clear": "Clear",
+        "hintEmpty": "Click on the map to add the first point of the polygon.",
+        "hintAddMore": "Add {{needed}} more point(s) to close the zone.",
+        "hintReady_one": "{{count}} point placed — the zone is valid.",
+        "hintReady_other": "{{count}} points placed — the zone is valid.",
+        "legend": "Tip: double-click a vertex to remove it. Greyed areas are existing neighborhoods."
+      },
+      "errors": {
+        "nameRequired": "The neighborhood name is required.",
+        "polygonTooSmall": "The polygon must have at least 3 points."
+      }
+    }
   }
 }

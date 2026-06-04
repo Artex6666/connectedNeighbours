@@ -9,10 +9,12 @@ import User from '../models/User.model';
 export async function listServices(req: Request, res: Response) {
   try {
     const neighborhoodId = req.user?.neighborhoodId;
-    const { category, status, isPaid } = req.query;
+    const { category, status, isPaid, all } = req.query;
+    const isAdminAll =
+      all === 'true' && (req.user?.role === 'admin' || req.user?.role === 'moderator');
 
     const filter: Record<string, unknown> = {};
-    if (neighborhoodId) filter.neighborhoodId = neighborhoodId;
+    if (neighborhoodId && !isAdminAll) filter.neighborhoodId = neighborhoodId;
     if (category) filter.category = category;
     if (status) filter.status = status;
     if (isPaid !== undefined) filter.isPaid = isPaid === 'true';
