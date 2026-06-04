@@ -2,6 +2,7 @@ import { Outlet, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { navItems } from '@/shared/config/nav-items'
 import { ChatWidget } from '@/shared/ui/ChatWidget'
+import { AdminQuickButton } from '@/shared/ui/AdminQuickButton'
 import { useAuth } from '@/shared/context/AuthContext'
 import { routes } from '@/shared/config/routes'
 
@@ -102,6 +103,8 @@ export function PublicLayout() {
         session={chatSession}
         onRequireAuth={() => void 0}
       />
+
+      <AdminQuickButton />
     </div>
   )
 }

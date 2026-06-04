@@ -30,7 +30,7 @@ export function CreateServiceModal({ onClose, onCreated }: Props) {
     { value: 'autre', label: t('services.category.autreFull') },
   ]
 
-  const handleSubmit = async (e: SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!accessToken) return
     setIsLoading(true)

@@ -24,6 +24,19 @@ router.get('/me', usersController.getMe);
 
 /**
  * @swagger
+ * /users/neighbors:
+ *   get:
+ *     summary: Liste les autres habitants du quartier courant (pour démarrer une conversation)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: Liste des voisins
+ */
+router.get('/neighbors', usersController.listMyNeighbors);
+
+/**
+ * @swagger
  * /users/me:
  *   put:
  *     summary: Met à jour le profil de l'utilisateur connecté
@@ -106,5 +119,60 @@ router.get('/', requireRole('admin', 'moderator'), usersController.listUsers);
  *         description: Permissions insuffisantes
  */
 router.delete('/:id', requireRole('admin'), usersController.deleteUser);
+
+/**
+ * @swagger
+ * /users/{id}/role:
+ *   put:
+ *     summary: Change le rôle d'un utilisateur (admin)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [role]
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: [resident, moderator, admin]
+ *     responses:
+ *       200:
+ *         description: Rôle mis à jour
+ */
+router.put('/:id/role', requireRole('admin'), usersController.updateUserRole);
+
+/**
+ * @swagger
+ * /users/{id}/neighborhood:
+ *   put:
+ *     summary: Rattache un utilisateur à un quartier (admin)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               neighborhoodId: { type: string, nullable: true }
+ *     responses:
+ *       200:
+ *         description: Quartier mis à jour
+ */
+router.put('/:id/neighborhood', requireRole('admin'), usersController.updateUserNeighborhood);
 
 export default router;

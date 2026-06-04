@@ -21,7 +21,7 @@ export function CreateEventModal({ onClose, onCreated }: Props) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!accessToken) return
     setIsLoading(true)
