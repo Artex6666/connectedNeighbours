@@ -8,10 +8,6 @@ export const routes = {
   events: '/events',
   profile: '/profile',
   admin: '/admin',
-  adminNeighborhoods: '/admin/neighborhoods',
-  adminUsers: '/admin/users',
-  adminServices: '/admin/services',
-  adminEvents: '/admin/events',
-  adminIncidents: '/admin/incidents',
-  adminAlertes: '/admin/alertes',
+  // Per-plugin admin URLs are derived from the plugin id at runtime — see
+  // `pluginPath(plugin)` in `@/shared/plugins/admin-registry`.
 } as const

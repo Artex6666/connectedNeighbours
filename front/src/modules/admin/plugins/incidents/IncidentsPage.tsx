@@ -12,7 +12,7 @@ import {
 const STATUSES: IncidentStatus[] = ['open', 'in_progress', 'resolved']
 const PRIORITIES: IncidentPriority[] = ['low', 'medium', 'high']
 
-export function AdminIncidentsPage() {
+export function IncidentsPage() {
   const { t } = useTranslation()
   const { accessToken } = useAuth()
 

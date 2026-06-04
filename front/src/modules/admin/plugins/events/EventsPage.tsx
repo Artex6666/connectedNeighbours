@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
 import { eventsApi, type Event } from '@/shared/lib/api'
 
-export function AdminEventsPage() {
+export function EventsPage() {
   const { t } = useTranslation()
   const { accessToken } = useAuth()
 

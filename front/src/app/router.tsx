@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { PublicLayout } from '@/shared/layout/PublicLayout'
 import { PrivateRoute } from '@/shared/layout/PrivateRoute'
 import { RoleRoute } from '@/shared/layout/RoleRoute'
+import { RequireRole } from '@/shared/layout/RequireRole'
 import { AdminLayout } from '@/shared/layout/AdminLayout'
 import { HomePage } from '@/modules/home/HomePage'
 import { LoginPage } from '@/modules/auth/LoginPage'
@@ -13,14 +14,9 @@ import { EventsPage } from '@/modules/events/EventsPage'
 import { EventDetailPage } from '@/modules/events/EventDetailPage'
 import { ProfilePage } from '@/modules/profile/ProfilePage'
 import { AdminDashboardPage } from '@/modules/admin/AdminDashboardPage'
-import { AdminNeighborhoodsPage } from '@/modules/admin/neighborhoods/AdminNeighborhoodsPage'
-import { AdminUsersPage } from '@/modules/admin/AdminUsersPage'
-import { AdminServicesPage } from '@/modules/admin/AdminServicesPage'
-import { AdminEventsPage } from '@/modules/admin/AdminEventsPage'
-import { AdminIncidentsPage } from '@/modules/admin/AdminIncidentsPage'
-import { AdminAlertesPage } from '@/modules/admin/AdminAlertesPage'
 import { NotFoundPage } from '@/modules/not-found/NotFoundPage'
 import { routes } from '@/shared/config/routes'
+import { adminPlugins, pluginPath } from '@/shared/plugins/admin-registry'
 
 export const router = createBrowserRouter([
   // Public routes (landing page)
@@ -49,20 +45,24 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Admin back office (admin role only)
+  // Admin back office — plugins are auto-discovered from
+  // `modules/admin/plugins/*/index.ts`. To add a new module, drop a folder
+  // there; this file does NOT need to be touched.
   {
-    element: <RoleRoute allow={['admin']} />,
+    element: <RoleRoute allow={['admin', 'moderator']} />,
     children: [
       {
         element: <AdminLayout />,
         children: [
           { path: routes.admin, element: <AdminDashboardPage /> },
-          { path: routes.adminNeighborhoods, element: <AdminNeighborhoodsPage /> },
-          { path: routes.adminUsers, element: <AdminUsersPage /> },
-          { path: routes.adminServices, element: <AdminServicesPage /> },
-          { path: routes.adminEvents, element: <AdminEventsPage /> },
-          { path: routes.adminIncidents, element: <AdminIncidentsPage /> },
-          { path: routes.adminAlertes, element: <AdminAlertesPage /> },
+          ...adminPlugins.map((plugin) => ({
+            path: pluginPath(plugin),
+            element: (
+              <RequireRole allow={plugin.allow ?? ['admin']}>
+                <plugin.Page />
+              </RequireRole>
+            ),
+          })),
         ],
       },
     ],

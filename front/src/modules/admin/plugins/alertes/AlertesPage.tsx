@@ -12,7 +12,7 @@ const LEVELS: AlerteLevel[] = ['info', 'warning', 'danger']
 
 type EditorState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; alerte: Alerte }
 
-export function AdminAlertesPage() {
+export function AlertesPage() {
   const { t } = useTranslation()
   const { accessToken } = useAuth()
 

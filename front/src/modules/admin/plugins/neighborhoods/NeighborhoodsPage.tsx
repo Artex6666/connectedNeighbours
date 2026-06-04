@@ -32,7 +32,7 @@ function describeAdmin(adminId: Neighborhood['adminId']) {
   return `${adminId.firstName} ${adminId.lastName}`
 }
 
-export function AdminNeighborhoodsPage() {
+export function NeighborhoodsPage() {
   const { t } = useTranslation()
   const { accessToken } = useAuth()
 

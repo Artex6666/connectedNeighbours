@@ -11,7 +11,7 @@ import {
 
 type RoleFilter = 'all' | AuthUser['role']
 
-export function AdminUsersPage() {
+export function UsersPage() {
   const { t } = useTranslation()
   const { accessToken, user: currentUser } = useAuth()
 

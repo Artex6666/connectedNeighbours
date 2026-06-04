@@ -19,7 +19,7 @@ const CATEGORIES: ServiceCategory[] = [
 
 const STATUSES: ServiceStatus[] = ['open', 'pending', 'in_progress', 'done', 'cancelled']
 
-export function AdminServicesPage() {
+export function ServicesPage() {
   const { t } = useTranslation()
   const { accessToken } = useAuth()
 

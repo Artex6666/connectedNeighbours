@@ -2,31 +2,16 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
 import { routes } from '@/shared/config/routes'
-
-type AdminNavItem = {
-  to: string
-  labelKey: string
-  icon: string
-  disabled?: boolean
-}
-
-const ADMIN_NAV: AdminNavItem[] = [
-  { to: routes.admin, labelKey: 'admin.nav.dashboard', icon: '📊' },
-  { to: routes.adminNeighborhoods, labelKey: 'admin.nav.neighborhoods', icon: '🗺️' },
-  { to: routes.adminUsers, labelKey: 'admin.nav.users', icon: '👥' },
-  { to: routes.adminServices, labelKey: 'admin.nav.services', icon: '🤝' },
-  { to: routes.adminEvents, labelKey: 'admin.nav.events', icon: '📅' },
-  { to: routes.adminIncidents, labelKey: 'admin.nav.incidents', icon: '🚨' },
-  { to: routes.adminAlertes, labelKey: 'admin.nav.alertes', icon: '📣' },
-  { to: '#', labelKey: 'admin.nav.votes', icon: '🗳️', disabled: true },
-  { to: '#', labelKey: 'admin.nav.documents', icon: '📄', disabled: true },
-  { to: '#', labelKey: 'admin.nav.stats', icon: '📈', disabled: true },
-  { to: '#', labelKey: 'admin.nav.rgpd', icon: '🛡️', disabled: true },
-]
+import { adminPlugins, pluginPath } from '@/shared/plugins/admin-registry'
 
 export function AdminLayout() {
   const { t } = useTranslation()
   const { user, logout } = useAuth()
+
+  const visiblePlugins = adminPlugins.filter((p) => {
+    const allow = p.allow ?? ['admin']
+    return user ? allow.includes(user.role as never) : false
+  })
 
   return (
     <div className="admin-shell">
@@ -40,30 +25,29 @@ export function AdminLayout() {
         </Link>
 
         <nav className="admin-sidebar__nav" aria-label={t('admin.nav.ariaLabel')}>
-          {ADMIN_NAV.map((item) => {
-            if (item.disabled) {
-              return (
-                <span key={item.labelKey} className="admin-nav-item admin-nav-item--disabled">
-                  <span className="admin-nav-item__icon">{item.icon}</span>
-                  <span>{t(item.labelKey)}</span>
-                  <span className="admin-nav-item__badge">{t('admin.nav.soon')}</span>
-                </span>
-              )
+          <NavLink
+            to={routes.admin}
+            end
+            className={({ isActive }) =>
+              `admin-nav-item ${isActive ? 'admin-nav-item--active' : ''}`
             }
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === routes.admin}
-                className={({ isActive }) =>
-                  `admin-nav-item ${isActive ? 'admin-nav-item--active' : ''}`
-                }
-              >
-                <span className="admin-nav-item__icon">{item.icon}</span>
-                <span>{t(item.labelKey)}</span>
-              </NavLink>
-            )
-          })}
+          >
+            <span className="admin-nav-item__icon">📊</span>
+            <span>{t('admin.nav.dashboard')}</span>
+          </NavLink>
+
+          {visiblePlugins.map((plugin) => (
+            <NavLink
+              key={plugin.id}
+              to={pluginPath(plugin)}
+              className={({ isActive }) =>
+                `admin-nav-item ${isActive ? 'admin-nav-item--active' : ''}`
+              }
+            >
+              <span className="admin-nav-item__icon">{plugin.icon}</span>
+              <span>{t(plugin.labelKey)}</span>
+            </NavLink>
+          ))}
         </nav>
 
         <div className="admin-sidebar__footer">
