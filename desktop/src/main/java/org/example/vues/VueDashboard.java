@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import org.example.services.SyncService;
 
 import java.io.FileWriter;
 
@@ -25,28 +26,38 @@ public class VueDashboard {
         Button boutonAlertes = new Button("Alertes");
         Button boutonStatistiques = new Button("Statistiques");
         Button boutonPlugins = new Button("Plugins");
-        Button boutonDeconnexion = new Button("Déconnexion");
         Button boutonExports = new Button("Exports");
-
-
+        Button boutonConflits = new Button("⚠ Conflits");
+        Button boutonDeconnexion = new Button("Déconnexion");
 
         styliserBoutonNavActif(boutonDashboard);
         styliserBoutonNav(boutonIncidents);
         styliserBoutonNav(boutonAlertes);
         styliserBoutonNav(boutonStatistiques);
         styliserBoutonNav(boutonPlugins);
-
         styliserBoutonNav(boutonExports);
-
         styliserBoutonDanger(boutonDeconnexion);
-
 
         boutonIncidents.setOnAction(e -> Navigateur.afficherIncidents());
         boutonAlertes.setOnAction(e -> Navigateur.afficherAlertes());
         boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
         boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
         boutonExports.setOnAction(e -> Navigateur.afficherExports());
+        boutonConflits.setOnAction(e -> Navigateur.afficherConflits());
         boutonDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
+
+        boutonConflits.setStyle(
+                "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 12px;" +
+                "-fx-background-radius: 5; -fx-padding: 4 10 4 10;"
+        );
+        boutonConflits.setVisible(SyncService.nbConflitsProperty().get() > 0);
+        SyncService.nbConflitsProperty().addListener((obs, ancien, nb) ->
+                boutonConflits.setVisible(nb.intValue() > 0)
+        );
+
+        Label labelSync = new Label();
+        labelSync.textProperty().bind(SyncService.statutProperty());
+        labelSync.setStyle("-fx-font-size: 11px; -fx-text-fill: #6c757d;");
 
         HBox menuGauche = new HBox(
                 20,
@@ -63,7 +74,7 @@ public class VueDashboard {
         Region espace = new Region();
         HBox.setHgrow(espace, Priority.ALWAYS);
 
-        HBox menuDroite = new HBox(boutonDeconnexion);
+        HBox menuDroite = new HBox(12, labelSync, boutonConflits, boutonDeconnexion);
         menuDroite.setAlignment(Pos.CENTER_RIGHT);
 
         HBox navbar = new HBox(20, menuGauche, espace, menuDroite);
@@ -81,7 +92,7 @@ public class VueDashboard {
                         "-fx-text-fill: #2c3e50;"
         );
 
-        Label sousTitre = new Label("Vue générale de l’administration Bob Connect");
+        Label sousTitre = new Label("Vue générale de l'administration Bob Connect");
         sousTitre.setStyle(
                 "-fx-font-size: 13px;" +
                         "-fx-text-fill: #6c757d;"
@@ -98,7 +109,6 @@ public class VueDashboard {
         HBox ligneCartes = new HBox(20, carteIncidents, carteAlertes, carteUtilisateurs, carteSynchronisation);
         ligneCartes.setAlignment(Pos.CENTER_LEFT);
 
-
         Label titreBloc = new Label("Résumé");
         titreBloc.setStyle(
                 "-fx-font-size: 16px;" +
@@ -107,7 +117,7 @@ public class VueDashboard {
         );
 
         Label texteBloc = new Label(
-                "Cette interface permet de suivre rapidement l’état du quartier, " +
+                "Cette interface permet de suivre rapidement l'état du quartier, " +
                         "de consulter les incidents, les alertes et les statistiques principales."
         );
         texteBloc.setWrapText(true);
@@ -118,7 +128,6 @@ public class VueDashboard {
 
         Button boutonExporter = new Button("Exporter CSV");
         styliserBoutonPrincipal(boutonExporter);
-
         boutonExporter.setOnAction(e -> exporterDashboard());
 
         VBox blocResume = new VBox(12, titreBloc, texteBloc, boutonExporter);

@@ -45,4 +45,9 @@ public class Navigateur {
         Scene scene = new Scene(new VueExports().creerVue(), 1100, 700);
         stage.setScene(scene);
     }
+
+    public static void afficherConflits() {
+        Scene scene = new Scene(new VueConflits().creerVue(), 1200, 700);
+        stage.setScene(scene);
+    }
 }
