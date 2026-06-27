@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { MapContainer, Polygon, TileLayer } from 'react-leaflet'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
-import { usersApi, type UserProfile, type UpdateProfilePayload } from '@/shared/lib/api'
+import { usersApi, authApi, type UserProfile, type UpdateProfilePayload, type EmailPreferences } from '@/shared/lib/api'
 import { AppLayout } from '@/shared/layout/AppLayout'
 import i18n from '@/shared/i18n'
 
@@ -11,9 +11,16 @@ const LANGUAGES = [
   { code: 'en', label: '🇬🇧 English' },
 ]
 
+const PREF_ITEMS: { key: keyof EmailPreferences; labelKey: string; fallback: string }[] = [
+  { key: 'messages', labelKey: 'profile.prefs.messages', fallback: 'Nouveaux messages' },
+  { key: 'annonces', labelKey: 'profile.prefs.annonces', fallback: 'Nouvelles annonces du quartier' },
+  { key: 'events', labelKey: 'profile.prefs.events', fallback: 'Événements' },
+  { key: 'newsletter', labelKey: 'profile.prefs.newsletter', fallback: 'Newsletter' },
+]
+
 export function ProfilePage() {
   const { t, i18n: i18nHook } = useTranslation()
-  const { accessToken } = useAuth()
+  const { accessToken, logout } = useAuth()
 
   const handleLanguageChange = (code: string) => {
     void i18n.changeLanguage(code)
@@ -57,8 +64,103 @@ export function ProfilePage() {
     }
   }
 
+  const [prefSaving, setPrefSaving] = useState<keyof EmailPreferences | null>(null)
+
+  const handleTogglePref = async (key: keyof EmailPreferences) => {
+    if (!accessToken || !profile) return
+    const current: EmailPreferences =
+      profile.emailPreferences ?? { messages: true, annonces: true, events: true, newsletter: true }
+    const nextValue = !current[key]
+    // Optimistic update
+    setProfile({ ...profile, emailPreferences: { ...current, [key]: nextValue } })
+    setPrefSaving(key)
+    try {
+      const saved = await usersApi.updatePreferences(accessToken, { [key]: nextValue })
+      setProfile((p) => (p ? { ...p, emailPreferences: saved } : p))
+    } catch {
+      setProfile((p) => (p ? { ...p, emailPreferences: current } : p)) // revert
+    } finally {
+      setPrefSaving(null)
+    }
+  }
+
+  const handleExport = async (format: 'json' | 'csv') => {
+    if (!accessToken) return
+    try {
+      const blob = await usersApi.exportMyData(accessToken, format)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `mes-donnees-bobconnect.${format}`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Erreur')
+    }
+  }
+
+  // ── 2FA (MFA TOTP) ──────────────────────────────────────────────────────────
+  const [mfaSetup, setMfaSetup] = useState<{ qrCode: string; secret: string } | null>(null)
+  const [mfaCode, setMfaCode] = useState('')
+  const [mfaError, setMfaError] = useState<string | null>(null)
+  const [mfaBusy, setMfaBusy] = useState(false)
+
+  const handleStartMfa = async () => {
+    if (!accessToken) return
+    setMfaError(null)
+    setMfaBusy(true)
+    try {
+      setMfaSetup(await authApi.setupMfa(accessToken))
+    } catch (err) {
+      setMfaError(err instanceof Error ? err.message : 'Erreur')
+    } finally {
+      setMfaBusy(false)
+    }
+  }
+
+  const handleConfirmMfa = async () => {
+    if (!accessToken) return
+    setMfaError(null)
+    setMfaBusy(true)
+    try {
+      await authApi.confirmMfa(accessToken, mfaCode)
+      setMfaSetup(null)
+      setMfaCode('')
+      setProfile((p) => (p ? { ...p, isMfaEnabled: true } : p))
+    } catch (err) {
+      setMfaError(err instanceof Error ? err.message : 'Code invalide')
+    } finally {
+      setMfaBusy(false)
+    }
+  }
+
+  const handleDisableMfa = async () => {
+    if (!accessToken) return
+    const code = window.prompt('Saisissez un code de votre application d\'authentification pour désactiver la 2FA :')
+    if (!code) return
+    try {
+      await authApi.disableMfa(accessToken, code)
+      setProfile((p) => (p ? { ...p, isMfaEnabled: false } : p))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Code invalide')
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!accessToken) return
+    if (!confirm(t('profile.rgpd.confirmDelete', 'Supprimer définitivement votre compte ? Vos données personnelles seront anonymisées. Cette action est irréversible.'))) return
+    try {
+      await usersApi.deleteMyAccount(accessToken)
+      await logout()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Erreur')
+    }
+  }
+
   const inputStyle = {
-    background: 'rgba(255,255,255,0.04)',
+    background: 'rgba(0,0,0,0.05)',
     border: '1px solid var(--color-border)',
     color: 'var(--color-text)',
   }
@@ -71,7 +173,7 @@ export function ProfilePage() {
 
   if (fetchError) return (
     <AppLayout>
-      <div className="text-center py-20" style={{ color: '#ffb4b4' }}>{fetchError}</div>
+      <div className="text-center py-20" style={{ color: '#c0392b' }}>{fetchError}</div>
     </AppLayout>
   )
 
@@ -121,7 +223,7 @@ export function ProfilePage() {
                 </span>
                 <span
                   className="text-xs font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: 'var(--color-secondary-soft)', color: '#c8b7ff' }}
+                  style={{ background: 'var(--color-secondary-soft)', color: '#6d28d9' }}
                 >
                   {profile.points} pts
                 </span>
@@ -137,12 +239,12 @@ export function ProfilePage() {
           </div>
 
           {saveSuccess && (
-            <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'var(--color-success-soft)', color: '#93f0c0' }}>
+            <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'var(--color-success-soft)', color: '#15803d' }}>
               {t('profile.successMsg')}
             </div>
           )}
           {saveError && (
-            <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#ffb4b4' }}>
+            <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#c0392b' }}>
               {saveError}
             </div>
           )}
@@ -207,7 +309,7 @@ export function ProfilePage() {
                   onClick={() => handleLanguageChange(code)}
                   className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
                   style={{
-                    background: isActive ? 'var(--color-primary-soft)' : 'rgba(255,255,255,0.04)',
+                    background: isActive ? 'var(--color-primary-soft)' : 'rgba(0,0,0,0.05)',
                     border: `1px solid ${isActive ? 'var(--color-border-strong)' : 'var(--color-border)'}`,
                     color: isActive ? 'var(--color-text)' : 'var(--color-text-muted)',
                   }}
@@ -216,6 +318,108 @@ export function ProfilePage() {
                 </button>
               )
             })}
+          </div>
+        </div>
+
+        {/* Notifications card */}
+        <div className="rounded-3xl p-6 flex flex-col gap-4" style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-strong)' }}>
+          <span className="eyebrow">{t('profile.notificationsSection', 'Notifications par email')}</span>
+          <p className="m-0 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+            {t('profile.notificationsHint', 'Choisissez les emails que vous souhaitez recevoir.')}
+          </p>
+          <div className="flex flex-col gap-3">
+            {PREF_ITEMS.map(({ key, labelKey, fallback }) => {
+              const checked = profile.emailPreferences?.[key] ?? true
+              return (
+                <label key={key} className="flex items-center justify-between gap-4 cursor-pointer">
+                  <span className="font-medium" style={{ color: 'var(--color-text)' }}>
+                    {t(labelKey, fallback)}
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={prefSaving === key}
+                    onChange={() => void handleTogglePref(key)}
+                    style={{ width: 20, height: 20, accentColor: 'var(--color-primary)', cursor: 'pointer' }}
+                  />
+                </label>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Sécurité — 2FA */}
+        <div className="rounded-3xl p-6 flex flex-col gap-4" style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-strong)' }}>
+          <span className="eyebrow">{t('profile.mfa.section', 'Sécurité — Double authentification')}</span>
+          {profile.isMfaEnabled ? (
+            <div className="flex items-center justify-between gap-4">
+              <span className="font-medium" style={{ color: '#15803d' }}>
+                ✓ {t('profile.mfa.enabled', '2FA activée')}
+              </span>
+              <button type="button" className="button button--ghost" onClick={() => void handleDisableMfa()}>
+                {t('profile.mfa.disable', 'Désactiver')}
+              </button>
+            </div>
+          ) : mfaSetup ? (
+            <div className="flex flex-col gap-3">
+              <p className="m-0 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                {t('profile.mfa.scanHint', "Scannez ce QR code avec Google Authenticator (ou équivalent), puis saisissez le code généré.")}
+              </p>
+              <img src={mfaSetup.qrCode} alt="QR code 2FA" style={{ width: 180, height: 180, alignSelf: 'center', background: '#fff', borderRadius: 12, padding: 8 }} />
+              <code className="text-xs text-center" style={{ color: 'var(--color-text-muted)', wordBreak: 'break-all' }}>{mfaSetup.secret}</code>
+              <input
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value)}
+                placeholder="123456"
+                inputMode="numeric"
+                className="h-11 px-4 rounded-xl outline-none text-center tracking-[0.4em]"
+                style={inputStyle}
+              />
+              {mfaError && <p className="m-0 text-sm" style={{ color: '#c0392b' }}>{mfaError}</p>}
+              <div className="flex gap-2">
+                <button type="button" className="button button--ghost" onClick={() => { setMfaSetup(null); setMfaError(null) }}>
+                  {t('common.cancel', 'Annuler')}
+                </button>
+                <button type="button" className="button" disabled={mfaBusy} onClick={() => void handleConfirmMfa()}>
+                  {t('profile.mfa.activate', 'Activer')}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-4">
+              <p className="m-0 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                {t('profile.mfa.hint', 'Ajoutez une couche de sécurité avec une application d\'authentification (requis pour signer des documents).')}
+              </p>
+              <button type="button" className="button" disabled={mfaBusy} onClick={() => void handleStartMfa()}>
+                {t('profile.mfa.enable', 'Activer la 2FA')}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* RGPD — Mes données */}
+        <div className="rounded-3xl p-6 flex flex-col gap-4" style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-strong)' }}>
+          <span className="eyebrow">{t('profile.rgpd.section', 'Mes données (RGPD)')}</span>
+          <p className="m-0 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+            {t('profile.rgpd.hint', "Téléchargez l'ensemble de vos données, ou supprimez votre compte. La modification de vos informations se fait via « Modifier » ci-dessus.")}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className="button button--secondary" onClick={() => void handleExport('json')}>
+              ⬇️ {t('profile.rgpd.exportJson', 'Exporter (JSON)')}
+            </button>
+            <button type="button" className="button button--secondary" onClick={() => void handleExport('csv')}>
+              ⬇️ {t('profile.rgpd.exportCsv', 'Exporter (CSV)')}
+            </button>
+          </div>
+          <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+            <button
+              type="button"
+              className="button"
+              style={{ background: 'rgba(255,80,80,0.15)', color: '#c0392b', border: '1px solid rgba(255,80,80,0.3)' }}
+              onClick={() => void handleDeleteAccount()}
+            >
+              🗑️ {t('profile.rgpd.deleteAccount', 'Supprimer mon compte')}
+            </button>
           </div>
         </div>
 

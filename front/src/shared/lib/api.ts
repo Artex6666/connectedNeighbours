@@ -41,6 +41,7 @@ export type ConversationSummary = {
   name: string
   role: string
   avatar: string
+  isOnline?: boolean
   lastMessage: string
   lastTimestamp: string
 }
@@ -61,6 +62,7 @@ export type ConversationDetails = {
     name: string
     role: string
     avatar: string
+    isOnline?: boolean
   }
   messages: ConversationMessage[]
 }
@@ -128,11 +130,13 @@ function splitFullName(fullName: string) {
 
 // ─── Auth API ─────────────────────────────────────────────────────────────────
 
+export type LoginResult = AuthSession | { mfaRequired: true }
+
 export const authApi = {
-  async login(email: string, password: string): Promise<AuthSession> {
-    return apiRequest<AuthSession>('/auth/login', {
+  async login(email: string, password: string, totpCode?: string): Promise<LoginResult> {
+    return apiRequest<LoginResult>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, totpCode }),
     })
   },
 
@@ -164,15 +168,111 @@ export const authApi = {
       body: JSON.stringify({ refreshToken }),
     })
   },
+
+  async verifyEmail(email: string, code: string): Promise<{ message: string }> {
+    return apiRequest('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    })
+  },
+
+  async resendVerification(email: string): Promise<{ message: string }> {
+    return apiRequest('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    })
+  },
+
+  async setupMfa(token: string): Promise<{ qrCode: string; secret: string }> {
+    return apiRequest('/auth/mfa/setup', { method: 'POST' }, token)
+  },
+  async confirmMfa(token: string, totpCode: string): Promise<{ message: string; isMfaEnabled: boolean }> {
+    return apiRequest('/auth/mfa/verify', { method: 'POST', body: JSON.stringify({ totpCode }) }, token)
+  },
+  async disableMfa(token: string, totpCode: string): Promise<{ message: string; isMfaEnabled: boolean }> {
+    return apiRequest('/auth/mfa/disable', { method: 'POST', body: JSON.stringify({ totpCode }) }, token)
+  },
+}
+
+// ─── Public showcase API (no auth) ──────────────────────────────────────────────
+
+export type PublicStats = { neighborhoods: number; residents: number; services: number; events: number; votes: number }
+export type PublicNeighborhood = {
+  _id: string
+  name: string
+  description: string
+  polygon: { type: 'Polygon'; coordinates: number[][][] }
+}
+export type PublicService = {
+  _id: string
+  title: string
+  description: string
+  category: string
+  isPaid: boolean
+  points: number
+  status: string
+  authorFirstName: string | null
+  authorRole: string | null
+  neighborhoodName: string | null
+  createdAt: string
+}
+export type PublicVote = {
+  _id: string
+  question: string
+  type: string
+  options: { label: string; votes: number }[]
+  totalVoters: number
+  closed: boolean
+  authorFirstName: string | null
+  authorRole: string | null
+  neighborhoodName: string | null
+}
+export type PublicEvent = {
+  _id: string
+  title: string
+  description: string
+  date: string
+  location: string
+  participantCount: number
+  maxParticipants: number
+  neighborhoodName: string | null
+}
+
+export const publicApi = {
+  async stats() {
+    return apiRequest<PublicStats>('/public/stats')
+  },
+  async neighborhoods() {
+    return apiRequest<PublicNeighborhood[]>('/public/neighborhoods')
+  },
+  async services() {
+    return apiRequest<PublicService[]>('/public/services')
+  },
+  async votes() {
+    return apiRequest<PublicVote[]>('/public/votes')
+  },
+  async events() {
+    return apiRequest<PublicEvent[]>('/public/events')
+  },
 }
 
 // ─── Users API ───────────────────────────────────────────────────────────────
+
+export type EmailPreferences = {
+  messages: boolean
+  annonces: boolean
+  events: boolean
+  newsletter: boolean
+}
 
 export type UserProfile = AuthUser & {
   phone: string
   address: string
   points: number
   isVerified: boolean
+  isBlocked?: boolean
+  isMfaEnabled?: boolean
+  emailPreferences?: EmailPreferences
   neighborhoodId?: {
     _id: string
     name: string
@@ -218,8 +318,35 @@ export const usersApi = {
   async adminDelete(token: string, id: string) {
     return apiRequest<{ message: string }>(`/users/${id}`, { method: 'DELETE' }, token)
   },
+  async adminSetBlocked(token: string, id: string, blocked: boolean) {
+    return apiRequest<AdminUser>(
+      `/users/${id}/block`,
+      { method: 'PUT', body: JSON.stringify({ blocked }) },
+      token,
+    )
+  },
   async listNeighbors(token: string) {
     return apiRequest<NeighborSummary[]>('/users/neighbors', undefined, token)
+  },
+  async updatePreferences(token: string, prefs: Partial<EmailPreferences>) {
+    return apiRequest<EmailPreferences>(
+      '/users/me/preferences',
+      { method: 'PUT', body: JSON.stringify(prefs) },
+      token,
+    )
+  },
+  async heartbeat(token: string) {
+    return apiRequest<{ ok: boolean }>('/users/heartbeat', { method: 'POST' }, token)
+  },
+  async exportMyData(token: string, format: 'json' | 'csv'): Promise<Blob> {
+    const response = await fetch(`${apiBaseUrl}/users/me/export?format=${format}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!response.ok) throw new Error("L'export a échoué.")
+    return response.blob()
+  },
+  async deleteMyAccount(token: string) {
+    return apiRequest<{ message: string }>('/users/me', { method: 'DELETE' }, token)
   },
 }
 
@@ -229,6 +356,8 @@ export type NeighborSummary = {
   lastName: string
   role: AuthUser['role']
   neighborhoodId?: string
+  isOnline?: boolean
+  lastSeenAt?: string
 }
 
 // ─── Services API ────────────────────────────────────────────────────────────
@@ -552,6 +681,204 @@ async function apiUpload<T>(path: string, formData: FormData, token: string): Pr
   return payload.data
 }
 
+// ─── Groupes de discussion API ──────────────────────────────────────────────────
+
+export type GroupPerson = { _id: string; name: string; role: string }
+export type GroupSummary = {
+  _id: string
+  name: string
+  description: string
+  memberCount: number
+  isMember: boolean
+  createdBy: GroupPerson | null
+  createdAt: string
+}
+export type GroupMessage = { _id: string; content: string; createdAt: string; sender: GroupPerson | null }
+export type GroupDetail = {
+  _id: string
+  name: string
+  description: string
+  createdBy: GroupPerson | null
+  members: GroupPerson[]
+  messages: GroupMessage[]
+}
+
+export const groupsApi = {
+  async list(token: string) {
+    return apiRequest<GroupSummary[]>('/groups', undefined, token)
+  },
+  async create(token: string, payload: { name: string; description?: string; memberIds?: string[] }) {
+    return apiRequest<{ _id: string }>('/groups', { method: 'POST', body: JSON.stringify(payload) }, token)
+  },
+  async get(token: string, id: string) {
+    return apiRequest<GroupDetail>(`/groups/${id}`, undefined, token)
+  },
+  async sendMessage(token: string, id: string, content: string) {
+    return apiRequest<GroupMessage>(`/groups/${id}/messages`, { method: 'POST', body: JSON.stringify({ content }) }, token)
+  },
+  async join(token: string, id: string) {
+    return apiRequest<{ message: string }>(`/groups/${id}/join`, { method: 'POST' }, token)
+  },
+  async leave(token: string, id: string) {
+    return apiRequest<{ message: string }>(`/groups/${id}/leave`, { method: 'POST' }, token)
+  },
+  async remove(token: string, id: string) {
+    return apiRequest<{ message: string }>(`/groups/${id}`, { method: 'DELETE' }, token)
+  },
+  async deleteMessage(token: string, messageId: string) {
+    return apiRequest<{ message: string }>(`/groups/messages/${messageId}`, { method: 'DELETE' }, token)
+  },
+}
+
+// ─── Votes API ────────────────────────────────────────────────────────────────
+
+export type VoteType = 'yesno' | 'single' | 'multiple' | 'weighted'
+export type VoteOption = { label: string; votes: number | null }
+export type VoteAuthor = { _id: string; name: string; role: string }
+
+export type Vote = {
+  _id: string
+  question: string
+  type: VoteType
+  isAnonymous: boolean
+  openAt: string
+  closeAt: string
+  quorum?: number
+  showResultsLive: boolean
+  author: VoteAuthor | null
+  options: VoteOption[]
+  totalVoters: number
+  quorumMet: boolean
+  isOpen: boolean
+  closed: boolean
+  resultsVisible: boolean
+  hasVoted: boolean
+  myChoices: number[]
+  myWeights: number[]
+  commentsCount: number
+  createdAt: string
+}
+
+export type VoteComment = { _id: string; content: string; createdAt: string; author: VoteAuthor | null }
+
+export type CreateVotePayload = {
+  question: string
+  type: VoteType
+  options?: string[]
+  isAnonymous?: boolean
+  openAt?: string
+  closeAt?: string
+  quorum?: number
+  showResultsLive?: boolean
+}
+
+export type CastVotePayload = { choice?: number; choices?: number[]; weights?: number[] }
+
+export const votesApi = {
+  async list(token: string) {
+    return apiRequest<Vote[]>('/votes', undefined, token)
+  },
+  async get(token: string, id: string) {
+    return apiRequest<Vote>(`/votes/${id}`, undefined, token)
+  },
+  async create(token: string, payload: CreateVotePayload) {
+    return apiRequest<Vote>('/votes', { method: 'POST', body: JSON.stringify(payload) }, token)
+  },
+  async cast(token: string, id: string, payload: CastVotePayload) {
+    return apiRequest<Vote>(`/votes/${id}/cast`, { method: 'POST', body: JSON.stringify(payload) }, token)
+  },
+  async remove(token: string, id: string) {
+    return apiRequest<{ message: string }>(`/votes/${id}`, { method: 'DELETE' }, token)
+  },
+  async listComments(token: string, id: string) {
+    return apiRequest<VoteComment[]>(`/votes/${id}/comments`, undefined, token)
+  },
+  async addComment(token: string, id: string, content: string) {
+    return apiRequest<VoteComment>(`/votes/${id}/comments`, { method: 'POST', body: JSON.stringify({ content }) }, token)
+  },
+  async deleteComment(token: string, commentId: string) {
+    return apiRequest<{ message: string }>(`/votes/comments/${commentId}`, { method: 'DELETE' }, token)
+  },
+}
+
+// ─── Documents & signatures API ─────────────────────────────────────────────────
+
+export type DocumentStatus = 'draft' | 'pending_signatures' | 'signed' | 'archived'
+
+export type DocPerson = { _id: string; firstName: string; lastName: string }
+
+export type DocSignatory = {
+  userId: DocPerson | string
+  order: number
+  signedAt?: string
+  signature?: string
+}
+
+export type AppDocument = {
+  _id: string
+  title: string
+  fileUrl: string
+  signedFileUrl?: string
+  status: DocumentStatus
+  hash?: string
+  locked: boolean
+  importerId: DocPerson | string
+  signatureZones: { signerId: string; page: number; x: number; y: number; width: number; height: number; type: string }[]
+  signatories: DocSignatory[]
+  createdAt: string
+}
+
+export type DocumentVerification = {
+  integrity: 'ok' | 'altered' | 'missing'
+  hash?: string
+  status: DocumentStatus
+  locked: boolean
+  signatories: { userId: string; order: number; signedAt?: string; signatureHash?: string }[]
+}
+
+export const documentsApi = {
+  async list(token: string) {
+    return apiRequest<AppDocument[]>('/documents', undefined, token)
+  },
+  async get(token: string, id: string) {
+    return apiRequest<AppDocument>(`/documents/${id}`, undefined, token)
+  },
+  async upload(token: string, file: File, title: string) {
+    const form = new FormData()
+    form.append('title', title)
+    form.append('file', file, file.name)
+    return apiUpload<AppDocument>('/documents', form, token)
+  },
+  async setZones(
+    token: string,
+    id: string,
+    zones: { signerId: string; page: number; x: number; y: number; width: number; height: number; type?: string }[],
+  ) {
+    return apiRequest<AppDocument>(
+      `/documents/${id}/zones`,
+      { method: 'PUT', body: JSON.stringify({ zones }) },
+      token,
+    )
+  },
+  async send(token: string, id: string, signatories: { userId: string; order: number }[]) {
+    return apiRequest<AppDocument>(
+      `/documents/${id}/send`,
+      { method: 'POST', body: JSON.stringify({ signatories }) },
+      token,
+    )
+  },
+  async sign(token: string, id: string, signature: string, totpCode: string) {
+    return apiRequest<AppDocument>(
+      `/documents/${id}/sign`,
+      { method: 'POST', body: JSON.stringify({ signature, totpCode }) },
+      token,
+    )
+  },
+  async verify(token: string, id: string) {
+    return apiRequest<DocumentVerification>(`/documents/${id}/verify`, undefined, token)
+  },
+}
+
 export const messagesApi = {
   async list(token: string) {
     return apiRequest<ConversationSummary[]>('/messages', undefined, token)
@@ -585,5 +912,94 @@ export const messagesApi = {
       filename ?? (type === 'audio' ? 'voice-message' : 'image'),
     )
     return apiUpload<ConversationMessage>(`/messages/${userId}/upload`, form, token)
+  },
+  async reportMessage(token: string, messageId: string, reason?: string) {
+    return apiRequest<{ message: string; reportId: string }>(
+      `/messages/${messageId}/report`,
+      { method: 'POST', body: JSON.stringify({ reason: reason ?? '' }) },
+      token,
+    )
+  },
+  async listReports(token: string) {
+    return apiRequest<MessageReport[]>('/messages/reports', undefined, token)
+  },
+  async resolveReport(token: string, reportId: string, status: 'reviewed' | 'dismissed') {
+    return apiRequest<MessageReport>(
+      `/messages/reports/${reportId}`,
+      { method: 'PUT', body: JSON.stringify({ status }) },
+      token,
+    )
+  },
+}
+
+export type MessageReport = {
+  _id: string
+  reason: string
+  status: 'pending' | 'reviewed' | 'dismissed'
+  reportedBy: { _id: string; firstName: string; lastName: string } | null
+  messageId: {
+    _id: string
+    content: string
+    type: 'text' | 'photo' | 'audio'
+    senderId: string
+    receiverId: string
+    createdAt: string
+  } | null
+  createdAt: string
+}
+
+// ─── Newsletter API (back-office) ───────────────────────────────────────────────
+
+export type NewsletterStatus = 'draft' | 'scheduled' | 'sent'
+
+export type Newsletter = {
+  _id: string
+  subject: string
+  contentHtml: string
+  status: NewsletterStatus
+  scheduledAt?: string
+  sentAt?: string
+  sentCount: number
+  authorId: { _id: string; firstName: string; lastName: string } | string
+  createdAt: string
+  updatedAt: string
+}
+
+export type NewsletterPayload = {
+  subject: string
+  contentHtml?: string
+  scheduledAt?: string | null
+}
+
+export const newsletterApi = {
+  async list(token: string) {
+    return apiRequest<Newsletter[]>('/newsletter', undefined, token)
+  },
+  async get(token: string, id: string) {
+    return apiRequest<Newsletter>(`/newsletter/${id}`, undefined, token)
+  },
+  async create(token: string, payload: NewsletterPayload) {
+    return apiRequest<Newsletter>(
+      '/newsletter',
+      { method: 'POST', body: JSON.stringify(payload) },
+      token,
+    )
+  },
+  async update(token: string, id: string, payload: Partial<NewsletterPayload>) {
+    return apiRequest<Newsletter>(
+      `/newsletter/${id}`,
+      { method: 'PUT', body: JSON.stringify(payload) },
+      token,
+    )
+  },
+  async remove(token: string, id: string) {
+    return apiRequest<{ message: string }>(`/newsletter/${id}`, { method: 'DELETE' }, token)
+  },
+  async send(token: string, id: string) {
+    return apiRequest<{ message: string; sentCount: number; newsletter: Newsletter }>(
+      `/newsletter/${id}/send`,
+      { method: 'POST' },
+      token,
+    )
   },
 }

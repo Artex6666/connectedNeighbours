@@ -37,7 +37,7 @@ export function CreateEventModal({ onClose, onCreated }: Props) {
   }
 
   const inputStyle = {
-    background: 'rgba(255,255,255,0.04)',
+    background: 'rgba(0,0,0,0.05)',
     border: '1px solid var(--color-border)',
     color: 'var(--color-text)',
   }
@@ -67,7 +67,7 @@ export function CreateEventModal({ onClose, onCreated }: Props) {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && (
-            <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#ffb4b4' }}>
+            <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#c0392b' }}>
               {error}
             </div>
           )}

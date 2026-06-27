@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
-import { authApi, type AuthUser, type AuthSession } from '@/shared/lib/api'
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { authApi, usersApi, type AuthUser, type AuthSession } from '@/shared/lib/api'
+
+const HEARTBEAT_INTERVAL_MS = 30_000
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -7,7 +9,7 @@ type AuthContextValue = {
   user: AuthUser | null
   accessToken: string | null
   isAuthenticated: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string, totpCode?: string) => Promise<{ mfaRequired: boolean }>
   logout: () => Promise<void>
   updateAccessToken: (token: string) => void
 }
@@ -41,10 +43,14 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(() => loadSession())
 
-  const login = useCallback(async (email: string, password: string) => {
-    const newSession = await authApi.login(email, password)
-    setSession(newSession)
-    saveSession(newSession)
+  const login = useCallback(async (email: string, password: string, totpCode?: string) => {
+    const result = await authApi.login(email, password, totpCode)
+    if ('mfaRequired' in result) {
+      return { mfaRequired: true }
+    }
+    setSession(result)
+    saveSession(result)
+    return { mfaRequired: false }
   }, [])
 
   const logout = useCallback(async () => {
@@ -67,6 +73,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return updated
     })
   }, [])
+
+  // Presence heartbeat: while logged in and the tab is open, periodically tell
+  // the server we're online. Drives the green dot and "email only when offline".
+  const accessToken = session?.accessToken ?? null
+  useEffect(() => {
+    if (!accessToken) return
+    const ping = () => usersApi.heartbeat(accessToken).catch(() => undefined)
+    ping()
+    const id = window.setInterval(ping, HEARTBEAT_INTERVAL_MS)
+    return () => window.clearInterval(id)
+  }, [accessToken])
 
   return (
     <AuthContext.Provider

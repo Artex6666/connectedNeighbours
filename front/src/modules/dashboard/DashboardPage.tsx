@@ -45,7 +45,7 @@ export function DashboardPage() {
                 {!available && (
                   <span
                     className="text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0"
-                    style={{ background: 'var(--color-secondary-soft)', color: '#c8b7ff' }}
+                    style={{ background: 'var(--color-secondary-soft)', color: '#6d28d9' }}
                   >
                     {t('dashboard.comingSoon')}
                   </span>

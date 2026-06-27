@@ -1,13 +1,12 @@
-import { routes } from '@/shared/config/routes'
-
 export type NavItem = {
-  labelKey: string
+  label: string
   href: string
 }
 
+// Ancres vers les sections de la landing publique (HomePageView).
 export const navItems: NavItem[] = [
-  { labelKey: 'navigation.home', href: routes.home },
-  { labelKey: 'navigation.concept', href: '#concept' },
-  { labelKey: 'navigation.services', href: '#services' },
-  { labelKey: 'navigation.events', href: '#events' },
+  { label: 'Quartiers', href: '#quartiers' },
+  { label: 'Annonces', href: '#annonces' },
+  { label: 'Sondages', href: '#sondages' },
+  { label: 'Événements', href: '#evenements' },
 ]

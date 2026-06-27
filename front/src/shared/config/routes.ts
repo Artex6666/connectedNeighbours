@@ -6,6 +6,9 @@ export const routes = {
   services: '/services',
   serviceDetail: (id: string) => `/services/${id}`,
   events: '/events',
+  documents: '/documents',
+  votes: '/votes',
+  groups: '/groups',
   profile: '/profile',
   admin: '/admin',
   // Per-plugin admin URLs are derived from the plugin id at runtime — see

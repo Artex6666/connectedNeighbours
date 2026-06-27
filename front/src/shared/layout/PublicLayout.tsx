@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Outlet, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { navItems } from '@/shared/config/nav-items'
@@ -10,10 +11,12 @@ export function PublicLayout() {
   const { t } = useTranslation()
   const { user, isAuthenticated, logout, accessToken } = useAuth()
 
-  // Build a minimal session object for ChatWidget compatibility
-  const chatSession = isAuthenticated && accessToken
-    ? { accessToken, refreshToken: '', user: user! }
-    : null
+  // Minimal session for the ChatWidget. Memoised so its reference is stable
+  // across renders (an unstable session prop thrashes the widget's effects).
+  const chatSession = useMemo(
+    () => (isAuthenticated && accessToken && user ? { accessToken, refreshToken: '', user } : null),
+    [isAuthenticated, accessToken, user],
+  )
 
   return (
     <div>
@@ -36,7 +39,7 @@ export function PublicLayout() {
               </>
             ) : (
               navItems.map((item) => (
-                <a key={item.href} href={item.href}>{t(item.labelKey)}</a>
+                <a key={item.href} href={item.href}>{item.label}</a>
               ))
             )}
           </nav>
@@ -98,11 +101,14 @@ export function PublicLayout() {
         </footer>
       </div>
 
-      <ChatWidget
-        isAuthenticated={isAuthenticated}
-        session={chatSession}
-        onRequireAuth={() => void 0}
-      />
+      {/* La messagerie n'apparaît que pour les utilisateurs connectés. */}
+      {isAuthenticated && chatSession && (
+        <ChatWidget
+          isAuthenticated={isAuthenticated}
+          session={chatSession}
+          onRequireAuth={() => void 0}
+        />
+      )}
 
       <AdminQuickButton />
     </div>
