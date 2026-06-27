@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as usersController from '../controllers/users.controller';
+import * as rgpdController from '../controllers/rgpd.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { requireRole } from '../middlewares/role.middleware';
 
@@ -96,6 +97,36 @@ router.put('/me/preferences', usersController.updateMyPreferences);
  *       200: { description: Présence enregistrée }
  */
 router.post('/heartbeat', usersController.heartbeat);
+
+/**
+ * @swagger
+ * /users/me/export:
+ *   get:
+ *     summary: Exporte toutes ses données personnelles (RGPD — accès & portabilité)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: query
+ *         name: format
+ *         schema: { type: string, enum: [json, csv], default: json }
+ *     responses:
+ *       200:
+ *         description: Fichier téléchargeable (JSON ou CSV) avec profil, services, événements, messages, votes, incidents
+ */
+router.get('/me/export', rgpdController.exportMyData);
+
+/**
+ * @swagger
+ * /users/me:
+ *   delete:
+ *     summary: Supprime son propre compte (RGPD — effacement / anonymisation)
+ *     description: Les données personnelles sont anonymisées ; les contenus partagés sont conservés sous « Compte supprimé ». Toutes les sessions sont révoquées.
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Compte anonymisé }
+ */
+router.delete('/me', rgpdController.deleteMyAccount);
 
 /**
  * @swagger

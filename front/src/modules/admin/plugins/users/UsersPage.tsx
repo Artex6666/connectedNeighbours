@@ -169,7 +169,7 @@ export function UsersPage() {
                         <span className="admin-badge admin-badge--ok">✓</span>
                       ) : null}
                       {u.isBlocked ? (
-                        <span className="admin-badge" style={{ background: 'rgba(255,80,80,0.18)', color: '#ffb4b4' }}>
+                        <span className="admin-badge" style={{ background: 'rgba(255,80,80,0.18)', color: '#c0392b' }}>
                           {t('admin.users.blocked', 'Bloqué')}
                         </span>
                       ) : null}

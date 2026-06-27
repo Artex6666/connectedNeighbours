@@ -160,7 +160,7 @@ export function NeighborhoodMapEditor({ value, onChange, otherPolygons, center }
             center={[lat, lng]}
             radius={7}
             pathOptions={{
-              color: activeVertex === index ? '#ffd479' : '#ffffff',
+              color: activeVertex === index ? '#b45309' : '#ffffff',
               weight: 2,
               fillColor: activeVertex === index ? '#ffb347' : '#4e89ff',
               fillOpacity: 1,

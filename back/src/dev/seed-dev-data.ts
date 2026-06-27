@@ -4,6 +4,9 @@ import User from '../models/User.model';
 import Neighborhood from '../models/Neighborhood.model';
 import Service from '../models/Service.model';
 import Event from '../models/Event.model';
+import Vote from '../models/Vote.model';
+import Group from '../models/Group.model';
+import GroupMessage from '../models/GroupMessage.model';
 
 function createConversationId(a: string, b: string) {
   return [a, b].sort().join('__');
@@ -17,6 +20,8 @@ export async function ensureDevSeedData() {
   }
 
   await seedEventsIfMissing();
+  await seedVotesIfMissing();
+  await seedGroupsIfMissing();
 }
 
 // ─── Users, neighborhood, services, messages ──────────────────────────────────
@@ -135,7 +140,72 @@ async function seedUsersAndBase() {
     },
   ]);
 
-  console.log('[seed] Base data created (neighborhood + users + services + messages)');
+  // ── Deuxième quartier (pour une carte plus vivante) ──────────────────────────
+  const neighborhood2 = await Neighborhood.create({
+    name: 'Paris 10e — Canal Saint-Martin',
+    description: 'Le long du Canal Saint-Martin, entre République et Gare de l\'Est.',
+    polygon: {
+      type: 'Polygon',
+      coordinates: [[
+        [2.3580, 48.8680],
+        [2.3720, 48.8680],
+        [2.3720, 48.8770],
+        [2.3580, 48.8770],
+        [2.3580, 48.8680],
+      ]],
+    },
+    adminId: admin._id,
+  });
+
+  const [marc, lea, hugo] = await User.create([
+    {
+      firstName: 'Marc', lastName: 'Petit',
+      email: 'marc@bobconnect.fr', password: hashedPassword,
+      phone: '0620304050', address: '5 quai de Valmy, 75010 Paris',
+      role: 'resident', points: 16, isVerified: true, neighborhoodId: neighborhood2._id,
+    },
+    {
+      firstName: 'Léa', lastName: 'Moreau',
+      email: 'lea@bobconnect.fr', password: hashedPassword,
+      phone: '0621314151', address: '14 rue Bichat, 75010 Paris',
+      role: 'resident', points: 9, isVerified: true, neighborhoodId: neighborhood2._id,
+    },
+    {
+      firstName: 'Hugo', lastName: 'Faure',
+      email: 'hugo@bobconnect.fr', password: hashedPassword,
+      phone: '0622324252', address: '30 rue de Lancry, 75010 Paris',
+      role: 'resident', points: 6, isVerified: true, neighborhoodId: neighborhood2._id,
+    },
+  ]);
+
+  await Service.insertMany([
+    {
+      title: 'Prêt de perceuse et outils',
+      description: 'Je prête volontiers ma perceuse et ma caisse à outils aux voisins. Passez quand vous voulez !',
+      category: 'bricolage', isPaid: false, points: 0,
+      authorId: marc._id, neighborhoodId: neighborhood2._id, status: 'open',
+    },
+    {
+      title: 'Cours de cuisine italienne',
+      description: 'Pâtes fraîches, risotto, tiramisu… Je partage mes recettes de famille. 3 points la session.',
+      category: 'cours_particuliers', isPaid: true, points: 3,
+      authorId: lea._id, neighborhoodId: neighborhood2._id, status: 'open',
+    },
+    {
+      title: 'Promenade de chiens le matin',
+      description: 'Disponible tôt le matin pour promener vos chiens le long du canal. 2 points la balade.',
+      category: 'garde_animaux', isPaid: true, points: 2,
+      authorId: hugo._id, neighborhoodId: neighborhood2._id, status: 'open',
+    },
+    {
+      title: 'Aide aux courses pour personnes âgées',
+      description: 'Bénévolement, je fais les courses pour les voisins qui ont du mal à se déplacer.',
+      category: 'autre', isPaid: false, points: 0,
+      authorId: lea._id, neighborhoodId: neighborhood2._id, status: 'open',
+    },
+  ]);
+
+  console.log('[seed] Base data created (2 neighborhoods + users + services + messages)');
 }
 
 // ─── Events (incrémental — s'exécute même si les users existent déjà) ─────────
@@ -210,4 +280,105 @@ async function seedEventsIfMissing() {
   ]);
 
   console.log('[seed] Events de démo créés (4 événements)');
+}
+
+// ─── Sondages (créés par les utilisateurs test, avec résultats) ────────────────
+
+async function seedVotesIfMissing() {
+  if ((await Vote.countDocuments()) > 0) return;
+
+  const emails = [
+    'jean@bobconnect.fr', 'camille@bobconnect.fr', 'nassim@bobconnect.fr',
+    'sarah@bobconnect.fr', 'marc@bobconnect.fr', 'lea@bobconnect.fr', 'hugo@bobconnect.fr',
+  ];
+  const users = await User.find({ email: { $in: emails } }).select('email neighborhoodId');
+  const u = (e: string) => users.find((x) => x.email === e);
+  const jean = u('jean@bobconnect.fr'), camille = u('camille@bobconnect.fr'),
+    nassim = u('nassim@bobconnect.fr'), sarah = u('sarah@bobconnect.fr'),
+    marc = u('marc@bobconnect.fr'), lea = u('lea@bobconnect.fr'), hugo = u('hugo@bobconnect.fr');
+  if (!jean || !camille || !nassim || !sarah || !marc || !lea || !hugo) return;
+
+  const now = Date.now();
+  const openAt = new Date(now - 2 * 864e5);
+  const closeAt = new Date(now + 10 * 864e5);
+
+  type B = { userId: unknown; choices?: number[]; weights?: number[] };
+  const build = (
+    question: string,
+    type: string,
+    labels: string[],
+    author: { _id: unknown; neighborhoodId?: unknown },
+    ballots: B[],
+    extra: Record<string, unknown> = {},
+  ) => {
+    const options = labels.map((label) => ({ label, votes: 0 }));
+    for (const b of ballots) {
+      if (b.weights) b.weights.forEach((w, i) => (options[i].votes += w));
+      else (b.choices ?? []).forEach((i) => (options[i].votes += 1));
+    }
+    return {
+      question, type, options,
+      authorId: author._id, neighborhoodId: author.neighborhoodId,
+      openAt, closeAt, showResultsLive: true,
+      voters: ballots.map((b) => b.userId), ballots,
+      ...extra,
+    };
+  };
+
+  await Vote.insertMany([
+    build('Installer un composteur partagé dans la cour ?', 'yesno', ['Pour', 'Contre'], nassim, [
+      { userId: jean._id, choices: [0] },
+      { userId: camille._id, choices: [0] },
+      { userId: sarah._id, choices: [0] },
+    ]),
+    build('Quel jour pour le prochain repas de quartier ?', 'single', ['Vendredi', 'Samedi', 'Dimanche'], camille, [
+      { userId: jean._id, choices: [1] },
+      { userId: sarah._id, choices: [1] },
+      { userId: nassim._id, choices: [0] },
+    ]),
+    build('Quels ateliers aimeriez-vous voir organisés ?', 'multiple', ['Jardinage', 'Cuisine', 'Bricolage', 'Sport'], jean, [
+      { userId: camille._id, choices: [0, 1] },
+      { userId: sarah._id, choices: [0, 3] },
+      { userId: nassim._id, choices: [2] },
+    ], { quorum: 3 }),
+    build('Faut-il demander plus d\'éclairage le long du canal ?', 'yesno', ['Pour', 'Contre'], marc, [
+      { userId: lea._id, choices: [0] },
+      { userId: hugo._id, choices: [0] },
+    ]),
+    build('Répartissez 10 points entre ces projets de quartier', 'weighted', ['Bancs', 'Pistes cyclables', 'Espaces verts', 'Aire de jeux'], lea, [
+      { userId: marc._id, weights: [4, 3, 2, 1] },
+      { userId: hugo._id, weights: [2, 2, 4, 2] },
+    ], { isAnonymous: true }),
+  ]);
+
+  console.log('[seed] Sondages créés (5 votes par les utilisateurs test)');
+}
+
+// ─── Groupe de discussion ──────────────────────────────────────────────────────
+
+async function seedGroupsIfMissing() {
+  if ((await Group.countDocuments()) > 0) return;
+
+  const [nassim, camille, jean] = await Promise.all([
+    User.findOne({ email: 'nassim@bobconnect.fr' }),
+    User.findOne({ email: 'camille@bobconnect.fr' }),
+    User.findOne({ email: 'jean@bobconnect.fr' }),
+  ]);
+  if (!nassim || !camille || !jean || !nassim.neighborhoodId) return;
+
+  const group = await Group.create({
+    name: 'Repas de quartier 2026',
+    description: 'Organisation du grand repas de quartier place Léon Blum.',
+    neighborhoodId: nassim.neighborhoodId,
+    createdBy: nassim._id,
+    members: [nassim._id, camille._id, jean._id],
+  });
+
+  await GroupMessage.insertMany([
+    { groupId: group._id, senderId: nassim._id, content: 'On vise le 14 juin, ça vous va ?' },
+    { groupId: group._id, senderId: camille._id, content: 'Parfait pour moi ! J\'amène une grande salade.' },
+    { groupId: group._id, senderId: jean._id, content: 'Je m\'occupe des boissons et des tables.' },
+  ]);
+
+  console.log('[seed] Groupe de discussion créé');
 }

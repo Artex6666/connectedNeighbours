@@ -12,9 +12,9 @@ async function start() {
   try {
     await connectMongo();
     await connectNeo4j();
-    if (process.env.NODE_ENV !== 'production') {
-      await ensureDevSeedData();
-    }
+    // Idempotent — only seeds collections that are still empty. Runs in prod too
+    // so the public showcase has real content on a fresh database.
+    await ensureDevSeedData();
 
     app.listen(PORT, () => {
       console.log(`[server] Running on http://localhost:${PORT}`);

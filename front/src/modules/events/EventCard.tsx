@@ -49,7 +49,7 @@ export function EventCard({ event, currentUserId, onRegister, onUnregister }: Pr
         ) : isParticipant ? (
           <span
             className="text-xs font-bold px-2.5 py-1 rounded-full"
-            style={{ background: 'var(--color-success-soft)', color: '#93f0c0' }}
+            style={{ background: 'var(--color-success-soft)', color: '#15803d' }}
           >
             {t('events.badges.registered')}
           </span>
@@ -63,7 +63,7 @@ export function EventCard({ event, currentUserId, onRegister, onUnregister }: Pr
         ) : (
           <span
             className="text-xs font-bold px-2.5 py-1 rounded-full"
-            style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--color-text-muted)' }}
+            style={{ background: 'rgba(0,0,0,0.06)', color: 'var(--color-text-muted)' }}
           >
             {isFull ? t('events.badges.full') : t('events.badges.spots', { count: spotsLeft })}
           </span>

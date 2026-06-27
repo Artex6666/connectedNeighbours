@@ -130,11 +130,13 @@ function splitFullName(fullName: string) {
 
 // ─── Auth API ─────────────────────────────────────────────────────────────────
 
+export type LoginResult = AuthSession | { mfaRequired: true }
+
 export const authApi = {
-  async login(email: string, password: string): Promise<AuthSession> {
-    return apiRequest<AuthSession>('/auth/login', {
+  async login(email: string, password: string, totpCode?: string): Promise<LoginResult> {
+    return apiRequest<LoginResult>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, totpCode }),
     })
   },
 
@@ -180,6 +182,78 @@ export const authApi = {
       body: JSON.stringify({ email }),
     })
   },
+
+  async setupMfa(token: string): Promise<{ qrCode: string; secret: string }> {
+    return apiRequest('/auth/mfa/setup', { method: 'POST' }, token)
+  },
+  async confirmMfa(token: string, totpCode: string): Promise<{ message: string; isMfaEnabled: boolean }> {
+    return apiRequest('/auth/mfa/verify', { method: 'POST', body: JSON.stringify({ totpCode }) }, token)
+  },
+  async disableMfa(token: string, totpCode: string): Promise<{ message: string; isMfaEnabled: boolean }> {
+    return apiRequest('/auth/mfa/disable', { method: 'POST', body: JSON.stringify({ totpCode }) }, token)
+  },
+}
+
+// ─── Public showcase API (no auth) ──────────────────────────────────────────────
+
+export type PublicStats = { neighborhoods: number; residents: number; services: number; events: number; votes: number }
+export type PublicNeighborhood = {
+  _id: string
+  name: string
+  description: string
+  polygon: { type: 'Polygon'; coordinates: number[][][] }
+}
+export type PublicService = {
+  _id: string
+  title: string
+  description: string
+  category: string
+  isPaid: boolean
+  points: number
+  status: string
+  authorFirstName: string | null
+  authorRole: string | null
+  neighborhoodName: string | null
+  createdAt: string
+}
+export type PublicVote = {
+  _id: string
+  question: string
+  type: string
+  options: { label: string; votes: number }[]
+  totalVoters: number
+  closed: boolean
+  authorFirstName: string | null
+  authorRole: string | null
+  neighborhoodName: string | null
+}
+export type PublicEvent = {
+  _id: string
+  title: string
+  description: string
+  date: string
+  location: string
+  participantCount: number
+  maxParticipants: number
+  neighborhoodName: string | null
+}
+
+export const publicApi = {
+  async stats() {
+    return apiRequest<PublicStats>('/public/stats')
+  },
+  async neighborhoods() {
+    return apiRequest<PublicNeighborhood[]>('/public/neighborhoods')
+  },
+  async services() {
+    return apiRequest<PublicService[]>('/public/services')
+  },
+  async votes() {
+    return apiRequest<PublicVote[]>('/public/votes')
+  },
+  async events() {
+    return apiRequest<PublicEvent[]>('/public/events')
+  },
 }
 
 // ─── Users API ───────────────────────────────────────────────────────────────
@@ -197,6 +271,7 @@ export type UserProfile = AuthUser & {
   points: number
   isVerified: boolean
   isBlocked?: boolean
+  isMfaEnabled?: boolean
   emailPreferences?: EmailPreferences
   neighborhoodId?: {
     _id: string
@@ -262,6 +337,16 @@ export const usersApi = {
   },
   async heartbeat(token: string) {
     return apiRequest<{ ok: boolean }>('/users/heartbeat', { method: 'POST' }, token)
+  },
+  async exportMyData(token: string, format: 'json' | 'csv'): Promise<Blob> {
+    const response = await fetch(`${apiBaseUrl}/users/me/export?format=${format}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!response.ok) throw new Error("L'export a échoué.")
+    return response.blob()
+  },
+  async deleteMyAccount(token: string) {
+    return apiRequest<{ message: string }>('/users/me', { method: 'DELETE' }, token)
   },
 }
 
@@ -594,6 +679,204 @@ async function apiUpload<T>(path: string, formData: FormData, token: string): Pr
   }
 
   return payload.data
+}
+
+// ─── Groupes de discussion API ──────────────────────────────────────────────────
+
+export type GroupPerson = { _id: string; name: string; role: string }
+export type GroupSummary = {
+  _id: string
+  name: string
+  description: string
+  memberCount: number
+  isMember: boolean
+  createdBy: GroupPerson | null
+  createdAt: string
+}
+export type GroupMessage = { _id: string; content: string; createdAt: string; sender: GroupPerson | null }
+export type GroupDetail = {
+  _id: string
+  name: string
+  description: string
+  createdBy: GroupPerson | null
+  members: GroupPerson[]
+  messages: GroupMessage[]
+}
+
+export const groupsApi = {
+  async list(token: string) {
+    return apiRequest<GroupSummary[]>('/groups', undefined, token)
+  },
+  async create(token: string, payload: { name: string; description?: string; memberIds?: string[] }) {
+    return apiRequest<{ _id: string }>('/groups', { method: 'POST', body: JSON.stringify(payload) }, token)
+  },
+  async get(token: string, id: string) {
+    return apiRequest<GroupDetail>(`/groups/${id}`, undefined, token)
+  },
+  async sendMessage(token: string, id: string, content: string) {
+    return apiRequest<GroupMessage>(`/groups/${id}/messages`, { method: 'POST', body: JSON.stringify({ content }) }, token)
+  },
+  async join(token: string, id: string) {
+    return apiRequest<{ message: string }>(`/groups/${id}/join`, { method: 'POST' }, token)
+  },
+  async leave(token: string, id: string) {
+    return apiRequest<{ message: string }>(`/groups/${id}/leave`, { method: 'POST' }, token)
+  },
+  async remove(token: string, id: string) {
+    return apiRequest<{ message: string }>(`/groups/${id}`, { method: 'DELETE' }, token)
+  },
+  async deleteMessage(token: string, messageId: string) {
+    return apiRequest<{ message: string }>(`/groups/messages/${messageId}`, { method: 'DELETE' }, token)
+  },
+}
+
+// ─── Votes API ────────────────────────────────────────────────────────────────
+
+export type VoteType = 'yesno' | 'single' | 'multiple' | 'weighted'
+export type VoteOption = { label: string; votes: number | null }
+export type VoteAuthor = { _id: string; name: string; role: string }
+
+export type Vote = {
+  _id: string
+  question: string
+  type: VoteType
+  isAnonymous: boolean
+  openAt: string
+  closeAt: string
+  quorum?: number
+  showResultsLive: boolean
+  author: VoteAuthor | null
+  options: VoteOption[]
+  totalVoters: number
+  quorumMet: boolean
+  isOpen: boolean
+  closed: boolean
+  resultsVisible: boolean
+  hasVoted: boolean
+  myChoices: number[]
+  myWeights: number[]
+  commentsCount: number
+  createdAt: string
+}
+
+export type VoteComment = { _id: string; content: string; createdAt: string; author: VoteAuthor | null }
+
+export type CreateVotePayload = {
+  question: string
+  type: VoteType
+  options?: string[]
+  isAnonymous?: boolean
+  openAt?: string
+  closeAt?: string
+  quorum?: number
+  showResultsLive?: boolean
+}
+
+export type CastVotePayload = { choice?: number; choices?: number[]; weights?: number[] }
+
+export const votesApi = {
+  async list(token: string) {
+    return apiRequest<Vote[]>('/votes', undefined, token)
+  },
+  async get(token: string, id: string) {
+    return apiRequest<Vote>(`/votes/${id}`, undefined, token)
+  },
+  async create(token: string, payload: CreateVotePayload) {
+    return apiRequest<Vote>('/votes', { method: 'POST', body: JSON.stringify(payload) }, token)
+  },
+  async cast(token: string, id: string, payload: CastVotePayload) {
+    return apiRequest<Vote>(`/votes/${id}/cast`, { method: 'POST', body: JSON.stringify(payload) }, token)
+  },
+  async remove(token: string, id: string) {
+    return apiRequest<{ message: string }>(`/votes/${id}`, { method: 'DELETE' }, token)
+  },
+  async listComments(token: string, id: string) {
+    return apiRequest<VoteComment[]>(`/votes/${id}/comments`, undefined, token)
+  },
+  async addComment(token: string, id: string, content: string) {
+    return apiRequest<VoteComment>(`/votes/${id}/comments`, { method: 'POST', body: JSON.stringify({ content }) }, token)
+  },
+  async deleteComment(token: string, commentId: string) {
+    return apiRequest<{ message: string }>(`/votes/comments/${commentId}`, { method: 'DELETE' }, token)
+  },
+}
+
+// ─── Documents & signatures API ─────────────────────────────────────────────────
+
+export type DocumentStatus = 'draft' | 'pending_signatures' | 'signed' | 'archived'
+
+export type DocPerson = { _id: string; firstName: string; lastName: string }
+
+export type DocSignatory = {
+  userId: DocPerson | string
+  order: number
+  signedAt?: string
+  signature?: string
+}
+
+export type AppDocument = {
+  _id: string
+  title: string
+  fileUrl: string
+  signedFileUrl?: string
+  status: DocumentStatus
+  hash?: string
+  locked: boolean
+  importerId: DocPerson | string
+  signatureZones: { signerId: string; page: number; x: number; y: number; width: number; height: number; type: string }[]
+  signatories: DocSignatory[]
+  createdAt: string
+}
+
+export type DocumentVerification = {
+  integrity: 'ok' | 'altered' | 'missing'
+  hash?: string
+  status: DocumentStatus
+  locked: boolean
+  signatories: { userId: string; order: number; signedAt?: string; signatureHash?: string }[]
+}
+
+export const documentsApi = {
+  async list(token: string) {
+    return apiRequest<AppDocument[]>('/documents', undefined, token)
+  },
+  async get(token: string, id: string) {
+    return apiRequest<AppDocument>(`/documents/${id}`, undefined, token)
+  },
+  async upload(token: string, file: File, title: string) {
+    const form = new FormData()
+    form.append('title', title)
+    form.append('file', file, file.name)
+    return apiUpload<AppDocument>('/documents', form, token)
+  },
+  async setZones(
+    token: string,
+    id: string,
+    zones: { signerId: string; page: number; x: number; y: number; width: number; height: number; type?: string }[],
+  ) {
+    return apiRequest<AppDocument>(
+      `/documents/${id}/zones`,
+      { method: 'PUT', body: JSON.stringify({ zones }) },
+      token,
+    )
+  },
+  async send(token: string, id: string, signatories: { userId: string; order: number }[]) {
+    return apiRequest<AppDocument>(
+      `/documents/${id}/send`,
+      { method: 'POST', body: JSON.stringify({ signatories }) },
+      token,
+    )
+  },
+  async sign(token: string, id: string, signature: string, totpCode: string) {
+    return apiRequest<AppDocument>(
+      `/documents/${id}/sign`,
+      { method: 'POST', body: JSON.stringify({ signature, totpCode }) },
+      token,
+    )
+  },
+  async verify(token: string, id: string) {
+    return apiRequest<DocumentVerification>(`/documents/${id}/verify`, undefined, token)
+  },
 }
 
 export const messagesApi = {

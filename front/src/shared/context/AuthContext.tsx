@@ -9,7 +9,7 @@ type AuthContextValue = {
   user: AuthUser | null
   accessToken: string | null
   isAuthenticated: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string, totpCode?: string) => Promise<{ mfaRequired: boolean }>
   logout: () => Promise<void>
   updateAccessToken: (token: string) => void
 }
@@ -43,10 +43,14 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(() => loadSession())
 
-  const login = useCallback(async (email: string, password: string) => {
-    const newSession = await authApi.login(email, password)
-    setSession(newSession)
-    saveSession(newSession)
+  const login = useCallback(async (email: string, password: string, totpCode?: string) => {
+    const result = await authApi.login(email, password, totpCode)
+    if ('mfaRequired' in result) {
+      return { mfaRequired: true }
+    }
+    setSession(result)
+    saveSession(result)
+    return { mfaRequired: false }
   }, [])
 
   const logout = useCallback(async () => {

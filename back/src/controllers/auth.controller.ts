@@ -5,6 +5,7 @@ import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/
 import { InvalidCredentialsError, ResourceConflictError } from '../utils/errors';
 import { isMailEnabled } from '../utils/mailer';
 import { generateVerificationCode, sendVerificationEmail } from '../services/email.service';
+import { generateTotpSecret, generateQrCode, verifyTotpCode } from '../utils/totp.utils';
 import User from '../models/User.model';
 import Token from '../models/Token.model';
 
@@ -82,7 +83,9 @@ export async function login(req: Request, res: Response) {
 
     if (!email || !password) return error(res, 'Email and password are required', 400);
 
-    const user = await User.findOne({ email });
+    const { totpCode } = req.body as { totpCode?: string };
+
+    const user = await User.findOne({ email }).select('+mfaSecret');
     if (!user) throw new InvalidCredentialsError();
 
     const valid = await bcrypt.compare(password, user.password);
@@ -93,6 +96,17 @@ export async function login(req: Request, res: Response) {
     }
     if (!user.isVerified) {
       return error(res, 'Adresse email non vérifiée. Confirmez votre compte pour vous connecter.', 403);
+    }
+
+    // Second facteur (TOTP) si la 2FA est activée sur le compte.
+    if (user.isMfaEnabled) {
+      if (!totpCode) {
+        // Le mot de passe est bon mais il manque le code — le front demande le code.
+        return success(res, { mfaRequired: true });
+      }
+      if (!user.mfaSecret || !verifyTotpCode(user.mfaSecret, totpCode)) {
+        return error(res, 'Code de double authentification invalide', 401);
+      }
     }
 
     const accessToken = signAccessToken({
@@ -251,12 +265,41 @@ export async function resendVerification(req: Request, res: Response) {
   }
 }
 
-// ─── MFA (TODO) ──────────────────────────────────────────────────────────────
+// ─── MFA (TOTP) ───────────────────────────────────────────────────────────────
 
-export async function setupMfa(_req: Request, res: Response) {
-  return success(res, { qrCode: null });
+/** Étape 1 : génère un secret + QR code à scanner dans une app d'authentification. */
+export async function setupMfa(req: Request, res: Response) {
+  try {
+    const userId = req.user!._id;
+    const user = await User.findById(userId).select('email isMfaEnabled');
+    if (!user) return error(res, 'Utilisateur introuvable', 404);
+    if (user.isMfaEnabled) return error(res, 'La 2FA est déjà activée', 400);
+
+    const secret = generateTotpSecret(user.email);
+    // Le secret est stocké en attente ; la 2FA n'est ACTIVE qu'après confirmation.
+    await User.findByIdAndUpdate(userId, { mfaSecret: secret.base32 });
+
+    const qrCode = await generateQrCode(secret.otpauth_url ?? '');
+    return success(res, { qrCode, secret: secret.base32 });
+  } catch {
+    return error(res, 'Internal server error', 500);
+  }
 }
 
-export async function confirmMfa(_req: Request, res: Response) {
-  return success(res, { message: 'confirmMfa — not implemented' });
+/**
+ * Étape 2 : vérifie le code TOTP et active la 2FA.
+ * Le code est déjà validé par mfaMiddleware (placé avant ce contrôleur).
+ */
+export async function confirmMfa(req: Request, res: Response) {
+  await User.findByIdAndUpdate(req.user!._id, { isMfaEnabled: true });
+  return success(res, { message: 'Double authentification activée', isMfaEnabled: true });
+}
+
+/** Désactive la 2FA (nécessite un code TOTP valide via mfaMiddleware). */
+export async function disableMfa(req: Request, res: Response) {
+  await User.findByIdAndUpdate(req.user!._id, {
+    isMfaEnabled: false,
+    $unset: { mfaSecret: 1 },
+  });
+  return success(res, { message: 'Double authentification désactivée', isMfaEnabled: false });
 }

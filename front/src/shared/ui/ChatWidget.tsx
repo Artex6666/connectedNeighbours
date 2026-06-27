@@ -12,6 +12,7 @@ import {
   type NeighborSummary,
 } from '@/shared/lib/api'
 import { formatDuration, useVoiceRecorder } from '@/shared/hooks/useVoiceRecorder'
+import { RoleBadge } from '@/shared/ui/RoleBadge'
 import { VoiceMessage } from '@/shared/ui/VoiceMessage'
 
 function formatRole(role: string) {
@@ -90,7 +91,10 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
     return null
   }, [pendingPeer, sortedConversations, currentPeerId])
 
-  // Cleanup when user logs out
+  // Cleanup when user logs out. NB: `recorder` is intentionally excluded from
+  // the deps — useVoiceRecorder returns a fresh object every render, so keeping
+  // it here would re-run this effect (and its setState calls) on every render,
+  // causing an infinite update loop (React error #185).
   useEffect(() => {
     if (isAuthenticated) return
     setIsOpen(false)
@@ -102,7 +106,8 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
     setErrorMessage(null)
     setImagePreview(null)
     recorder.reset()
-  }, [isAuthenticated, recorder])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated])
 
   // Load conversation list (and poll every 5s while open)
   useEffect(() => {
@@ -382,8 +387,9 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
                     ) : null}
                   </span>
                   <span className="chat-thread__content">
-                    <strong>{conversation.name}</strong>
-                    <small>{formatRole(conversation.role)}</small>
+                    <strong style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      {conversation.name} <RoleBadge role={conversation.role} />
+                    </strong>
                     <span>{conversation.lastMessage}</span>
                   </span>
                 </button>
@@ -393,8 +399,10 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
             <div className="chat-conversation">
               <div className="chat-conversation__header">
                 <div>
-                  <strong>{currentPeerLabel?.name ?? 'Conversation'}</strong>
-                  <small>{currentPeerLabel ? formatRole(currentPeerLabel.role) : 'Voisin'}</small>
+                  <strong style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    {currentPeerLabel?.name ?? 'Conversation'}
+                    {currentPeerLabel && <RoleBadge role={currentPeerLabel.role} />}
+                  </strong>
                 </div>
                 {currentPeerId ? (
                   <span className="status-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -430,7 +438,10 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
                         className={`chat-message ${isMine ? 'chat-message--me' : 'chat-message--other'} ${typeClass}`}
                       >
                         <div className="chat-message__meta">
-                          <strong>{isMine ? 'Vous' : activeConversation.participant.name}</strong>
+                          <strong style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                            {isMine ? 'Vous' : activeConversation.participant.name}
+                            {!isMine && <RoleBadge role={activeConversation.participant.role} />}
+                          </strong>
                           <span>{formatTimestamp(message.createdAt)}</span>
                           {!isMine ? (
                             <button

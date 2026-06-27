@@ -12,6 +12,9 @@ import { ServicesPage } from '@/modules/services/ServicesPage'
 import { ServiceDetailPage } from '@/modules/services/ServiceDetailPage'
 import { EventsPage } from '@/modules/events/EventsPage'
 import { EventDetailPage } from '@/modules/events/EventDetailPage'
+import { DocumentsPage } from '@/modules/documents/DocumentsPage'
+import { VotesPage } from '@/modules/votes/VotesPage'
+import { GroupsPage } from '@/modules/groups/GroupsPage'
 import { ProfilePage } from '@/modules/profile/ProfilePage'
 import { AdminDashboardPage } from '@/modules/admin/AdminDashboardPage'
 import { NotFoundPage } from '@/modules/not-found/NotFoundPage'
@@ -41,6 +44,9 @@ export const router = createBrowserRouter([
       { path: `${routes.services}/:id`, element: <ServiceDetailPage /> },
       { path: routes.events, element: <EventsPage /> },
       { path: `${routes.events}/:id`, element: <EventDetailPage /> },
+      { path: routes.documents, element: <DocumentsPage /> },
+      { path: routes.votes, element: <VotesPage /> },
+      { path: routes.groups, element: <GroupsPage /> },
       { path: routes.profile, element: <ProfilePage /> },
     ],
   },

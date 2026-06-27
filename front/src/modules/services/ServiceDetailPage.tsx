@@ -7,10 +7,10 @@ import { AppLayout } from '@/shared/layout/AppLayout'
 import { routes } from '@/shared/config/routes'
 
 const STATUS_COLORS: Record<string, string> = {
-  open: '#93f0c0',
+  open: '#15803d',
   in_progress: '#78adff',
   done: '#9fb1c9',
-  cancelled: '#ffb4b4',
+  cancelled: '#c0392b',
   pending: '#ffd580',
 }
 
@@ -101,7 +101,7 @@ export function ServiceDetailPage() {
 
   if (error || !service) return (
     <AppLayout>
-      <div className="text-center py-20" style={{ color: '#ffb4b4' }}>{error ?? t('services.notFound')}</div>
+      <div className="text-center py-20" style={{ color: '#c0392b' }}>{error ?? t('services.notFound')}</div>
     </AppLayout>
   )
 
@@ -132,21 +132,21 @@ export function ServiceDetailPage() {
             </span>
             <span
               className="text-xs font-bold px-3 py-1.5 rounded-full"
-              style={{ background: 'rgba(255,255,255,0.06)', color: STATUS_COLORS[service.status] }}
+              style={{ background: 'rgba(0,0,0,0.06)', color: STATUS_COLORS[service.status] }}
             >
               {t(`services.status.${service.status}`, service.status)}
             </span>
             {service.isPaid ? (
               <span
                 className="text-xs font-bold px-3 py-1.5 rounded-full ml-auto"
-                style={{ background: 'var(--color-secondary-soft)', color: '#c8b7ff' }}
+                style={{ background: 'var(--color-secondary-soft)', color: '#6d28d9' }}
               >
                 {service.points} points
               </span>
             ) : (
               <span
                 className="text-xs font-bold px-3 py-1.5 rounded-full ml-auto"
-                style={{ background: 'var(--color-success-soft)', color: '#93f0c0' }}
+                style={{ background: 'var(--color-success-soft)', color: '#15803d' }}
               >
                 {t('common.free')}
               </span>
@@ -207,7 +207,7 @@ export function ServiceDetailPage() {
             {isOwner && service.status === 'open' && (
               <button
                 className="button button--secondary"
-                style={{ borderColor: 'rgba(255,80,80,0.3)', color: '#ffb4b4' }}
+                style={{ borderColor: 'rgba(255,80,80,0.3)', color: '#c0392b' }}
                 onClick={handleDelete}
               >
                 {t('common.delete')}

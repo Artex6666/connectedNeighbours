@@ -14,6 +14,8 @@ export function LoginPage() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [totpCode, setTotpCode] = useState('')
+  const [mfaStep, setMfaStep] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -22,7 +24,11 @@ export function LoginPage() {
     setError(null)
     setIsLoading(true)
     try {
-      await login(email, password)
+      const result = await login(email, password, mfaStep ? totpCode : undefined)
+      if (result.mfaRequired) {
+        setMfaStep(true)
+        return
+      }
       navigate(from, { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : t('auth.errors.generic'))
@@ -60,7 +66,7 @@ export function LoginPage() {
           {error && (
             <div
               className="px-4 py-3 rounded-xl text-sm"
-              style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.2)', color: '#ffb4b4' }}
+              style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.2)', color: '#c0392b' }}
               role="alert"
             >
               {error}
@@ -82,7 +88,7 @@ export function LoginPage() {
               autoFocus
               className="h-12 px-4 rounded-xl outline-none transition-colors"
               style={{
-                background: 'rgba(255,255,255,0.02)',
+                background: 'rgba(0,0,0,0.04)',
                 border: '1px solid var(--color-border)',
                 color: 'var(--color-text)',
               }}
@@ -103,15 +109,38 @@ export function LoginPage() {
               autoComplete="current-password"
               className="h-12 px-4 rounded-xl outline-none transition-colors"
               style={{
-                background: 'rgba(255,255,255,0.02)',
+                background: 'rgba(0,0,0,0.04)',
                 border: '1px solid var(--color-border)',
                 color: 'var(--color-text)',
               }}
             />
           </div>
 
+          {mfaStep && (
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="totp" className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
+                {t('auth.mfa.codeLabel', 'Code de double authentification')}
+              </label>
+              <input
+                id="totp"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={totpCode}
+                onChange={(e) => setTotpCode(e.target.value)}
+                placeholder="123456"
+                required
+                autoFocus
+                className="h-12 px-4 rounded-xl outline-none transition-colors tracking-[0.4em] text-center"
+                style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+              />
+              <small style={{ color: 'var(--color-text-muted)' }}>
+                {t('auth.mfa.codeHint', 'Saisissez le code à 6 chiffres de votre application d\'authentification.')}
+              </small>
+            </div>
+          )}
+
           <button type="submit" disabled={isLoading} className="button button--full mt-2">
-            {isLoading ? t('auth.modal.loading') : t('auth.modal.submitLogin')}
+            {isLoading ? t('auth.modal.loading') : mfaStep ? t('auth.mfa.verify', 'Vérifier le code') : t('auth.modal.submitLogin')}
           </button>
         </form>
 

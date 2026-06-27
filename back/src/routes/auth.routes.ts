@@ -159,9 +159,14 @@ router.post('/resend-verification', authController.resendVerification);
  * @swagger
  * /auth/mfa/setup:
  *   post:
- *     summary: Initialize TOTP MFA (returns QR code)
+ *     summary: Démarre l'activation de la 2FA (renvoie un QR code à scanner)
  *     tags: [Auth]
  *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: QR code (data URL) + secret base32 pour saisie manuelle
+ *       400:
+ *         description: 2FA déjà activée
  */
 router.post('/mfa/setup', authMiddleware, authController.setupMfa);
 
@@ -169,10 +174,44 @@ router.post('/mfa/setup', authMiddleware, authController.setupMfa);
  * @swagger
  * /auth/mfa/verify:
  *   post:
- *     summary: Verify and activate MFA
+ *     summary: Confirme et active la 2FA avec un code TOTP
  *     tags: [Auth]
  *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [totpCode]
+ *             properties:
+ *               totpCode: { type: string, example: '123456' }
+ *     responses:
+ *       200: { description: 2FA activée }
+ *       403: { description: Code invalide ou MFA non initialisée }
  */
 router.post('/mfa/verify', authMiddleware, mfaMiddleware, authController.confirmMfa);
+
+/**
+ * @swagger
+ * /auth/mfa/disable:
+ *   post:
+ *     summary: Désactive la 2FA (nécessite un code TOTP valide)
+ *     tags: [Auth]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [totpCode]
+ *             properties:
+ *               totpCode: { type: string }
+ *     responses:
+ *       200: { description: 2FA désactivée }
+ *       403: { description: Code invalide }
+ */
+router.post('/mfa/disable', authMiddleware, mfaMiddleware, authController.disableMfa);
 
 export default router;

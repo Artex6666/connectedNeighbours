@@ -75,7 +75,7 @@ export function EventsPage() {
         )}
 
         {error && (
-          <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#ffb4b4' }}>
+          <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#c0392b' }}>
             {error}
           </div>
         )}
