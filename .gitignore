@@ -4,6 +4,7 @@ coverage/
 *.log
 .idea/
 .DS_Store
+.env
 
 # Java / Maven
 desktop/target/
