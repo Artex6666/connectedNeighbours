@@ -3,8 +3,10 @@ import app from './app';
 import { connectMongo } from './config/db.mongo';
 import { connectNeo4j } from './config/db.neo4j';
 import { ensureDevSeedData } from './dev/seed-dev-data';
+import { processDueNewsletters } from './controllers/newsletter.controller';
 
 const PORT = process.env.PORT ?? 3000;
+const NEWSLETTER_TICK_MS = 60 * 1000; // vérifie les newsletters planifiées chaque minute
 
 async function start() {
   try {
@@ -18,6 +20,13 @@ async function start() {
       console.log(`[server] Running on http://localhost:${PORT}`);
       console.log(`[server] Swagger docs at http://localhost:${PORT}/api/docs`);
     });
+
+    // Scheduler des newsletters planifiées.
+    setInterval(() => {
+      processDueNewsletters().catch((err) =>
+        console.error('[newsletter] scheduler error:', err?.message),
+      );
+    }, NEWSLETTER_TICK_MS);
   } catch (err) {
     console.error('[server] Failed to start:', err);
     process.exit(1);

@@ -11,6 +11,7 @@ import documentsRoutes from './documents.routes';
 import incidentsRoutes from './incidents.routes';
 import alertesRoutes from './alertes.routes';
 import statsRoutes from './stats.routes';
+import newsletterRoutes from './newsletter.routes';
 
 const router: Router = Router();
 
@@ -26,5 +27,6 @@ router.use('/documents', documentsRoutes);
 router.use('/incidents', incidentsRoutes);
 router.use('/alertes', alertesRoutes);
 router.use('/stats', statsRoutes);
+router.use('/newsletter', newsletterRoutes);
 
 export default router;

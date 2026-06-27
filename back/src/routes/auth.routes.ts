@@ -116,10 +116,44 @@ router.post('/logout-all', authMiddleware, authController.logoutAll);
  * @swagger
  * /auth/verify-email:
  *   post:
- *     summary: Verify account by email code
+ *     summary: Vérifie un compte via le code reçu par email
  *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, code]
+ *             properties:
+ *               email: { type: string, format: email }
+ *               code: { type: string, example: '482913' }
+ *     responses:
+ *       200: { description: Compte vérifié }
+ *       400: { description: Code invalide ou expiré }
+ *       404: { description: Utilisateur introuvable }
  */
 router.post('/verify-email', authController.verifyEmail);
+
+/**
+ * @swagger
+ * /auth/resend-verification:
+ *   post:
+ *     summary: Renvoie un code de vérification par email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email }
+ *     responses:
+ *       200: { description: Email renvoyé (réponse neutre) }
+ */
+router.post('/resend-verification', authController.resendVerification);
 
 /**
  * @swagger

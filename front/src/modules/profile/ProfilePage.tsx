@@ -2,13 +2,20 @@ import { useState, useEffect } from 'react'
 import { MapContainer, Polygon, TileLayer } from 'react-leaflet'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
-import { usersApi, type UserProfile, type UpdateProfilePayload } from '@/shared/lib/api'
+import { usersApi, type UserProfile, type UpdateProfilePayload, type EmailPreferences } from '@/shared/lib/api'
 import { AppLayout } from '@/shared/layout/AppLayout'
 import i18n from '@/shared/i18n'
 
 const LANGUAGES = [
   { code: 'fr', label: '🇫🇷 Français' },
   { code: 'en', label: '🇬🇧 English' },
+]
+
+const PREF_ITEMS: { key: keyof EmailPreferences; labelKey: string; fallback: string }[] = [
+  { key: 'messages', labelKey: 'profile.prefs.messages', fallback: 'Nouveaux messages' },
+  { key: 'annonces', labelKey: 'profile.prefs.annonces', fallback: 'Nouvelles annonces du quartier' },
+  { key: 'events', labelKey: 'profile.prefs.events', fallback: 'Événements' },
+  { key: 'newsletter', labelKey: 'profile.prefs.newsletter', fallback: 'Newsletter' },
 ]
 
 export function ProfilePage() {
@@ -54,6 +61,26 @@ export function ProfilePage() {
       setSaveError(err instanceof Error ? err.message : t('auth.errors.generic'))
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const [prefSaving, setPrefSaving] = useState<keyof EmailPreferences | null>(null)
+
+  const handleTogglePref = async (key: keyof EmailPreferences) => {
+    if (!accessToken || !profile) return
+    const current: EmailPreferences =
+      profile.emailPreferences ?? { messages: true, annonces: true, events: true, newsletter: true }
+    const nextValue = !current[key]
+    // Optimistic update
+    setProfile({ ...profile, emailPreferences: { ...current, [key]: nextValue } })
+    setPrefSaving(key)
+    try {
+      const saved = await usersApi.updatePreferences(accessToken, { [key]: nextValue })
+      setProfile((p) => (p ? { ...p, emailPreferences: saved } : p))
+    } catch {
+      setProfile((p) => (p ? { ...p, emailPreferences: current } : p)) // revert
+    } finally {
+      setPrefSaving(null)
     }
   }
 
@@ -214,6 +241,33 @@ export function ProfilePage() {
                 >
                   {label}
                 </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Notifications card */}
+        <div className="rounded-3xl p-6 flex flex-col gap-4" style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-strong)' }}>
+          <span className="eyebrow">{t('profile.notificationsSection', 'Notifications par email')}</span>
+          <p className="m-0 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+            {t('profile.notificationsHint', 'Choisissez les emails que vous souhaitez recevoir.')}
+          </p>
+          <div className="flex flex-col gap-3">
+            {PREF_ITEMS.map(({ key, labelKey, fallback }) => {
+              const checked = profile.emailPreferences?.[key] ?? true
+              return (
+                <label key={key} className="flex items-center justify-between gap-4 cursor-pointer">
+                  <span className="font-medium" style={{ color: 'var(--color-text)' }}>
+                    {t(labelKey, fallback)}
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={prefSaving === key}
+                    onChange={() => void handleTogglePref(key)}
+                    style={{ width: 20, height: 20, accentColor: 'var(--color-primary)', cursor: 'pointer' }}
+                  />
+                </label>
               )
             })}
           </div>

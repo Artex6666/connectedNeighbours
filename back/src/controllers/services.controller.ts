@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { success, error } from '../utils/response.utils';
 import { NotFoundError, ForbiddenError } from '../utils/errors';
+import { notifyNewService } from '../services/email.service';
 import Service from '../models/Service.model';
 import User from '../models/User.model';
 
@@ -73,6 +74,24 @@ export async function createService(req: Request, res: Response) {
     });
 
     const populated = await service.populate('authorId', 'firstName lastName role points');
+
+    // Notifier par email les voisins opt-in (non bloquant, ignoré si SMTP off).
+    try {
+      const neighbors = await User.find({
+        neighborhoodId,
+        _id: { $ne: authorId },
+        isBlocked: { $ne: true },
+      }).select('email firstName emailPreferences');
+      await notifyNewService(neighbors, {
+        title: service.title,
+        category: service.category,
+        isPaid: service.isPaid,
+        points: service.points,
+      });
+    } catch {
+      /* email non bloquant */
+    }
+
     return success(res, populated, 201);
   } catch {
     return error(res, 'Internal server error', 500);

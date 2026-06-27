@@ -41,6 +41,7 @@ export type ConversationSummary = {
   name: string
   role: string
   avatar: string
+  isOnline?: boolean
   lastMessage: string
   lastTimestamp: string
 }
@@ -61,6 +62,7 @@ export type ConversationDetails = {
     name: string
     role: string
     avatar: string
+    isOnline?: boolean
   }
   messages: ConversationMessage[]
 }
@@ -164,15 +166,38 @@ export const authApi = {
       body: JSON.stringify({ refreshToken }),
     })
   },
+
+  async verifyEmail(email: string, code: string): Promise<{ message: string }> {
+    return apiRequest('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    })
+  },
+
+  async resendVerification(email: string): Promise<{ message: string }> {
+    return apiRequest('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    })
+  },
 }
 
 // ─── Users API ───────────────────────────────────────────────────────────────
+
+export type EmailPreferences = {
+  messages: boolean
+  annonces: boolean
+  events: boolean
+  newsletter: boolean
+}
 
 export type UserProfile = AuthUser & {
   phone: string
   address: string
   points: number
   isVerified: boolean
+  isBlocked?: boolean
+  emailPreferences?: EmailPreferences
   neighborhoodId?: {
     _id: string
     name: string
@@ -218,8 +243,25 @@ export const usersApi = {
   async adminDelete(token: string, id: string) {
     return apiRequest<{ message: string }>(`/users/${id}`, { method: 'DELETE' }, token)
   },
+  async adminSetBlocked(token: string, id: string, blocked: boolean) {
+    return apiRequest<AdminUser>(
+      `/users/${id}/block`,
+      { method: 'PUT', body: JSON.stringify({ blocked }) },
+      token,
+    )
+  },
   async listNeighbors(token: string) {
     return apiRequest<NeighborSummary[]>('/users/neighbors', undefined, token)
+  },
+  async updatePreferences(token: string, prefs: Partial<EmailPreferences>) {
+    return apiRequest<EmailPreferences>(
+      '/users/me/preferences',
+      { method: 'PUT', body: JSON.stringify(prefs) },
+      token,
+    )
+  },
+  async heartbeat(token: string) {
+    return apiRequest<{ ok: boolean }>('/users/heartbeat', { method: 'POST' }, token)
   },
 }
 
@@ -229,6 +271,8 @@ export type NeighborSummary = {
   lastName: string
   role: AuthUser['role']
   neighborhoodId?: string
+  isOnline?: boolean
+  lastSeenAt?: string
 }
 
 // ─── Services API ────────────────────────────────────────────────────────────
@@ -585,5 +629,94 @@ export const messagesApi = {
       filename ?? (type === 'audio' ? 'voice-message' : 'image'),
     )
     return apiUpload<ConversationMessage>(`/messages/${userId}/upload`, form, token)
+  },
+  async reportMessage(token: string, messageId: string, reason?: string) {
+    return apiRequest<{ message: string; reportId: string }>(
+      `/messages/${messageId}/report`,
+      { method: 'POST', body: JSON.stringify({ reason: reason ?? '' }) },
+      token,
+    )
+  },
+  async listReports(token: string) {
+    return apiRequest<MessageReport[]>('/messages/reports', undefined, token)
+  },
+  async resolveReport(token: string, reportId: string, status: 'reviewed' | 'dismissed') {
+    return apiRequest<MessageReport>(
+      `/messages/reports/${reportId}`,
+      { method: 'PUT', body: JSON.stringify({ status }) },
+      token,
+    )
+  },
+}
+
+export type MessageReport = {
+  _id: string
+  reason: string
+  status: 'pending' | 'reviewed' | 'dismissed'
+  reportedBy: { _id: string; firstName: string; lastName: string } | null
+  messageId: {
+    _id: string
+    content: string
+    type: 'text' | 'photo' | 'audio'
+    senderId: string
+    receiverId: string
+    createdAt: string
+  } | null
+  createdAt: string
+}
+
+// ─── Newsletter API (back-office) ───────────────────────────────────────────────
+
+export type NewsletterStatus = 'draft' | 'scheduled' | 'sent'
+
+export type Newsletter = {
+  _id: string
+  subject: string
+  contentHtml: string
+  status: NewsletterStatus
+  scheduledAt?: string
+  sentAt?: string
+  sentCount: number
+  authorId: { _id: string; firstName: string; lastName: string } | string
+  createdAt: string
+  updatedAt: string
+}
+
+export type NewsletterPayload = {
+  subject: string
+  contentHtml?: string
+  scheduledAt?: string | null
+}
+
+export const newsletterApi = {
+  async list(token: string) {
+    return apiRequest<Newsletter[]>('/newsletter', undefined, token)
+  },
+  async get(token: string, id: string) {
+    return apiRequest<Newsletter>(`/newsletter/${id}`, undefined, token)
+  },
+  async create(token: string, payload: NewsletterPayload) {
+    return apiRequest<Newsletter>(
+      '/newsletter',
+      { method: 'POST', body: JSON.stringify(payload) },
+      token,
+    )
+  },
+  async update(token: string, id: string, payload: Partial<NewsletterPayload>) {
+    return apiRequest<Newsletter>(
+      `/newsletter/${id}`,
+      { method: 'PUT', body: JSON.stringify(payload) },
+      token,
+    )
+  },
+  async remove(token: string, id: string) {
+    return apiRequest<{ message: string }>(`/newsletter/${id}`, { method: 'DELETE' }, token)
+  },
+  async send(token: string, id: string) {
+    return apiRequest<{ message: string; sentCount: number; newsletter: Newsletter }>(
+      `/newsletter/${id}/send`,
+      { method: 'POST' },
+      token,
+    )
   },
 }

@@ -3,8 +3,12 @@ import bcrypt from 'bcryptjs';
 import { success, error } from '../utils/response.utils';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.utils';
 import { InvalidCredentialsError, ResourceConflictError } from '../utils/errors';
+import { isMailEnabled } from '../utils/mailer';
+import { generateVerificationCode, sendVerificationEmail } from '../services/email.service';
 import User from '../models/User.model';
 import Token from '../models/Token.model';
+
+const VERIFICATION_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
 // ─── Register ────────────────────────────────────────────────────────────────
 
@@ -20,6 +24,13 @@ export async function register(req: Request, res: Response) {
     if (existing) throw new ResourceConflictError('Email already in use');
 
     const hashed = await bcrypt.hash(password, 10);
+
+    // If SMTP isn't configured (dev/test/seed), accounts are auto-verified since
+    // no confirmation email can be delivered. In production the user must enter
+    // the 6-digit code sent by email before they can log in.
+    const mailEnabled = isMailEnabled();
+    const code = generateVerificationCode();
+
     const user = await User.create({
       firstName,
       lastName,
@@ -27,7 +38,22 @@ export async function register(req: Request, res: Response) {
       password: hashed,
       phone,
       address,
+      isVerified: !mailEnabled,
+      emailVerificationCode: mailEnabled ? code : undefined,
+      emailVerificationExpires: mailEnabled ? new Date(Date.now() + VERIFICATION_TTL_MS) : undefined,
     });
+
+    if (mailEnabled) {
+      const sent = await sendVerificationEmail({ email: user.email, firstName: user.firstName }, code);
+      if (!sent) {
+        // L'email n'a pas pu être délivré (SMTP indisponible/refusé) — on ne
+        // verrouille pas l'utilisateur : le compte est validé directement.
+        user.isVerified = true;
+        user.emailVerificationCode = undefined;
+        user.emailVerificationExpires = undefined;
+        await user.save();
+      }
+    }
 
     return success(
       res,
@@ -37,6 +63,8 @@ export async function register(req: Request, res: Response) {
         lastName: user.lastName,
         email: user.email,
         role: user.role,
+        isVerified: user.isVerified,
+        requiresVerification: !user.isVerified,
       },
       201
     );
@@ -59,6 +87,13 @@ export async function login(req: Request, res: Response) {
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new InvalidCredentialsError();
+
+    if (user.isBlocked) {
+      return error(res, 'Votre compte a été bloqué. Contactez un administrateur.', 403);
+    }
+    if (!user.isVerified) {
+      return error(res, 'Adresse email non vérifiée. Confirmez votre compte pour vous connecter.', 403);
+    }
 
     const accessToken = signAccessToken({
       id: user._id.toString(),
@@ -154,10 +189,66 @@ export async function logoutAll(req: Request, res: Response) {
   }
 }
 
-// ─── Verify email (TODO) ─────────────────────────────────────────────────────
+// ─── Verify email ────────────────────────────────────────────────────────────
 
-export async function verifyEmail(_req: Request, res: Response) {
-  return success(res, { message: 'verifyEmail — not implemented' });
+export async function verifyEmail(req: Request, res: Response) {
+  try {
+    const { email, code } = req.body as { email?: string; code?: string };
+    if (!email || !code) return error(res, 'email et code sont requis', 400);
+
+    const user = await User.findOne({ email }).select(
+      '+emailVerificationCode +emailVerificationExpires',
+    );
+    if (!user) return error(res, 'Utilisateur introuvable', 404);
+    if (user.isVerified) return success(res, { message: 'Compte déjà vérifié' });
+
+    if (!user.emailVerificationCode || user.emailVerificationCode !== code) {
+      return error(res, 'Code de vérification invalide', 400);
+    }
+    if (user.emailVerificationExpires && user.emailVerificationExpires.getTime() < Date.now()) {
+      return error(res, 'Code de vérification expiré, demandez-en un nouveau', 400);
+    }
+
+    user.isVerified = true;
+    user.emailVerificationCode = undefined;
+    user.emailVerificationExpires = undefined;
+    await user.save();
+
+    return success(res, { message: 'Compte vérifié avec succès' });
+  } catch {
+    return error(res, 'Internal server error', 500);
+  }
+}
+
+// ─── Resend verification code ──────────────────────────────────────────────────
+
+export async function resendVerification(req: Request, res: Response) {
+  try {
+    const { email } = req.body as { email?: string };
+    if (!email) return error(res, 'email est requis', 400);
+
+    const user = await User.findOne({ email });
+    // Réponse neutre pour ne pas révéler l'existence d'un compte
+    if (!user || user.isVerified) {
+      return success(res, { message: 'Si le compte existe et n\'est pas vérifié, un email a été envoyé.' });
+    }
+
+    if (!isMailEnabled()) {
+      user.isVerified = true;
+      await user.save();
+      return success(res, { message: 'Compte vérifié (email désactivé sur ce serveur).' });
+    }
+
+    const code = generateVerificationCode();
+    user.emailVerificationCode = code;
+    user.emailVerificationExpires = new Date(Date.now() + VERIFICATION_TTL_MS);
+    await user.save();
+    await sendVerificationEmail({ email: user.email, firstName: user.firstName }, code);
+
+    return success(res, { message: 'Un nouvel email de vérification a été envoyé.' });
+  } catch {
+    return error(res, 'Internal server error', 500);
+  }
 }
 
 // ─── MFA (TODO) ──────────────────────────────────────────────────────────────

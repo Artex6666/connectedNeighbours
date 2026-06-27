@@ -63,6 +63,42 @@ router.put('/me', usersController.updateMe);
 
 /**
  * @swagger
+ * /users/me/preferences:
+ *   put:
+ *     summary: Met à jour les préférences de notification email
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               messages: { type: boolean }
+ *               annonces: { type: boolean }
+ *               events: { type: boolean }
+ *               newsletter: { type: boolean }
+ *     responses:
+ *       200: { description: Préférences mises à jour }
+ *       400: { description: Aucune préférence valide fournie }
+ */
+router.put('/me/preferences', usersController.updateMyPreferences);
+
+/**
+ * @swagger
+ * /users/heartbeat:
+ *   post:
+ *     summary: Signale que l'utilisateur est en ligne (met à jour lastSeenAt)
+ *     description: À appeler périodiquement (~30s) tant que l'app est ouverte. Pilote la présence et l'envoi d'email "hors ligne".
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Présence enregistrée }
+ */
+router.post('/heartbeat', usersController.heartbeat);
+
+/**
+ * @swagger
  * /users/{id}:
  *   get:
  *     summary: Retourne le profil public d'un utilisateur
@@ -174,5 +210,34 @@ router.put('/:id/role', requireRole('admin'), usersController.updateUserRole);
  *         description: Quartier mis à jour
  */
 router.put('/:id/neighborhood', requireRole('admin'), usersController.updateUserNeighborhood);
+
+/**
+ * @swagger
+ * /users/{id}/block:
+ *   put:
+ *     summary: Bloque ou débloque un compte (admin/modérateur)
+ *     description: Bloquer révoque aussi toutes les sessions actives de l'utilisateur.
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [blocked]
+ *             properties:
+ *               blocked: { type: boolean }
+ *     responses:
+ *       200: { description: Statut de blocage mis à jour }
+ *       400: { description: Champ manquant ou auto-blocage }
+ *       404: { description: Utilisateur introuvable }
+ */
+router.put('/:id/block', requireRole('admin', 'moderator'), usersController.setUserBlocked);
 
 export default router;

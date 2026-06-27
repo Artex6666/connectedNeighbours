@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
-import { authApi, type AuthUser, type AuthSession } from '@/shared/lib/api'
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { authApi, usersApi, type AuthUser, type AuthSession } from '@/shared/lib/api'
+
+const HEARTBEAT_INTERVAL_MS = 30_000
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -67,6 +69,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return updated
     })
   }, [])
+
+  // Presence heartbeat: while logged in and the tab is open, periodically tell
+  // the server we're online. Drives the green dot and "email only when offline".
+  const accessToken = session?.accessToken ?? null
+  useEffect(() => {
+    if (!accessToken) return
+    const ping = () => usersApi.heartbeat(accessToken).catch(() => undefined)
+    ping()
+    const id = window.setInterval(ping, HEARTBEAT_INTERVAL_MS)
+    return () => window.clearInterval(id)
+  }, [accessToken])
 
   return (
     <AuthContext.Provider

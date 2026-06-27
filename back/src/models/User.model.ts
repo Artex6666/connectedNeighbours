@@ -2,6 +2,14 @@ import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export type UserRole = 'resident' | 'moderator' | 'admin';
 
+/** Per-category opt-in for email notifications (Paramètres → Notifications). */
+export interface EmailPreferences {
+  messages: boolean;
+  annonces: boolean;
+  events: boolean;
+  newsletter: boolean;
+}
+
 export interface IUser extends Document {
   _id: Types.ObjectId;
   firstName: string;
@@ -16,6 +24,11 @@ export interface IUser extends Document {
   isMfaEnabled: boolean;
   points: number;
   isVerified: boolean;
+  isBlocked: boolean;
+  emailPreferences: EmailPreferences;
+  lastSeenAt?: Date;
+  emailVerificationCode?: string;
+  emailVerificationExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +47,16 @@ const UserSchema = new Schema<IUser>(
     isMfaEnabled: { type: Boolean, default: false },
     points: { type: Number, default: 0 },
     isVerified: { type: Boolean, default: false },
+    isBlocked: { type: Boolean, default: false },
+    emailPreferences: {
+      messages: { type: Boolean, default: true },
+      annonces: { type: Boolean, default: true },
+      events: { type: Boolean, default: true },
+      newsletter: { type: Boolean, default: true },
+    },
+    lastSeenAt: { type: Date },
+    emailVerificationCode: { type: String, select: false },
+    emailVerificationExpires: { type: Date, select: false },
   },
   { timestamps: true },
 );

@@ -196,6 +196,17 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
     }
   }
 
+  const handleReportMessage = async (messageId: string) => {
+    if (!session) return
+    const reason = window.prompt('Pourquoi signaler ce message ? (optionnel)') ?? ''
+    try {
+      await messagesApi.reportMessage(session.accessToken, messageId, reason)
+      window.alert('Message signalé. Un modérateur va le vérifier.')
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'Échec du signalement.')
+    }
+  }
+
   const sendAttachment = async (file: Blob, type: 'photo' | 'audio', filename?: string) => {
     if (!session || !currentPeerId) return
     setIsSending(true)
@@ -352,7 +363,24 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
                     setPendingPeer(null)
                   }}
                 >
-                  <span className="chat-thread__avatar">{conversation.avatar}</span>
+                  <span className="chat-thread__avatar" style={{ position: 'relative' }}>
+                    {conversation.avatar}
+                    {conversation.isOnline ? (
+                      <span
+                        title="En ligne"
+                        style={{
+                          position: 'absolute',
+                          bottom: 0,
+                          right: 0,
+                          width: 10,
+                          height: 10,
+                          borderRadius: '50%',
+                          background: '#22c55e',
+                          border: '2px solid var(--color-bg-elevated, #0b1622)',
+                        }}
+                      />
+                    ) : null}
+                  </span>
                   <span className="chat-thread__content">
                     <strong>{conversation.name}</strong>
                     <small>{formatRole(conversation.role)}</small>
@@ -368,7 +396,20 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
                   <strong>{currentPeerLabel?.name ?? 'Conversation'}</strong>
                   <small>{currentPeerLabel ? formatRole(currentPeerLabel.role) : 'Voisin'}</small>
                 </div>
-                <span className="status-pill">En ligne</span>
+                {currentPeerId ? (
+                  <span className="status-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <span
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: activeConversation?.participant.isOnline ? '#22c55e' : '#9ca3af',
+                        display: 'inline-block',
+                      }}
+                    />
+                    {activeConversation?.participant.isOnline ? 'En ligne' : 'Hors ligne'}
+                  </span>
+                ) : null}
               </div>
 
               <div className="chat-messages">
@@ -391,6 +432,23 @@ export function ChatWidget({ isAuthenticated, session, onRequireAuth }: ChatWidg
                         <div className="chat-message__meta">
                           <strong>{isMine ? 'Vous' : activeConversation.participant.name}</strong>
                           <span>{formatTimestamp(message.createdAt)}</span>
+                          {!isMine ? (
+                            <button
+                              type="button"
+                              title="Signaler ce message"
+                              onClick={() => void handleReportMessage(message._id)}
+                              style={{
+                                marginLeft: 'auto',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                opacity: 0.6,
+                                fontSize: 12,
+                              }}
+                            >
+                              ⚐
+                            </button>
+                          ) : null}
                         </div>
                         <MessageBody message={message} />
                       </article>

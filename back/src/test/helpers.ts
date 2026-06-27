@@ -50,6 +50,8 @@ type UserOverrides = Partial<{
   role: UserRole;
   neighborhoodId: mongoose.Types.ObjectId;
   points: number;
+  isVerified: boolean;
+  isBlocked: boolean;
 }>;
 
 /** Create a persisted user with sensible defaults; password is hashed. */
@@ -65,6 +67,9 @@ export async function createUser(overrides: UserOverrides = {}) {
     role: overrides.role ?? 'resident',
     neighborhoodId: overrides.neighborhoodId,
     points: overrides.points ?? 0,
+    // Test users are verified by default so they can log in; opt out per case.
+    isVerified: overrides.isVerified ?? true,
+    isBlocked: overrides.isBlocked ?? false,
   });
 }
 

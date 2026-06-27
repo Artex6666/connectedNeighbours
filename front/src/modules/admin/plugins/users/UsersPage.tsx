@@ -91,6 +91,18 @@ export function UsersPage() {
     }
   }
 
+  const handleToggleBlock = async (u: AdminUser) => {
+    if (!accessToken) return
+    const next = !u.isBlocked
+    if (next && !confirm(t('admin.users.confirmBlock', 'Bloquer ce compte ? Ses sessions seront révoquées.'))) return
+    try {
+      await usersApi.adminSetBlocked(accessToken, u._id, next)
+      await reload()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Erreur')
+    }
+  }
+
   return (
     <div className="admin-page">
       <header className="admin-page__header">
@@ -156,6 +168,11 @@ export function UsersPage() {
                       {u.isVerified ? (
                         <span className="admin-badge admin-badge--ok">✓</span>
                       ) : null}
+                      {u.isBlocked ? (
+                        <span className="admin-badge" style={{ background: 'rgba(255,80,80,0.18)', color: '#ffb4b4' }}>
+                          {t('admin.users.blocked', 'Bloqué')}
+                        </span>
+                      ) : null}
                     </td>
                     <td className="admin-cell-muted">{u.email}</td>
                     <td>
@@ -193,15 +210,26 @@ export function UsersPage() {
                     </td>
                     <td>{u.points}</td>
                     <td>
-                      <button
-                        type="button"
-                        className="button button--ghost admin-row-action"
-                        onClick={() => void handleDelete(u._id)}
-                        disabled={isSelf}
-                        title={isSelf ? t('admin.users.cannotEditSelf') : ''}
-                      >
-                        🗑️
-                      </button>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          type="button"
+                          className="button button--ghost admin-row-action"
+                          onClick={() => void handleToggleBlock(u)}
+                          disabled={isSelf}
+                          title={isSelf ? t('admin.users.cannotEditSelf') : t('admin.users.block', 'Bloquer / débloquer')}
+                        >
+                          {u.isBlocked ? '🔓' : '🚫'}
+                        </button>
+                        <button
+                          type="button"
+                          className="button button--ghost admin-row-action"
+                          onClick={() => void handleDelete(u._id)}
+                          disabled={isSelf}
+                          title={isSelf ? t('admin.users.cannotEditSelf') : ''}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )
