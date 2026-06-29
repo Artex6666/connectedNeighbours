@@ -3,6 +3,7 @@ import * as authController from '../controllers/auth.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { mfaMiddleware } from '../middlewares/mfa.middleware';
 
+
 const router: Router = Router();
 
 /**
@@ -213,5 +214,9 @@ router.post('/mfa/verify', authMiddleware, mfaMiddleware, authController.confirm
  *       403: { description: Code invalide }
  */
 router.post('/mfa/disable', authMiddleware, mfaMiddleware, authController.disableMfa);
+
+
+router.post('/sso/code', authMiddleware, authController.createSsoCode);
+router.post('/sso/exchange', authController.ssoExchange);
 
 export default router;
