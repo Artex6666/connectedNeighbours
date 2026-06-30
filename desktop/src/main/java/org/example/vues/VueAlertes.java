@@ -33,20 +33,38 @@ public class VueAlertes {
         Button boutonIncidents = new Button("Incidents");
         Button boutonAlertes = new Button("Alertes");
         Button boutonStatistiques = new Button("Statistiques");
+        Button boutonPlugins = new Button("Plugins");
         Button boutonDeconnexion = new Button("Déconnexion");
+        Button boutonExports = new Button("Exports");
+
 
         styliserBoutonNav(boutonDashboard);
         styliserBoutonNav(boutonIncidents);
         styliserBoutonNavActif(boutonAlertes);
         styliserBoutonNav(boutonStatistiques);
+        styliserBoutonNav(boutonPlugins);
+
+        styliserBoutonNav(boutonExports);
+
         styliserBoutonDanger(boutonDeconnexion);
 
         boutonDashboard.setOnAction(e -> Navigateur.afficherDashboard());
         boutonIncidents.setOnAction(e -> Navigateur.afficherIncidents());
         boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
+        boutonExports.setOnAction(e -> Navigateur.afficherExports());
+        boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
         boutonDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
 
-        HBox menuGauche = new HBox(20, logo, boutonDashboard, boutonIncidents, boutonAlertes, boutonStatistiques);
+        HBox menuGauche = new HBox(
+                20,
+                logo,
+                boutonDashboard,
+                boutonIncidents,
+                boutonAlertes,
+                boutonStatistiques,
+                boutonPlugins,
+                boutonExports
+        );
         menuGauche.setAlignment(Pos.CENTER_LEFT);
 
         Region espace = new Region();
