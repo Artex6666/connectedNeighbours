@@ -378,10 +378,12 @@ export async function disableMfa(req: Request, res: Response) {
          role: user.role,
        },
      });
-   } catch {
-     return error(res, 'Internal server error', 500);
-   }
- }
+   } catch (err) {
+
+          console.error('[SSO EXCHANGE ERROR]', err);
+
+          return error(res, 'Internal server error', 500);
+ }}
 
 export async function createSsoCode(req: Request, res: Response) {
   try {
@@ -400,7 +402,10 @@ export async function createSsoCode(req: Request, res: Response) {
     });
 
     return success(res, { code });
-  } catch {
-    return error(res, 'Internal server error', 500);
-  }
+  } catch (err) {
+
+         console.error('[SSO EXCHANGE ERROR]', err);
+
+         return error(res, 'Internal server error', 500);
+         }
 }

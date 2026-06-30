@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 const ACCESS_SECRET = process.env.JWT_SECRET ?? 'changeme';
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET ?? 'changeme_refresh';
@@ -16,8 +17,17 @@ export function signAccessToken(payload: JwtPayload): string {
 }
 
 /** Refresh token — long-lived (7 days), stored in DB */
-export function signRefreshToken(userId: string): string {
-  return jwt.sign({ id: userId }, REFRESH_SECRET, { expiresIn: '7d' } as jwt.SignOptions);
+
+
+export function signRefreshToken(id: string) {
+  return jwt.sign(
+    {
+      id,
+      jti: crypto.randomUUID(),
+    },
+    JWT_REFRESH_SECRET,
+    { expiresIn: '7d' }
+  );
 }
 
 export function verifyToken(token: string): JwtPayload {
