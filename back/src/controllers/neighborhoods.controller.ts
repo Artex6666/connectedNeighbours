@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { success, error } from '../utils/response.utils';
+import { geocodeAddress, distanceKm, type GeoPoint } from '../utils/geocode';
 import Neighborhood from '../models/Neighborhood.model';
 import User from '../models/User.model';
 
@@ -143,4 +144,48 @@ export async function deleteNeighborhood(req: Request, res: Response) {
   const deleted = await Neighborhood.findByIdAndDelete(id);
   if (!deleted) return error(res, 'Quartier introuvable', 404);
   return success(res, { message: 'Quartier supprimé' });
+}
+
+// ─── Suggestion de quartier (géocodage adresse → quartiers proches) ──────────────
+
+function ringCentroid(ring: Ring): GeoPoint {
+  const n = ring.length;
+  const sum = ring.reduce((acc, [lng, lat]) => ({ lng: acc.lng + lng, lat: acc.lat + lat }), { lng: 0, lat: 0 });
+  return { lng: sum.lng / n, lat: sum.lat / n };
+}
+
+/**
+ * Géocode l'adresse de l'utilisateur (ou ?address=) et renvoie les quartiers
+ * triés par proximité, avec le quartier "par défaut" = celui qui contient le
+ * point (sinon le plus proche).
+ */
+export async function suggestNeighborhoods(req: Request, res: Response) {
+  const me = await User.findById(req.user!._id).select('address');
+  const address = ((req.query.address as string) || me?.address || '').trim();
+  const point = await geocodeAddress(address);
+
+  const hoods = await Neighborhood.find().select('name description polygon').lean();
+
+  const list = hoods
+    .map((h) => {
+      const ring = h.polygon.coordinates[0] as Ring;
+      const contains = point ? pointInRing([point.lng, point.lat], ring) : false;
+      const dist = point ? distanceKm(point, ringCentroid(ring)) : null;
+      return {
+        _id: h._id,
+        name: h.name,
+        description: h.description,
+        contains,
+        distanceKm: dist === null ? null : Math.round(dist * 10) / 10,
+      };
+    })
+    .sort((a, b) => (a.distanceKm ?? 1e9) - (b.distanceKm ?? 1e9));
+
+  const def = list.find((r) => r.contains) ?? list[0] ?? null;
+
+  return success(res, {
+    geocoded: Boolean(point),
+    defaultId: def?._id ?? null,
+    neighborhoods: list,
+  });
 }

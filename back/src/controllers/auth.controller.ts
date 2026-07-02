@@ -132,6 +132,7 @@ export async function login(req: Request, res: Response) {
     });
   } catch (err) {
     if (err instanceof InvalidCredentialsError) return error(res, 'Invalid credentials', 401);
+    console.error('[login] error:', err);
     return error(res, 'Internal server error', 500);
   }
 }
@@ -164,6 +165,7 @@ export async function refresh(req: Request, res: Response) {
       id: user._id.toString(),
       email: user.email,
       role: user.role,
+      neighborhoodId: user.neighborhoodId?.toString(),
     });
 
     return success(res, { accessToken });
