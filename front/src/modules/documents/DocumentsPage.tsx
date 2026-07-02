@@ -158,14 +158,30 @@ export function DocumentsPage() {
             className="h-11 px-4 rounded-xl outline-none"
             style={inputStyle}
           />
-          <input
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
-            style={{ color: 'var(--color-text-muted)' }}
-          />
+          <label
+            className="flex flex-col items-center justify-center gap-1 rounded-2xl cursor-pointer text-center transition-colors"
+            style={{
+              border: '2px dashed var(--color-primary)',
+              background: 'var(--color-primary-soft)',
+              padding: '24px 16px',
+            }}
+          >
+            <span style={{ fontSize: 30 }}>📄</span>
+            <span style={{ fontWeight: 700, color: 'var(--color-primary-strong)' }}>
+              {uploadFile ? uploadFile.name : 'Cliquez pour choisir un fichier PDF'}
+            </span>
+            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              {uploadFile ? 'Cliquez pour changer' : 'Format PDF · 20 Mo max'}
+            </span>
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+              style={{ display: 'none' }}
+            />
+          </label>
           <button className="button self-start" disabled={!uploadFile || uploading} onClick={() => void handleUpload()}>
-            {uploading ? 'Import…' : 'Importer'}
+            {uploading ? 'Import…' : '⬆️ Importer le document'}
           </button>
         </div>
 

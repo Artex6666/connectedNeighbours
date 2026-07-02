@@ -7,6 +7,7 @@ import { AdminLayout } from '@/shared/layout/AdminLayout'
 import { HomePage } from '@/modules/home/HomePage'
 import { LoginPage } from '@/modules/auth/LoginPage'
 import { RegisterPage } from '@/modules/auth/RegisterPage'
+import { VerifyEmailPage } from '@/modules/auth/VerifyEmailPage'
 import { DashboardPage } from '@/modules/dashboard/DashboardPage'
 import { ServicesPage } from '@/modules/services/ServicesPage'
 import { ServiceDetailPage } from '@/modules/services/ServiceDetailPage'
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
   // Auth pages
   { path: routes.login, element: <LoginPage /> },
   { path: routes.register, element: <RegisterPage /> },
+  { path: routes.verifyEmail, element: <VerifyEmailPage /> },
 
   // Protected routes
   {

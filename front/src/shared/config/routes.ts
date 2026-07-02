@@ -2,6 +2,7 @@ export const routes = {
   home: '/',
   login: '/login',
   register: '/register',
+  verifyEmail: '/verify-email',
   dashboard: '/dashboard',
   services: '/services',
   serviceDetail: (id: string) => `/services/${id}`,

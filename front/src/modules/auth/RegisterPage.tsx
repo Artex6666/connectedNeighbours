@@ -31,7 +31,13 @@ export function RegisterPage() {
     setError(null)
     setIsLoading(true)
     try {
-      await authApi.register(form)
+      const res = await authApi.register(form)
+      // Si une vérification email est requise, on redirige vers la saisie du code.
+      if (res.requiresVerification) {
+        navigate(routes.verifyEmail, { state: { email: form.email } })
+        return
+      }
+      // Sinon (email désactivé côté serveur → compte auto-validé), on connecte.
       await login(form.email, form.password)
       navigate(routes.dashboard, { replace: true })
     } catch (err) {

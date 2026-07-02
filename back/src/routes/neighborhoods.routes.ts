@@ -38,6 +38,24 @@ router.get('/', neighborhoodsController.listNeighborhoods);
 
 /**
  * @swagger
+ * /neighborhoods/suggest:
+ *   get:
+ *     summary: Suggère des quartiers proches (géocode l'adresse de l'utilisateur)
+ *     tags: [Neighborhoods]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: query
+ *         name: address
+ *         schema: { type: string }
+ *         description: Adresse à géocoder (défaut = adresse du profil)
+ *     responses:
+ *       200:
+ *         description: "{ geocoded, defaultId, neighborhoods: [{_id,name,contains,distanceKm}] }"
+ */
+router.get('/suggest', neighborhoodsController.suggestNeighborhoods);
+
+/**
+ * @swagger
  * /neighborhoods/{id}:
  *   get:
  *     summary: Détail d'un quartier

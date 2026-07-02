@@ -100,6 +100,28 @@ router.post('/heartbeat', usersController.heartbeat);
 
 /**
  * @swagger
+ * /users/me/neighborhood:
+ *   put:
+ *     summary: Rejoindre / changer son quartier (self-service)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [neighborhoodId]
+ *             properties:
+ *               neighborhoodId: { type: string }
+ *     responses:
+ *       200: { description: Quartier rejoint }
+ *       404: { description: Quartier introuvable }
+ */
+router.put('/me/neighborhood', usersController.setMyNeighborhood);
+
+/**
+ * @swagger
  * /users/me/export:
  *   get:
  *     summary: Exporte toutes ses données personnelles (RGPD — accès & portabilité)

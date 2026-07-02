@@ -2,8 +2,10 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { success, error } from '../utils/response.utils';
 import { isOnline } from '../utils/presence';
+import { signAccessToken } from '../utils/jwt.utils';
 import User from '../models/User.model';
 import Token from '../models/Token.model';
+import Neighborhood from '../models/Neighborhood.model';
 
 const EMAIL_PREF_KEYS = ['messages', 'annonces', 'events', 'newsletter'] as const;
 
@@ -74,6 +76,36 @@ export async function updateMyPreferences(req: Request, res: Response) {
 export async function heartbeat(req: Request, res: Response) {
   await User.findByIdAndUpdate(req.user!._id, { lastSeenAt: new Date() });
   return success(res, { ok: true });
+}
+
+// ─── Rejoindre un quartier (self-service) ─────────────────────────────────────────
+
+export async function setMyNeighborhood(req: Request, res: Response) {
+  const { neighborhoodId } = req.body as { neighborhoodId?: string | null };
+  const leaving = neighborhoodId === null || neighborhoodId === '';
+
+  if (!leaving) {
+    const hood = await Neighborhood.findById(neighborhoodId).select('_id');
+    if (!hood) return error(res, 'Quartier introuvable', 404);
+  }
+
+  const update = leaving ? { $unset: { neighborhoodId: 1 } } : { neighborhoodId };
+  const user = await User.findByIdAndUpdate(req.user!._id, update, { new: true })
+    .select('-password -mfaSecret')
+    .populate('neighborhoodId', 'name description polygon');
+  if (!user) return error(res, 'Utilisateur introuvable', 404);
+
+  // Le neighborhoodId est encodé dans le JWT (scoping annonces/votes/events…).
+  // On renvoie un token frais pour que le changement soit pris en compte
+  // immédiatement, sans re-login.
+  const accessToken = signAccessToken({
+    id: user._id.toString(),
+    email: user.email,
+    role: user.role,
+    neighborhoodId: leaving ? undefined : (neighborhoodId as string),
+  });
+
+  return success(res, { user, accessToken });
 }
 
 export async function listUsers(_req: Request, res: Response) {
