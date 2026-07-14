@@ -3,6 +3,11 @@ import * as authController from '../controllers/auth.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { mfaMiddleware } from '../middlewares/mfa.middleware';
 
+console.log('[AUTH ROUTES CHECK]', {
+  createSsoCode: typeof authController.createSsoCode,
+  ssoExchange: typeof authController.ssoExchange,
+  authMiddleware: typeof authMiddleware,
+});
 
 const router: Router = Router();
 

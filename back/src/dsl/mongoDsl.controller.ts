@@ -14,6 +14,7 @@ export async function executeMongoDsl(req: Request, res: Response) {
     const ast = parseMongoDsl(query)
 
     const db = mongoose.connection.db
+
     if (!db) {
       return error(res, 'Connexion MongoDB indisponible', 500)
     }
@@ -26,23 +27,26 @@ export async function executeMongoDsl(req: Request, res: Response) {
             emailVerificationCode: 0,
             emailVerificationExpires: 0,
           }
-        : {};
+        : {}
 
     const results = await db
       .collection(ast.collection)
       .find(ast.filter, { projection })
       .limit(50)
-      .toArray();
+      .toArray()
+
     return success(res, {
       ast,
       count: results.length,
       results,
     })
   } catch (err) {
+    console.error('[DSL ERROR]', err)
+
     return error(
       res,
       err instanceof Error ? err.message : 'Erreur DSL',
-      400
+      400,
     )
   }
 }
