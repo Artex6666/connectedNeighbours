@@ -8,8 +8,17 @@ import { generateVerificationCode, sendVerificationEmail } from '../services/ema
 import { generateTotpSecret, generateQrCode, verifyTotpCode } from '../utils/totp.utils';
 import User from '../models/User.model';
 import Token from '../models/Token.model';
+import crypto from 'node:crypto';
 
 const VERIFICATION_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const ssoCodes = new Map<
+  string,
+  {
+    userId: string;
+    codeChallenge: string;
+    expiresAt: number;
+  }
+>();
 
 // ─── Register ────────────────────────────────────────────────────────────────
 
