@@ -132,6 +132,8 @@ function splitFullName(fullName: string) {
 
 export type LoginResult = AuthSession | { mfaRequired: true }
 
+export type RegisterResult = AuthUser & { isVerified: boolean; requiresVerification: boolean }
+
 export const authApi = {
   async login(email: string, password: string, totpCode?: string): Promise<LoginResult> {
     return apiRequest<LoginResult>('/auth/login', {
@@ -140,9 +142,9 @@ export const authApi = {
     })
   },
 
-  async register(payload: AuthFormPayload): Promise<AuthUser> {
+  async register(payload: AuthFormPayload): Promise<RegisterResult> {
     const { firstName, lastName } = splitFullName(payload.fullName)
-    return apiRequest<AuthUser>('/auth/register', {
+    return apiRequest<RegisterResult>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({
         firstName,
@@ -337,6 +339,13 @@ export const usersApi = {
   },
   async heartbeat(token: string) {
     return apiRequest<{ ok: boolean }>('/users/heartbeat', { method: 'POST' }, token)
+  },
+  async setMyNeighborhood(token: string, neighborhoodId: string | null) {
+    return apiRequest<{ user: UserProfile; accessToken: string }>(
+      '/users/me/neighborhood',
+      { method: 'PUT', body: JSON.stringify({ neighborhoodId }) },
+      token,
+    )
   },
   async exportMyData(token: string, format: 'json' | 'csv'): Promise<Blob> {
     const response = await fetch(`${apiBaseUrl}/users/me/export?format=${format}`, {
@@ -659,6 +668,16 @@ export const neighborhoodsApi = {
       token,
     )
   },
+  async suggest(token: string, address?: string) {
+    const q = address ? `?address=${encodeURIComponent(address)}` : ''
+    return apiRequest<NeighborhoodSuggestion>(`/neighborhoods/suggest${q}`, undefined, token)
+  },
+}
+
+export type NeighborhoodSuggestion = {
+  geocoded: boolean
+  defaultId: string | null
+  neighborhoods: { _id: string; name: string; description: string; contains: boolean; distanceKm: number | null }[]
 }
 
 // ─── Messages API ─────────────────────────────────────────────────────────────

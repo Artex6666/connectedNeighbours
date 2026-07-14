@@ -8,19 +8,8 @@ import { generateVerificationCode, sendVerificationEmail } from '../services/ema
 import { generateTotpSecret, generateQrCode, verifyTotpCode } from '../utils/totp.utils';
 import User from '../models/User.model';
 import Token from '../models/Token.model';
-import crypto from 'crypto';
 
 const VERIFICATION_TTL_MS = 30 * 60 * 1000; // 30 minutes
-
-const ssoCodes = new Map<string, {
-
-  userId: string;
-
-  codeChallenge: string;
-
-  expiresAt: number;
-
-}>();
 
 // ─── Register ────────────────────────────────────────────────────────────────
 
@@ -141,19 +130,10 @@ export async function login(req: Request, res: Response) {
         role: user.role,
       },
     });
- } catch (err) {
-   console.error('[LOGIN ERROR]', err);
-
-   if (err instanceof InvalidCredentialsError) {
-     return error(res, 'Invalid credentials', 401);
-   }
-
-   return error(
-     res,
-     err instanceof Error ? err.message : 'Internal server error',
-     500
-   );
- }
+  } catch (err) {
+    if (err instanceof InvalidCredentialsError) return error(res, 'Invalid credentials', 401);
+    return error(res, 'Internal server error', 500);
+  }
 }
 
 // ─── Refresh token ───────────────────────────────────────────────────────────
@@ -322,99 +302,4 @@ export async function disableMfa(req: Request, res: Response) {
     $unset: { mfaSecret: 1 },
   });
   return success(res, { message: 'Double authentification désactivée', isMfaEnabled: false });
-}
-/**
- sso*/
-
-
-
- function sha256base64url(value: string) {
-   return crypto
-     .createHash('sha256')
-     .update(value)
-     .digest('base64url');
- }
-
- export async function ssoExchange(req: Request, res: Response) {
-   try {
-     const { code, codeVerifier } = req.body as {
-       code?: string;
-       codeVerifier?: string;
-     };
-
-     if (!code || !codeVerifier) {
-       return error(res, 'code et codeVerifier sont requis', 400);
-     }
-
-     const entry = ssoCodes.get(code);
-     if (!entry) return error(res, 'Code SSO invalide', 401);
-
-     if (entry.expiresAt < Date.now()) {
-       ssoCodes.delete(code);
-       return error(res, 'Code SSO expiré', 401);
-     }
-
-     const expectedChallenge = sha256base64url(codeVerifier);
-     if (expectedChallenge !== entry.codeChallenge) {
-       return error(res, 'PKCE invalide', 401);
-     }
-
-     ssoCodes.delete(code);
-
-     const user = await User.findById(entry.userId);
-     if (!user) return error(res, 'Utilisateur introuvable', 404);
-
-     if (user.isBlocked) return error(res, 'Compte bloqué', 403);
-
-     const accessToken = signAccessToken({
-       id: user._id.toString(),
-       email: user.email,
-       role: user.role,
-       neighborhoodId: user.neighborhoodId?.toString(),
-     });
-
-     const refreshToken = signRefreshToken(user._id.toString());
-     await Token.create({ token: refreshToken, userId: user._id });
-
-     return success(res, {
-       accessToken,
-       refreshToken,
-       user: {
-         _id: user._id,
-         firstName: user.firstName,
-         lastName: user.lastName,
-         email: user.email,
-         role: user.role,
-       },
-     });
-   } catch (err) {
-
-          console.error('[SSO EXCHANGE ERROR]', err);
-
-          return error(res, 'Internal server error', 500);
- }}
-
-export async function createSsoCode(req: Request, res: Response) {
-  try {
-    const userId = req.user?._id?.toString();
-    const { codeChallenge } = req.body as { codeChallenge?: string };
-
-    if (!userId) return error(res, 'Unauthorized', 401);
-    if (!codeChallenge) return error(res, 'codeChallenge requis', 400);
-
-    const code = crypto.randomBytes(32).toString('base64url');
-
-    ssoCodes.set(code, {
-      userId,
-      codeChallenge,
-      expiresAt: Date.now() + 2 * 60 * 1000,
-    });
-
-    return success(res, { code });
-  } catch (err) {
-
-         console.error('[SSO EXCHANGE ERROR]', err);
-
-         return error(res, 'Internal server error', 500);
-         }
 }
