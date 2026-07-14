@@ -21,6 +21,7 @@ import { AdminDashboardPage } from '@/modules/admin/AdminDashboardPage'
 import { NotFoundPage } from '@/modules/not-found/NotFoundPage'
 import { routes } from '@/shared/config/routes'
 import { adminPlugins, pluginPath } from '@/shared/plugins/admin-registry'
+import { MongoDslPage } from '@/modules/dsl/MongoDslPage'
 
 export const router = createBrowserRouter([
   // Public routes (landing page)
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
       { path: routes.votes, element: <VotesPage /> },
       { path: routes.groups, element: <GroupsPage /> },
       { path: routes.profile, element: <ProfilePage /> },
+      {path: routes.mongoDsl, element: <MongoDslPage /> },
     ],
   },
 

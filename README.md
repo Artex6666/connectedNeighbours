@@ -54,8 +54,16 @@ docker compose up --build
 
 Swagger disponible sur : `http://localhost:3000/api-docs`
 
+## url d'utilisation  du langage
+http://localhost:5173/mongo-dsl
+
 ## Comptes de démonstration
 
-| Rôle | Email | Mot de passe |
-|------|-------|--------------|
-| Résident | jean@bobconnect.fr | bobconnect123 |
+| Rôle     | Email               | Mot de passe |
+|----------|---------------------|--------------|
+| Résident | jean@bobconnect.fr  | bobconnect123 |
+| Admin    | admin@bobconnect.fr | bobconnect123 |
+
+
+ 
+  
