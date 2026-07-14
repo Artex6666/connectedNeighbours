@@ -141,10 +141,19 @@ export async function login(req: Request, res: Response) {
         role: user.role,
       },
     });
-  } catch (err) {
-    if (err instanceof InvalidCredentialsError) return error(res, 'Invalid credentials', 401);
-    return error(res, 'Internal server error', 500);
-  }
+ } catch (err) {
+   console.error('[LOGIN ERROR]', err);
+
+   if (err instanceof InvalidCredentialsError) {
+     return error(res, 'Invalid credentials', 401);
+   }
+
+   return error(
+     res,
+     err instanceof Error ? err.message : 'Internal server error',
+     500
+   );
+ }
 }
 
 // ─── Refresh token ───────────────────────────────────────────────────────────

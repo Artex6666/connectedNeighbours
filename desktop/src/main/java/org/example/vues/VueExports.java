@@ -120,6 +120,9 @@ public class VueExports {
         HBox actions = new HBox(12, ouvrir, actualiser);
         actions.setAlignment(Pos.CENTER_LEFT);
 
+        Label chemin = new Label("Dossier : " + dossierExports.getAbsolutePath());
+        chemin.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 13px;");
+
         VBox bloc = new VBox(15, titre, chemin, liste, actions);
         bloc.setPadding(new Insets(20));
         bloc.setStyle(

@@ -19,17 +19,16 @@ export function signAccessToken(payload: JwtPayload): string {
 /** Refresh token — long-lived (7 days), stored in DB */
 
 
-export function signRefreshToken(id: string) {
+export function signRefreshToken(id: string): string {
   return jwt.sign(
     {
       id,
       jti: crypto.randomUUID(),
     },
-    JWT_REFRESH_SECRET,
-    { expiresIn: '7d' }
+    REFRESH_SECRET,
+    { expiresIn: '7d' } as jwt.SignOptions
   );
 }
-
 export function verifyToken(token: string): JwtPayload {
   return jwt.verify(token, ACCESS_SECRET) as JwtPayload;
 }
