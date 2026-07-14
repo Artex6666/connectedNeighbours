@@ -35,4 +35,14 @@ public class Navigateur {
         Scene scene = new Scene(new VueStatistiques().creerVue(), 1100, 700);
         stage.setScene(scene);
     }
+
+    public static void afficherPlugins() {
+        Scene scene = new Scene(new VuePlugins().creerVue(), 1100, 700);
+        stage.setScene(scene);
+    }
+
+    public static void afficherExports() {
+        Scene scene = new Scene(new VueExports().creerVue(), 1100, 700);
+        stage.setScene(scene);
+    }
 }

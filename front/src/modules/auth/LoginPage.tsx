@@ -10,11 +10,9 @@ export function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const navState = location.state as { from?: { pathname: string }; verified?: boolean; email?: string } | null
-  const from = navState?.from?.pathname ?? routes.dashboard
-  const justVerified = navState?.verified === true
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? routes.dashboard
 
-  const [email, setEmail] = useState(navState?.email ?? '')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [totpCode, setTotpCode] = useState('')
   const [mfaStep, setMfaStep] = useState(false)
@@ -65,11 +63,6 @@ export function LoginPage() {
         </p>
 
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-          {justVerified && !error && (
-            <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'var(--color-success-soft)', color: '#15803d' }}>
-              ✅ Compte vérifié ! Vous pouvez maintenant vous connecter.
-            </div>
-          )}
           {error && (
             <div
               className="px-4 py-3 rounded-xl text-sm"
@@ -77,14 +70,6 @@ export function LoginPage() {
               role="alert"
             >
               {error}
-              {/vérifi/i.test(error) && (
-                <>
-                  {' '}
-                  <Link to={routes.verifyEmail} state={{ email }} className="font-semibold underline" style={{ color: '#c0392b' }}>
-                    Confirmer mon compte →
-                  </Link>
-                </>
-              )}
             </div>
           )}
 

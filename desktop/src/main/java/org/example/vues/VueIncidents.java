@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.services.ExportService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+
 
 public class VueIncidents {
 
@@ -35,20 +37,38 @@ public class VueIncidents {
         Button boutonIncidents = new Button("Incidents");
         Button boutonAlertes = new Button("Alertes");
         Button boutonStatistiques = new Button("Statistiques");
+        Button boutonPlugins = new Button("Plugins");
+        Button boutonExports = new Button("Exports");
         Button boutonDeconnexion = new Button("Déconnexion");
 
         styliserBoutonNav(boutonDashboard);
         styliserBoutonNavActif(boutonIncidents);
         styliserBoutonNav(boutonAlertes);
         styliserBoutonNav(boutonStatistiques);
+        styliserBoutonNav(boutonPlugins);
+
+        styliserBoutonNav(boutonExports);
+
         styliserBoutonDanger(boutonDeconnexion);
 
         boutonDashboard.setOnAction(e -> Navigateur.afficherDashboard());
         boutonAlertes.setOnAction(e -> Navigateur.afficherAlertes());
         boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
+        boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
+
+        boutonExports.setOnAction(e -> Navigateur.afficherExports());
         boutonDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
 
-        HBox menuGauche = new HBox(20, logo, boutonDashboard, boutonIncidents, boutonAlertes, boutonStatistiques);
+        HBox menuGauche = new HBox(
+                20,
+                logo,
+                boutonDashboard,
+                boutonIncidents,
+                boutonAlertes,
+                boutonStatistiques,
+                boutonPlugins,
+                boutonExports
+        );
         menuGauche.setAlignment(Pos.CENTER_LEFT);
 
         Region espace = new Region();
@@ -128,21 +148,38 @@ public class VueIncidents {
 
         Button boutonAjouter = new Button("Ajouter");
         styliserBoutonPrincipal(boutonAjouter);
+        Button boutonExporter = new Button("Exporter CSV");
+        styliserBoutonPrincipal(boutonExporter);
+
+        boutonExporter.setOnAction(e ->
+                ExportService.exportTable(tableau, "incidents.csv")
+        );
 
         boutonAjouter.setOnAction(e -> {
-            if (!champTitre.getText().isEmpty() && !champDate.getText().isEmpty() && choixStatut.getValue() != null) {
+            if (!champTitre.getText().isEmpty()
+                    && !champDate.getText().isEmpty()
+                    && choixStatut.getValue() != null) {
+
                 listeIncidents.add(new Incident(
                         champTitre.getText(),
                         choixStatut.getValue(),
                         champDate.getText()
                 ));
+
                 champTitre.clear();
                 champDate.clear();
                 choixStatut.setValue(null);
             }
         });
 
-        HBox ligneFormulaire = new HBox(12, champTitre, choixStatut, champDate, boutonAjouter);
+        HBox ligneFormulaire = new HBox(
+                12,
+                champTitre,
+                choixStatut,
+                champDate,
+                boutonAjouter,
+                boutonExporter
+        );
         ligneFormulaire.setAlignment(Pos.CENTER_LEFT);
 
         VBox blocFormulaire = new VBox(12, titreFormulaire, ligneFormulaire);

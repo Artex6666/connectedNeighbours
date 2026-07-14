@@ -1,3 +1,5 @@
+
+
 import { Router } from 'express';
 import authRoutes from './auth.routes';
 import usersRoutes from './users.routes';
@@ -14,6 +16,8 @@ import statsRoutes from './stats.routes';
 import newsletterRoutes from './newsletter.routes';
 import groupsRoutes from './groups.routes';
 import publicRoutes from './public.routes';
+
+import mongoDslRoutes from '../dsl/mongoDsl.routes';
 
 const router: Router = Router();
 
@@ -34,5 +38,9 @@ router.use('/alertes', alertesRoutes);
 router.use('/stats', statsRoutes);
 router.use('/newsletter', newsletterRoutes);
 router.use('/groups', groupsRoutes);
+
+
+
+router.use('/dsl', mongoDslRoutes);
 
 export default router;

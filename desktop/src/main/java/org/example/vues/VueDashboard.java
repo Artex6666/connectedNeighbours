@@ -9,6 +9,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
+import java.io.FileWriter;
+
 public class VueDashboard {
 
     public Parent creerVue() {
@@ -22,20 +24,40 @@ public class VueDashboard {
         Button boutonIncidents = new Button("Incidents");
         Button boutonAlertes = new Button("Alertes");
         Button boutonStatistiques = new Button("Statistiques");
+        Button boutonPlugins = new Button("Plugins");
         Button boutonDeconnexion = new Button("Déconnexion");
+        Button boutonExports = new Button("Exports");
+
+
 
         styliserBoutonNavActif(boutonDashboard);
         styliserBoutonNav(boutonIncidents);
         styliserBoutonNav(boutonAlertes);
         styliserBoutonNav(boutonStatistiques);
+        styliserBoutonNav(boutonPlugins);
+
+        styliserBoutonNav(boutonExports);
+
         styliserBoutonDanger(boutonDeconnexion);
+
 
         boutonIncidents.setOnAction(e -> Navigateur.afficherIncidents());
         boutonAlertes.setOnAction(e -> Navigateur.afficherAlertes());
         boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
+        boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
+        boutonExports.setOnAction(e -> Navigateur.afficherExports());
         boutonDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
 
-        HBox menuGauche = new HBox(20, logo, boutonDashboard, boutonIncidents, boutonAlertes, boutonStatistiques);
+        HBox menuGauche = new HBox(
+                20,
+                logo,
+                boutonDashboard,
+                boutonIncidents,
+                boutonAlertes,
+                boutonStatistiques,
+                boutonPlugins,
+                boutonExports
+        );
         menuGauche.setAlignment(Pos.CENTER_LEFT);
 
         Region espace = new Region();
@@ -76,6 +98,7 @@ public class VueDashboard {
         HBox ligneCartes = new HBox(20, carteIncidents, carteAlertes, carteUtilisateurs, carteSynchronisation);
         ligneCartes.setAlignment(Pos.CENTER_LEFT);
 
+
         Label titreBloc = new Label("Résumé");
         titreBloc.setStyle(
                 "-fx-font-size: 16px;" +
@@ -93,7 +116,12 @@ public class VueDashboard {
                         "-fx-text-fill: #495057;"
         );
 
-        VBox blocResume = new VBox(12, titreBloc, texteBloc);
+        Button boutonExporter = new Button("Exporter CSV");
+        styliserBoutonPrincipal(boutonExporter);
+
+        boutonExporter.setOnAction(e -> exporterDashboard());
+
+        VBox blocResume = new VBox(12, titreBloc, texteBloc, boutonExporter);
         blocResume.setPadding(new Insets(20));
         blocResume.setStyle(
                 "-fx-background-color: white;" +
@@ -111,6 +139,20 @@ public class VueDashboard {
         racine.setStyle("-fx-background-color: #f5f6fa;");
 
         return racine;
+    }
+
+    private void exporterDashboard() {
+        try (FileWriter writer = new FileWriter("dashboard.csv")) {
+            writer.write("statistique;valeur\n");
+            writer.write("Incidents ouverts;12\n");
+            writer.write("Alertes actives;5\n");
+            writer.write("Utilisateurs;120\n");
+            writer.write("Dernière synchro;18:45\n");
+
+            System.out.println("Export réussi : dashboard.csv");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private VBox creerCarte(String titre, String valeur) {
@@ -157,6 +199,17 @@ public class VueDashboard {
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 5;" +
                         "-fx-padding: 6 12 6 12;"
+        );
+    }
+
+    private void styliserBoutonPrincipal(Button bouton) {
+        bouton.setStyle(
+                "-fx-background-color: #2f80ed;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 6;" +
+                        "-fx-padding: 8 16 8 16;"
         );
     }
 
