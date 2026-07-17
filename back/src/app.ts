@@ -18,13 +18,15 @@ const allowedOrigins = process.env.FRONTEND_URL
 // Global middlewares — helmet has its own CORS-style header (CORP) that blocks
 // images/audio loaded from the API by a different origin. We relax it for the
 // static uploads directory below.
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+//app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(
   cors({
     origin: allowedOrigins?.length ? allowedOrigins : true,
   }),
 );
-app.use(morgan('dev'));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('dev'));
+}
 app.use(express.json());
 
 // Swagger docs

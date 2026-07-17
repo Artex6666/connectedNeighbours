@@ -2,6 +2,9 @@ node_modules/
 dist/
 coverage/
 *.log
+
+# Runtime uploads (messages media, signed PDFs, contracts)
+back/uploads/
 .idea/
 .DS_Store
 .env
@@ -10,4 +13,7 @@ coverage/
 desktop/target/
 *.class
 *.jar
+*.db
+*.db-shm
+*.db-wal
 .claude/settings.local.json

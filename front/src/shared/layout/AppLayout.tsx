@@ -14,6 +14,9 @@ export function AppLayout({ children }: Props) {
     { href: routes.dashboard, label: t('appNav.home') },
     { href: routes.services, label: `🤝 ${t('appNav.services')}` },
     { href: routes.events, label: `📅 ${t('appNav.events')}` },
+    { href: routes.votes, label: `🗳️ ${t('appNav.votes', 'Votes')}` },
+    { href: routes.groups, label: `👥 ${t('appNav.groups', 'Groupes')}` },
+    { href: routes.documents, label: `📄 ${t('appNav.documents', 'Documents')}` },
     { href: routes.profile, label: `👤 ${t('appNav.profile')}` },
   ]
   const { user, logout } = useAuth()

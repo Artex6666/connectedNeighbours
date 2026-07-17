@@ -98,7 +98,7 @@ export function ServicesPage() {
 
   const renderGrid = (list: Service[], emptyMsg: string) => {
     if (isLoading) return <div className="text-center py-16" style={{ color: 'var(--color-text-muted)' }}>{t('common.loading')}</div>
-    if (error) return <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#ffb4b4' }}>{error}</div>
+    if (error) return <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#c0392b' }}>{error}</div>
     if (list.length === 0) return (
       <div className="text-center py-16" style={{ color: 'var(--color-text-muted)' }}>
         <p className="text-4xl mb-3">🤝</p>

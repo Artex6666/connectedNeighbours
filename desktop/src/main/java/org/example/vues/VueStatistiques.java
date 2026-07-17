@@ -8,6 +8,8 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import java.io.File;
+import java.io.FileWriter;
 
 public class VueStatistiques {
 
@@ -22,20 +24,35 @@ public class VueStatistiques {
         Button btnIncidents = new Button("Incidents");
         Button btnAlertes = new Button("Alertes");
         Button btnStats = new Button("Statistiques");
+        Button boutonPlugins = new Button("Plugins");
+        Button boutonExports = new Button("Exports");
         Button btnDeconnexion = new Button("Déconnexion");
 
         styliserBoutonNav(btnDashboard);
         styliserBoutonNav(btnIncidents);
         styliserBoutonNav(btnAlertes);
         styliserBoutonNavActif(btnStats);
+        styliserBoutonNav(boutonPlugins);
+        styliserBoutonNav(boutonExports);
         styliserBoutonDanger(btnDeconnexion);
 
         btnDashboard.setOnAction(e -> Navigateur.afficherDashboard());
         btnIncidents.setOnAction(e -> Navigateur.afficherIncidents());
         btnAlertes.setOnAction(e -> Navigateur.afficherAlertes());
+        boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
+        boutonExports.setOnAction(e -> Navigateur.afficherExports());
         btnDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
 
-        HBox menuGauche = new HBox(20, logo, btnDashboard, btnIncidents, btnAlertes, btnStats);
+        HBox menuGauche = new HBox(
+                20,
+                logo,
+                btnDashboard,
+                btnIncidents,
+                btnAlertes,
+                btnStats,
+                boutonPlugins,
+                boutonExports
+        );
         menuGauche.setAlignment(Pos.CENTER_LEFT);
 
         Region espace = new Region();
@@ -109,8 +126,7 @@ public class VueStatistiques {
 
 
         boutonActualiser.setOnAction(e -> boutonActualiser.setText("Actualisé"));
-        boutonExporter.setOnAction(e -> System.out.println("Export simulé"));
-
+        boutonExporter.setOnAction(e -> exporterStatistiques());
 
         HBox ligneBoutons = new HBox(12, boutonActualiser, boutonExporter);
         ligneBoutons.setAlignment(Pos.CENTER_LEFT);
@@ -161,6 +177,30 @@ public class VueStatistiques {
         );
 
         return carte;
+    }
+
+    private void exporterStatistiques() {
+
+        try {
+
+            File dossier = new File("exports");
+            dossier.mkdirs();
+
+            try (FileWriter writer =
+                         new FileWriter("exports/statistiques.csv")) {
+
+                writer.write("Statistique;Valeur\n");
+                writer.write("Incidents ce mois;18\n");
+                writer.write("Alertes traitées;11\n");
+                writer.write("Voisins actifs;74\n");
+                writer.write("Taux participation;68%\n");
+            }
+
+            System.out.println("Export réussi : exports/statistiques.csv");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void styliserBoutonNav(Button bouton) {

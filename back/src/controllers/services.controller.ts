@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { success, error } from '../utils/response.utils';
 import { NotFoundError, ForbiddenError } from '../utils/errors';
+import { notifyNewService } from '../services/email.service';
+import { generateServiceContract } from '../services/contract.service';
 import Service from '../models/Service.model';
 import User from '../models/User.model';
 
@@ -73,6 +75,24 @@ export async function createService(req: Request, res: Response) {
     });
 
     const populated = await service.populate('authorId', 'firstName lastName role points');
+
+    // Notifier par email les voisins opt-in (non bloquant, ignoré si SMTP off).
+    try {
+      const neighbors = await User.find({
+        neighborhoodId,
+        _id: { $ne: authorId },
+        isBlocked: { $ne: true },
+      }).select('email firstName emailPreferences');
+      await notifyNewService(neighbors, {
+        title: service.title,
+        category: service.category,
+        isPaid: service.isPaid,
+        points: service.points,
+      });
+    } catch {
+      /* email non bloquant */
+    }
+
     return success(res, populated, 201);
   } catch {
     return error(res, 'Internal server error', 500);
@@ -151,8 +171,9 @@ export async function acceptService(req: Request, res: Response) {
     }
 
     // Check requester has enough points for paid services
+    let requester = null;
     if (service.isPaid) {
-      const requester = await User.findById(userId);
+      requester = await User.findById(userId);
       if (!requester) throw new NotFoundError('User not found');
       if (requester.points < service.points) {
         return error(res, `Not enough points (need ${service.points}, have ${requester.points})`, 400);
@@ -163,6 +184,20 @@ export async function acceptService(req: Request, res: Response) {
 
     service.status = 'in_progress';
     service.accepterId = userId as never;
+
+    // Service payant → contrat numérique obligatoire, signable par les 2 parties.
+    if (service.isPaid && requester) {
+      try {
+        const author = await User.findById(service.authorId).select('firstName lastName');
+        if (author) {
+          const contract = await generateServiceContract(service, author, requester);
+          service.contractId = contract._id as never;
+        }
+      } catch (err) {
+        console.error('[services] contract generation failed:', (err as Error).message);
+      }
+    }
+
     await service.save();
 
     return success(res, service);

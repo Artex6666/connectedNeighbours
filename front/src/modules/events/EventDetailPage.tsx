@@ -83,7 +83,7 @@ export function EventDetailPage() {
     return (
       <AppLayout>
         <div className="flex flex-col gap-4">
-          <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#ffb4b4' }}>
+          <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(255,80,80,0.1)', color: '#c0392b' }}>
             {error ?? t('events.notFound')}
           </div>
           <Link to={routes.events} className="text-sm" style={{ color: 'var(--color-primary)' }}>
@@ -123,7 +123,7 @@ export function EventDetailPage() {
             {event.isCancelled && (
               <span
                 className="text-sm font-bold px-3 py-1 rounded-full shrink-0"
-                style={{ background: 'rgba(255,80,80,0.12)', color: '#ffb4b4' }}
+                style={{ background: 'rgba(255,80,80,0.12)', color: '#c0392b' }}
               >
                 {t('events.cancelled')}
               </span>
@@ -156,7 +156,7 @@ export function EventDetailPage() {
               {isOrganizer && (
                 <button
                   className="button button--secondary"
-                  style={{ color: '#ffb4b4' }}
+                  style={{ color: '#c0392b' }}
                   onClick={handleCancel}
                 >
                   {t('events.actions.cancelEvent')}

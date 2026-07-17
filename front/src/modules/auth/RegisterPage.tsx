@@ -7,7 +7,7 @@ import { routes } from '@/shared/config/routes'
 
 const inputClass = 'h-12 px-4 rounded-xl outline-none transition-colors w-full'
 const inputStyle = {
-  background: 'rgba(255,255,255,0.02)',
+  background: 'rgba(0,0,0,0.04)',
   border: '1px solid var(--color-border)',
   color: 'var(--color-text)',
 }
@@ -31,7 +31,13 @@ export function RegisterPage() {
     setError(null)
     setIsLoading(true)
     try {
-      await authApi.register(form)
+      const res = await authApi.register(form)
+      // Si une vérification email est requise, on redirige vers la saisie du code.
+      if (res.requiresVerification) {
+        navigate(routes.verifyEmail, { state: { email: form.email } })
+        return
+      }
+      // Sinon (email désactivé côté serveur → compte auto-validé), on connecte.
       await login(form.email, form.password)
       navigate(routes.dashboard, { replace: true })
     } catch (err) {
@@ -69,7 +75,7 @@ export function RegisterPage() {
           {error && (
             <div
               className="px-4 py-3 rounded-xl text-sm"
-              style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.2)', color: '#ffb4b4' }}
+              style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.2)', color: '#c0392b' }}
               role="alert"
             >
               {error}

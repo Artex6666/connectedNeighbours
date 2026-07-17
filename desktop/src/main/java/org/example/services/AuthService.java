@@ -8,14 +8,14 @@ public class AuthService {
         this.apiClient = apiClient;
     }
 
-    public String login(String email, String password) throws Exception {
+    public String exchangeSsoCode(String code, String codeVerifier) throws Exception {
         String json = """
         {
-          "email": "%s",
-          "password": "%s"
+          "code": "%s",
+          "codeVerifier": "%s"
         }
-        """.formatted(email, password);
+        """.formatted(code, codeVerifier);
 
-        return apiClient.post("/auth/login", json);
+        return apiClient.post("/auth/sso/exchange", json);
     }
 }

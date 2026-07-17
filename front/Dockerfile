@@ -13,6 +13,11 @@ RUN pnpm install --frozen-lockfile
 
 COPY front ./front
 
+# API base URL is baked into the static bundle at build time. Override via
+# `--build-arg VITE_API_BASE_URL=...` (defaults to localhost for local builds).
+ARG VITE_API_BASE_URL=http://localhost:3000/api/v1
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
 RUN pnpm build
 
 FROM nginx:1.27-alpine AS production

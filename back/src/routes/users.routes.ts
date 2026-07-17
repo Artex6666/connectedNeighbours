@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as usersController from '../controllers/users.controller';
+import * as rgpdController from '../controllers/rgpd.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { requireRole } from '../middlewares/role.middleware';
 
@@ -60,6 +61,94 @@ router.get('/neighbors', usersController.listMyNeighbors);
  *         description: Non authentifié
  */
 router.put('/me', usersController.updateMe);
+
+/**
+ * @swagger
+ * /users/me/preferences:
+ *   put:
+ *     summary: Met à jour les préférences de notification email
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               messages: { type: boolean }
+ *               annonces: { type: boolean }
+ *               events: { type: boolean }
+ *               newsletter: { type: boolean }
+ *     responses:
+ *       200: { description: Préférences mises à jour }
+ *       400: { description: Aucune préférence valide fournie }
+ */
+router.put('/me/preferences', usersController.updateMyPreferences);
+
+/**
+ * @swagger
+ * /users/heartbeat:
+ *   post:
+ *     summary: Signale que l'utilisateur est en ligne (met à jour lastSeenAt)
+ *     description: À appeler périodiquement (~30s) tant que l'app est ouverte. Pilote la présence et l'envoi d'email "hors ligne".
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Présence enregistrée }
+ */
+router.post('/heartbeat', usersController.heartbeat);
+
+/**
+ * @swagger
+ * /users/me/neighborhood:
+ *   put:
+ *     summary: Rejoindre / changer son quartier (self-service)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [neighborhoodId]
+ *             properties:
+ *               neighborhoodId: { type: string }
+ *     responses:
+ *       200: { description: Quartier rejoint }
+ *       404: { description: Quartier introuvable }
+ */
+router.put('/me/neighborhood', usersController.setMyNeighborhood);
+
+/**
+ * @swagger
+ * /users/me/export:
+ *   get:
+ *     summary: Exporte toutes ses données personnelles (RGPD — accès & portabilité)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: query
+ *         name: format
+ *         schema: { type: string, enum: [json, csv], default: json }
+ *     responses:
+ *       200:
+ *         description: Fichier téléchargeable (JSON ou CSV) avec profil, services, événements, messages, votes, incidents
+ */
+router.get('/me/export', rgpdController.exportMyData);
+
+/**
+ * @swagger
+ * /users/me:
+ *   delete:
+ *     summary: Supprime son propre compte (RGPD — effacement / anonymisation)
+ *     description: Les données personnelles sont anonymisées ; les contenus partagés sont conservés sous « Compte supprimé ». Toutes les sessions sont révoquées.
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Compte anonymisé }
+ */
+router.delete('/me', rgpdController.deleteMyAccount);
 
 /**
  * @swagger
@@ -174,5 +263,34 @@ router.put('/:id/role', requireRole('admin'), usersController.updateUserRole);
  *         description: Quartier mis à jour
  */
 router.put('/:id/neighborhood', requireRole('admin'), usersController.updateUserNeighborhood);
+
+/**
+ * @swagger
+ * /users/{id}/block:
+ *   put:
+ *     summary: Bloque ou débloque un compte (admin/modérateur)
+ *     description: Bloquer révoque aussi toutes les sessions actives de l'utilisateur.
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [blocked]
+ *             properties:
+ *               blocked: { type: boolean }
+ *     responses:
+ *       200: { description: Statut de blocage mis à jour }
+ *       400: { description: Champ manquant ou auto-blocage }
+ *       404: { description: Utilisateur introuvable }
+ */
+router.put('/:id/block', requireRole('admin', 'moderator'), usersController.setUserBlocked);
 
 export default router;

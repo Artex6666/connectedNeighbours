@@ -3,6 +3,12 @@ import * as authController from '../controllers/auth.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { mfaMiddleware } from '../middlewares/mfa.middleware';
 
+console.log('[AUTH ROUTES CHECK]', {
+  createSsoCode: typeof authController.createSsoCode,
+  ssoExchange: typeof authController.ssoExchange,
+  authMiddleware: typeof authMiddleware,
+});
+
 const router: Router = Router();
 
 /**
@@ -116,18 +122,57 @@ router.post('/logout-all', authMiddleware, authController.logoutAll);
  * @swagger
  * /auth/verify-email:
  *   post:
- *     summary: Verify account by email code
+ *     summary: Vérifie un compte via le code reçu par email
  *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, code]
+ *             properties:
+ *               email: { type: string, format: email }
+ *               code: { type: string, example: '482913' }
+ *     responses:
+ *       200: { description: Compte vérifié }
+ *       400: { description: Code invalide ou expiré }
+ *       404: { description: Utilisateur introuvable }
  */
 router.post('/verify-email', authController.verifyEmail);
 
 /**
  * @swagger
+ * /auth/resend-verification:
+ *   post:
+ *     summary: Renvoie un code de vérification par email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email }
+ *     responses:
+ *       200: { description: Email renvoyé (réponse neutre) }
+ */
+router.post('/resend-verification', authController.resendVerification);
+
+/**
+ * @swagger
  * /auth/mfa/setup:
  *   post:
- *     summary: Initialize TOTP MFA (returns QR code)
+ *     summary: Démarre l'activation de la 2FA (renvoie un QR code à scanner)
  *     tags: [Auth]
  *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: QR code (data URL) + secret base32 pour saisie manuelle
+ *       400:
+ *         description: 2FA déjà activée
  */
 router.post('/mfa/setup', authMiddleware, authController.setupMfa);
 
@@ -135,10 +180,48 @@ router.post('/mfa/setup', authMiddleware, authController.setupMfa);
  * @swagger
  * /auth/mfa/verify:
  *   post:
- *     summary: Verify and activate MFA
+ *     summary: Confirme et active la 2FA avec un code TOTP
  *     tags: [Auth]
  *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [totpCode]
+ *             properties:
+ *               totpCode: { type: string, example: '123456' }
+ *     responses:
+ *       200: { description: 2FA activée }
+ *       403: { description: Code invalide ou MFA non initialisée }
  */
 router.post('/mfa/verify', authMiddleware, mfaMiddleware, authController.confirmMfa);
+
+/**
+ * @swagger
+ * /auth/mfa/disable:
+ *   post:
+ *     summary: Désactive la 2FA (nécessite un code TOTP valide)
+ *     tags: [Auth]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [totpCode]
+ *             properties:
+ *               totpCode: { type: string }
+ *     responses:
+ *       200: { description: 2FA désactivée }
+ *       403: { description: Code invalide }
+ */
+router.post('/mfa/disable', authMiddleware, mfaMiddleware, authController.disableMfa);
+
+
+router.post('/sso/code', authMiddleware, authController.createSsoCode);
+router.post('/sso/exchange', authController.ssoExchange);
 
 export default router;

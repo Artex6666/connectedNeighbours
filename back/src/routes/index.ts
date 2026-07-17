@@ -1,3 +1,5 @@
+
+
 import { Router } from 'express';
 import authRoutes from './auth.routes';
 import usersRoutes from './users.routes';
@@ -11,8 +13,16 @@ import documentsRoutes from './documents.routes';
 import incidentsRoutes from './incidents.routes';
 import alertesRoutes from './alertes.routes';
 import statsRoutes from './stats.routes';
+import newsletterRoutes from './newsletter.routes';
+import groupsRoutes from './groups.routes';
+import publicRoutes from './public.routes';
+
+import mongoDslRoutes from '../dsl/mongoDsl.routes';
 
 const router: Router = Router();
+
+// Public showcase (no auth) — must stay open.
+router.use('/public', publicRoutes);
 
 router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
@@ -26,5 +36,11 @@ router.use('/documents', documentsRoutes);
 router.use('/incidents', incidentsRoutes);
 router.use('/alertes', alertesRoutes);
 router.use('/stats', statsRoutes);
+router.use('/newsletter', newsletterRoutes);
+router.use('/groups', groupsRoutes);
+
+
+
+router.use('/dsl', mongoDslRoutes);
 
 export default router;

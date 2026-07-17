@@ -1,19 +1,13 @@
 import { Outlet, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { navItems } from '@/shared/config/nav-items'
-import { ChatWidget } from '@/shared/ui/ChatWidget'
 import { AdminQuickButton } from '@/shared/ui/AdminQuickButton'
 import { useAuth } from '@/shared/context/AuthContext'
 import { routes } from '@/shared/config/routes'
 
 export function PublicLayout() {
   const { t } = useTranslation()
-  const { user, isAuthenticated, logout, accessToken } = useAuth()
-
-  // Build a minimal session object for ChatWidget compatibility
-  const chatSession = isAuthenticated && accessToken
-    ? { accessToken, refreshToken: '', user: user! }
-    : null
+  const { user, isAuthenticated, logout } = useAuth()
 
   return (
     <div>
@@ -36,7 +30,7 @@ export function PublicLayout() {
               </>
             ) : (
               navItems.map((item) => (
-                <a key={item.href} href={item.href}>{t(item.labelKey)}</a>
+                <a key={item.href} href={item.href}>{item.label}</a>
               ))
             )}
           </nav>
@@ -97,12 +91,6 @@ export function PublicLayout() {
           </div>
         </footer>
       </div>
-
-      <ChatWidget
-        isAuthenticated={isAuthenticated}
-        session={chatSession}
-        onRequireAuth={() => void 0}
-      />
 
       <AdminQuickButton />
     </div>

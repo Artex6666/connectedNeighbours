@@ -4,10 +4,10 @@ import { routes } from '@/shared/config/routes'
 import type { Service } from '@/shared/lib/api'
 
 const STATUS_COLORS: Record<string, string> = {
-  open: '#93f0c0',
+  open: '#15803d',
   in_progress: '#78adff',
   done: '#9fb1c9',
-  cancelled: '#ffb4b4',
+  cancelled: '#c0392b',
   pending: '#ffd580',
 }
 
@@ -42,7 +42,7 @@ export function ServiceCard({ service, currentUserId, onAccept, onDelete }: Prop
         </span>
         <span
           className="text-xs font-bold px-2.5 py-1 rounded-full"
-          style={{ background: 'rgba(255,255,255,0.06)', color: STATUS_COLORS[service.status] }}
+          style={{ background: 'rgba(0,0,0,0.06)', color: STATUS_COLORS[service.status] }}
         >
           {t(`services.status.${service.status}`, service.status)}
         </span>
@@ -70,14 +70,14 @@ export function ServiceCard({ service, currentUserId, onAccept, onDelete }: Prop
         {service.isPaid ? (
           <span
             className="text-sm font-bold px-2.5 py-1 rounded-full"
-            style={{ background: 'var(--color-secondary-soft)', color: '#c8b7ff' }}
+            style={{ background: 'var(--color-secondary-soft)', color: '#6d28d9' }}
           >
             {t('services.points', { count: service.points })}
           </span>
         ) : (
           <span
             className="text-sm font-bold px-2.5 py-1 rounded-full"
-            style={{ background: 'var(--color-success-soft)', color: '#93f0c0' }}
+            style={{ background: 'var(--color-success-soft)', color: '#15803d' }}
           >
             {t('common.free')}
           </span>

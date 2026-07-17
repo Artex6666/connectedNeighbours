@@ -21,6 +21,7 @@ export interface IService extends Document {
   neighborhoodId: Types.ObjectId;
   status: ServiceStatus;
   photos: string[];
+  contractId?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +40,7 @@ const ServiceSchema = new Schema<IService>(
     authorId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     accepterId: { type: Schema.Types.ObjectId, ref: 'User' },
     neighborhoodId: { type: Schema.Types.ObjectId, ref: 'Neighborhood', required: true },
+    contractId: { type: Schema.Types.ObjectId, ref: 'Document' },
     status: {
       type: String,
       enum: ['open', 'pending', 'in_progress', 'done', 'cancelled'],

@@ -7,16 +7,21 @@ import { AdminLayout } from '@/shared/layout/AdminLayout'
 import { HomePage } from '@/modules/home/HomePage'
 import { LoginPage } from '@/modules/auth/LoginPage'
 import { RegisterPage } from '@/modules/auth/RegisterPage'
+import { VerifyEmailPage } from '@/modules/auth/VerifyEmailPage'
 import { DashboardPage } from '@/modules/dashboard/DashboardPage'
 import { ServicesPage } from '@/modules/services/ServicesPage'
 import { ServiceDetailPage } from '@/modules/services/ServiceDetailPage'
 import { EventsPage } from '@/modules/events/EventsPage'
 import { EventDetailPage } from '@/modules/events/EventDetailPage'
+import { DocumentsPage } from '@/modules/documents/DocumentsPage'
+import { VotesPage } from '@/modules/votes/VotesPage'
+import { GroupsPage } from '@/modules/groups/GroupsPage'
 import { ProfilePage } from '@/modules/profile/ProfilePage'
 import { AdminDashboardPage } from '@/modules/admin/AdminDashboardPage'
 import { NotFoundPage } from '@/modules/not-found/NotFoundPage'
 import { routes } from '@/shared/config/routes'
 import { adminPlugins, pluginPath } from '@/shared/plugins/admin-registry'
+import { MongoDslPage } from '@/modules/dsl/MongoDslPage'
 
 export const router = createBrowserRouter([
   // Public routes (landing page)
@@ -31,6 +36,7 @@ export const router = createBrowserRouter([
   // Auth pages
   { path: routes.login, element: <LoginPage /> },
   { path: routes.register, element: <RegisterPage /> },
+  { path: routes.verifyEmail, element: <VerifyEmailPage /> },
 
   // Protected routes
   {
@@ -41,7 +47,11 @@ export const router = createBrowserRouter([
       { path: `${routes.services}/:id`, element: <ServiceDetailPage /> },
       { path: routes.events, element: <EventsPage /> },
       { path: `${routes.events}/:id`, element: <EventDetailPage /> },
+      { path: routes.documents, element: <DocumentsPage /> },
+      { path: routes.votes, element: <VotesPage /> },
+      { path: routes.groups, element: <GroupsPage /> },
       { path: routes.profile, element: <ProfilePage /> },
+      {path: routes.mongoDsl, element: <MongoDslPage /> },
     ],
   },
 
