@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.example.database.AlerteDAO;
+import org.example.services.SyncService;
 
 public class VueAlertes {
 
@@ -166,6 +167,12 @@ public class VueAlertes {
 
         VBox racine = new VBox(navbar, contenu);
         racine.setStyle("-fx-background-color: #f5f6fa;");
+
+        Runnable rafraichir = () -> listeAlertes.setAll(alerteDAO.findAll());
+        SyncService.ajouterListenerSyncTerminee(rafraichir);
+        racine.sceneProperty().addListener((obs, ancienne, nouvelle) -> {
+            if (nouvelle == null) SyncService.retirerListenerSyncTerminee(rafraichir);
+        });
 
         return racine;
     }

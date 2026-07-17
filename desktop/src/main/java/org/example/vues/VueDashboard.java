@@ -8,7 +8,11 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import org.example.Conflit;
+import org.example.database.ConflitDAO;
+import org.example.database.IncidentDAO;
 import org.example.services.SyncService;
+import java.time.Instant;
 
 import java.io.FileWriter;
 
@@ -139,7 +143,56 @@ public class VueDashboard {
                         "-fx-background-radius: 6;"
         );
 
-        VBox contenu = new VBox(20, entete, ligneCartes, blocResume);
+        // ── Bloc démo / test ─────────────────────────────────────────────────
+        Label titreDemo = new Label("Outils de démo");
+        titreDemo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+
+        Button boutonHorsLigne = new Button(
+                SyncService.estHorsLigneSimule() ? "✓ Hors ligne simulé" : "Simuler hors ligne"
+        );
+        boutonHorsLigne.setStyle(
+                "-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 13px;" +
+                "-fx-background-radius: 6; -fx-padding: 8 16 8 16;"
+        );
+        boutonHorsLigne.setOnAction(e -> {
+            SyncService.basculerModeHorsLigne();
+            boutonHorsLigne.setText(
+                    SyncService.estHorsLigneSimule() ? "✓ Hors ligne simulé" : "Simuler hors ligne"
+            );
+        });
+
+        Button boutonSimulerConflit = new Button("Simuler un conflit");
+        boutonSimulerConflit.setStyle(
+                "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 13px;" +
+                "-fx-background-radius: 6; -fx-padding: 8 16 8 16;"
+        );
+        boutonSimulerConflit.setOnAction(e -> {
+            IncidentDAO incidentDAO = new IncidentDAO();
+            String entityId = incidentDAO.findAll().isEmpty()
+                    ? "demo-incident-id"
+                    : incidentDAO.findAll().get(0).getId();
+
+            Conflit conflit = new Conflit(0, "incident", entityId,
+                    "{\"titre\":\"Lampadaire cassé\",\"statut\":\"Ouvert\",\"priorite\":\"Haute\"}",
+                    "{\"titre\":\"Lampadaire cassé\",\"statut\":\"Résolu\",\"priorite\":\"Basse\"}",
+                    Instant.now().toString());
+            new ConflitDAO().save(conflit);
+            SyncService.nbConflitsProperty().set(new ConflitDAO().count());
+            boutonSimulerConflit.setText("Conflit créé ✓");
+            boutonSimulerConflit.setDisable(true);
+        });
+
+        HBox ligneDemo = new HBox(12, boutonHorsLigne, boutonSimulerConflit);
+        ligneDemo.setAlignment(Pos.CENTER_LEFT);
+
+        VBox blocDemo = new VBox(12, titreDemo, ligneDemo);
+        blocDemo.setPadding(new Insets(20));
+        blocDemo.setStyle(
+                "-fx-background-color: white; -fx-border-color: #f39c12;" +
+                "-fx-border-radius: 6; -fx-background-radius: 6; -fx-border-width: 2;"
+        );
+
+        VBox contenu = new VBox(20, entete, ligneCartes, blocResume, blocDemo);
         contenu.setPadding(new Insets(30));
         contenu.setAlignment(Pos.TOP_LEFT);
         contenu.setMaxWidth(1000);

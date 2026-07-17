@@ -13,7 +13,7 @@ public class Main extends Application {
         SyncService.demarrer();
 
         Navigateur.definirStage(stage);
-        Navigateur.afficherDashboard(); // TODO: remettre afficherConnexion()
+        Navigateur.afficherConnexion();
         stage.setTitle("Bob Connect");
         stage.show();
     }

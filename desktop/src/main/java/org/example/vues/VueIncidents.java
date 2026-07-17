@@ -17,6 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.example.database.IncidentDAO;
+import org.example.services.SyncService;
 
 
 public class VueIncidents {
@@ -195,6 +196,14 @@ public class VueIncidents {
 
         VBox racine = new VBox(navbar, contenu);
         racine.setStyle("-fx-background-color: #f5f6fa;");
+
+        Runnable rafraichir = () -> {
+            listeIncidents.setAll(incidentDAO.findAll());
+        };
+        SyncService.ajouterListenerSyncTerminee(rafraichir);
+        racine.sceneProperty().addListener((obs, ancienne, nouvelle) -> {
+            if (nouvelle == null) SyncService.retirerListenerSyncTerminee(rafraichir);
+        });
 
         return racine;
     }

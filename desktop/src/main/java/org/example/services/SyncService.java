@@ -23,6 +23,8 @@ public class SyncService {
     private static final SimpleStringProperty statut = new SimpleStringProperty("Non synchronisé");
     private static final SimpleIntegerProperty nbConflits = new SimpleIntegerProperty(0);
     private static ScheduledExecutorService scheduler;
+    private static volatile boolean modeHorsLigneSimule = false;
+    private static final java.util.List<Runnable> listenersSyncTerminee = new java.util.ArrayList<>();
 
     private static final IncidentDAO incidentDAO = new IncidentDAO();
     private static final AlerteDAO alerteDAO = new AlerteDAO();
@@ -30,6 +32,21 @@ public class SyncService {
 
     public static SimpleStringProperty statutProperty() { return statut; }
     public static SimpleIntegerProperty nbConflitsProperty() { return nbConflits; }
+
+    public static void basculerModeHorsLigne() {
+        modeHorsLigneSimule = !modeHorsLigneSimule;
+        setStatut(modeHorsLigneSimule ? "Hors ligne (simulé)" : "Non synchronisé");
+    }
+
+    public static boolean estHorsLigneSimule() { return modeHorsLigneSimule; }
+
+    public static void ajouterListenerSyncTerminee(Runnable listener) {
+        listenersSyncTerminee.add(listener);
+    }
+
+    public static void retirerListenerSyncTerminee(Runnable listener) {
+        listenersSyncTerminee.remove(listener);
+    }
 
     public static void demarrer() {
         scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -51,6 +68,11 @@ public class SyncService {
     private static void synchroniser() {
         ApiClient api = SessionManager.getApiClient();
 
+        if (modeHorsLigneSimule) {
+            setStatut("Hors ligne (simulé)");
+            return;
+        }
+
         if (!SessionManager.estConnecte()) {
             setStatut("Non connecté");
             return;
@@ -71,6 +93,7 @@ public class SyncService {
 
             String heure = java.time.LocalTime.now().withNano(0).toString();
             setStatut("Synchronisé à " + heure);
+            Platform.runLater(() -> listenersSyncTerminee.forEach(Runnable::run));
         } catch (Exception e) {
             setStatut("Erreur de synchronisation");
             System.err.println("SyncService : " + e.getMessage());

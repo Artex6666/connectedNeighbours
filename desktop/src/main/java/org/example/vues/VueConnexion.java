@@ -7,6 +7,7 @@ import javafx.scene.image.*;
 import javafx.scene.layout.VBox;
 import org.example.services.ApiClient;
 import org.example.services.AuthService;
+import org.example.services.SessionManager;
 import org.example.services.SsoService;
 
 public class VueConnexion {
@@ -43,12 +44,11 @@ public class VueConnexion {
                 boutonConnexion.setDisable(true);
                 boutonConnexion.setText("Connexion en cours...");
 
-                ApiClient apiClient = new ApiClient();
+                ApiClient apiClient = SessionManager.getApiClient();
                 AuthService authService = new AuthService(apiClient);
                 SsoService ssoService = new SsoService(authService, apiClient);
 
                 ssoService.loginWithBrowser();
-                AppSession.setApiClient(apiClient);
 
                 Navigateur.afficherDashboard();
 
