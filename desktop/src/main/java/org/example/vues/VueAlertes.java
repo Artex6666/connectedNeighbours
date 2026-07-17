@@ -13,14 +13,14 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import org.example.database.AlerteDAO;
+import org.example.services.SyncService;
 
 public class VueAlertes {
 
-    private final ObservableList<Alerte> listeAlertes = FXCollections.observableArrayList(
-            new Alerte("Coupure internet", "Moyenne", "05/04/2026", "Non lue"),
-            new Alerte("Incident sécurité", "Élevée", "04/04/2026", "Lue"),
-            new Alerte("Bruit signalé", "Faible", "03/04/2026", "Non lue")
-    );
+    private final AlerteDAO alerteDAO = new AlerteDAO();
+    private final ObservableList<Alerte> listeAlertes =
+            FXCollections.observableArrayList(new AlerteDAO().findAll());
 
     public Parent creerVue() {
 
@@ -135,6 +135,7 @@ public class VueAlertes {
             Alerte alerteSelectionnee = tableau.getSelectionModel().getSelectedItem();
             if (alerteSelectionnee != null) {
                 alerteSelectionnee.setStatut("Lue");
+                alerteDAO.save(alerteSelectionnee);
                 tableau.refresh();
             }
         });
@@ -142,6 +143,7 @@ public class VueAlertes {
         boutonArchiver.setOnAction(e -> {
             Alerte alerteSelectionnee = tableau.getSelectionModel().getSelectedItem();
             if (alerteSelectionnee != null) {
+                alerteDAO.delete(alerteSelectionnee.getId());
                 listeAlertes.remove(alerteSelectionnee);
             }
         });
@@ -165,6 +167,12 @@ public class VueAlertes {
 
         VBox racine = new VBox(navbar, contenu);
         racine.setStyle("-fx-background-color: #f5f6fa;");
+
+        Runnable rafraichir = () -> listeAlertes.setAll(alerteDAO.findAll());
+        SyncService.ajouterListenerSyncTerminee(rafraichir);
+        racine.sceneProperty().addListener((obs, ancienne, nouvelle) -> {
+            if (nouvelle == null) SyncService.retirerListenerSyncTerminee(rafraichir);
+        });
 
         return racine;
     }

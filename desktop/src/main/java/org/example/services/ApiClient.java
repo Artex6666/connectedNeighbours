@@ -40,6 +40,19 @@ public class ApiClient {
         return send(builder.build());
     }
 
+    public String put(String endpoint, String jsonBody) throws IOException, InterruptedException {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + endpoint))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonBody));
+
+        if (accessToken != null) {
+            builder.header("Authorization", "Bearer " + accessToken);
+        }
+
+        return send(builder.build());
+    }
+
     private String send(HttpRequest request) throws IOException, InterruptedException {
         HttpResponse<String> response =
                 client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -49,5 +62,20 @@ public class ApiClient {
         }
 
         return response.body();
+    }
+
+    public boolean ping() {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(BASE_URL + "/users/me"))
+                    .header("Authorization", "Bearer " + (accessToken != null ? accessToken : ""))
+                    .GET()
+                    .build();
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.statusCode() < 500;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

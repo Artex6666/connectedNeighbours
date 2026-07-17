@@ -8,6 +8,11 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import org.example.Conflit;
+import org.example.database.ConflitDAO;
+import org.example.database.IncidentDAO;
+import org.example.services.SyncService;
+import java.time.Instant;
 
 import java.io.FileWriter;
 
@@ -25,28 +30,38 @@ public class VueDashboard {
         Button boutonAlertes = new Button("Alertes");
         Button boutonStatistiques = new Button("Statistiques");
         Button boutonPlugins = new Button("Plugins");
-        Button boutonDeconnexion = new Button("Déconnexion");
         Button boutonExports = new Button("Exports");
-
-
+        Button boutonConflits = new Button("⚠ Conflits");
+        Button boutonDeconnexion = new Button("Déconnexion");
 
         styliserBoutonNavActif(boutonDashboard);
         styliserBoutonNav(boutonIncidents);
         styliserBoutonNav(boutonAlertes);
         styliserBoutonNav(boutonStatistiques);
         styliserBoutonNav(boutonPlugins);
-
         styliserBoutonNav(boutonExports);
-
         styliserBoutonDanger(boutonDeconnexion);
-
 
         boutonIncidents.setOnAction(e -> Navigateur.afficherIncidents());
         boutonAlertes.setOnAction(e -> Navigateur.afficherAlertes());
         boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
         boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
         boutonExports.setOnAction(e -> Navigateur.afficherExports());
+        boutonConflits.setOnAction(e -> Navigateur.afficherConflits());
         boutonDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
+
+        boutonConflits.setStyle(
+                "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 12px;" +
+                "-fx-background-radius: 5; -fx-padding: 4 10 4 10;"
+        );
+        boutonConflits.setVisible(SyncService.nbConflitsProperty().get() > 0);
+        SyncService.nbConflitsProperty().addListener((obs, ancien, nb) ->
+                boutonConflits.setVisible(nb.intValue() > 0)
+        );
+
+        Label labelSync = new Label();
+        labelSync.textProperty().bind(SyncService.statutProperty());
+        labelSync.setStyle("-fx-font-size: 11px; -fx-text-fill: #6c757d;");
 
         HBox menuGauche = new HBox(
                 20,
@@ -63,7 +78,7 @@ public class VueDashboard {
         Region espace = new Region();
         HBox.setHgrow(espace, Priority.ALWAYS);
 
-        HBox menuDroite = new HBox(boutonDeconnexion);
+        HBox menuDroite = new HBox(12, labelSync, boutonConflits, boutonDeconnexion);
         menuDroite.setAlignment(Pos.CENTER_RIGHT);
 
         HBox navbar = new HBox(20, menuGauche, espace, menuDroite);
@@ -81,7 +96,7 @@ public class VueDashboard {
                         "-fx-text-fill: #2c3e50;"
         );
 
-        Label sousTitre = new Label("Vue générale de l’administration Bob Connect");
+        Label sousTitre = new Label("Vue générale de l'administration Bob Connect");
         sousTitre.setStyle(
                 "-fx-font-size: 13px;" +
                         "-fx-text-fill: #6c757d;"
@@ -98,7 +113,6 @@ public class VueDashboard {
         HBox ligneCartes = new HBox(20, carteIncidents, carteAlertes, carteUtilisateurs, carteSynchronisation);
         ligneCartes.setAlignment(Pos.CENTER_LEFT);
 
-
         Label titreBloc = new Label("Résumé");
         titreBloc.setStyle(
                 "-fx-font-size: 16px;" +
@@ -107,7 +121,7 @@ public class VueDashboard {
         );
 
         Label texteBloc = new Label(
-                "Cette interface permet de suivre rapidement l’état du quartier, " +
+                "Cette interface permet de suivre rapidement l'état du quartier, " +
                         "de consulter les incidents, les alertes et les statistiques principales."
         );
         texteBloc.setWrapText(true);
@@ -118,7 +132,6 @@ public class VueDashboard {
 
         Button boutonExporter = new Button("Exporter CSV");
         styliserBoutonPrincipal(boutonExporter);
-
         boutonExporter.setOnAction(e -> exporterDashboard());
 
         VBox blocResume = new VBox(12, titreBloc, texteBloc, boutonExporter);
@@ -130,7 +143,56 @@ public class VueDashboard {
                         "-fx-background-radius: 6;"
         );
 
-        VBox contenu = new VBox(20, entete, ligneCartes, blocResume);
+        // ── Bloc démo / test ─────────────────────────────────────────────────
+        Label titreDemo = new Label("Outils de démo");
+        titreDemo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+
+        Button boutonHorsLigne = new Button(
+                SyncService.estHorsLigneSimule() ? "✓ Hors ligne simulé" : "Simuler hors ligne"
+        );
+        boutonHorsLigne.setStyle(
+                "-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 13px;" +
+                "-fx-background-radius: 6; -fx-padding: 8 16 8 16;"
+        );
+        boutonHorsLigne.setOnAction(e -> {
+            SyncService.basculerModeHorsLigne();
+            boutonHorsLigne.setText(
+                    SyncService.estHorsLigneSimule() ? "✓ Hors ligne simulé" : "Simuler hors ligne"
+            );
+        });
+
+        Button boutonSimulerConflit = new Button("Simuler un conflit");
+        boutonSimulerConflit.setStyle(
+                "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 13px;" +
+                "-fx-background-radius: 6; -fx-padding: 8 16 8 16;"
+        );
+        boutonSimulerConflit.setOnAction(e -> {
+            IncidentDAO incidentDAO = new IncidentDAO();
+            String entityId = incidentDAO.findAll().isEmpty()
+                    ? "demo-incident-id"
+                    : incidentDAO.findAll().get(0).getId();
+
+            Conflit conflit = new Conflit(0, "incident", entityId,
+                    "{\"titre\":\"Lampadaire cassé\",\"statut\":\"Ouvert\",\"priorite\":\"Haute\"}",
+                    "{\"titre\":\"Lampadaire cassé\",\"statut\":\"Résolu\",\"priorite\":\"Basse\"}",
+                    Instant.now().toString());
+            new ConflitDAO().save(conflit);
+            SyncService.nbConflitsProperty().set(new ConflitDAO().count());
+            boutonSimulerConflit.setText("Conflit créé ✓");
+            boutonSimulerConflit.setDisable(true);
+        });
+
+        HBox ligneDemo = new HBox(12, boutonHorsLigne, boutonSimulerConflit);
+        ligneDemo.setAlignment(Pos.CENTER_LEFT);
+
+        VBox blocDemo = new VBox(12, titreDemo, ligneDemo);
+        blocDemo.setPadding(new Insets(20));
+        blocDemo.setStyle(
+                "-fx-background-color: white; -fx-border-color: #f39c12;" +
+                "-fx-border-radius: 6; -fx-background-radius: 6; -fx-border-width: 2;"
+        );
+
+        VBox contenu = new VBox(20, entete, ligneCartes, blocResume, blocDemo);
         contenu.setPadding(new Insets(30));
         contenu.setAlignment(Pos.TOP_LEFT);
         contenu.setMaxWidth(1000);

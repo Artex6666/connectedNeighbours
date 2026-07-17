@@ -16,15 +16,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import org.example.database.IncidentDAO;
+import org.example.services.SyncService;
 
 
 public class VueIncidents {
 
-    private final ObservableList<Incident> listeIncidents = FXCollections.observableArrayList(
-            new Incident("Bruit voisinage", "Ouvert", "01/04/2026"),
-            new Incident("Lampadaire cassé", "En cours", "31/03/2026"),
-            new Incident("Dégradation banc public", "Résolu", "29/03/2026")
-    );
+    private final IncidentDAO incidentDAO = new IncidentDAO();
+    private final ObservableList<Incident> listeIncidents =
+            FXCollections.observableArrayList(new IncidentDAO().findAll());
 
     public Parent creerVue() {
 
@@ -156,16 +156,14 @@ public class VueIncidents {
         );
 
         boutonAjouter.setOnAction(e -> {
-            if (!champTitre.getText().isEmpty()
-                    && !champDate.getText().isEmpty()
-                    && choixStatut.getValue() != null) {
-
-                listeIncidents.add(new Incident(
+            if (!champTitre.getText().isEmpty() && !champDate.getText().isEmpty() && choixStatut.getValue() != null) {
+                Incident nouvel = new Incident(
                         champTitre.getText(),
                         choixStatut.getValue(),
                         champDate.getText()
-                ));
-
+                );
+                incidentDAO.save(nouvel);
+                listeIncidents.add(nouvel);
                 champTitre.clear();
                 champDate.clear();
                 choixStatut.setValue(null);
@@ -198,6 +196,14 @@ public class VueIncidents {
 
         VBox racine = new VBox(navbar, contenu);
         racine.setStyle("-fx-background-color: #f5f6fa;");
+
+        Runnable rafraichir = () -> {
+            listeIncidents.setAll(incidentDAO.findAll());
+        };
+        SyncService.ajouterListenerSyncTerminee(rafraichir);
+        racine.sceneProperty().addListener((obs, ancienne, nouvelle) -> {
+            if (nouvelle == null) SyncService.retirerListenerSyncTerminee(rafraichir);
+        });
 
         return racine;
     }
