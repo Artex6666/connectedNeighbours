@@ -8,6 +8,9 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import org.example.database.AlerteDAO;
+import org.example.database.IncidentDAO;
+
 import java.io.File;
 import java.io.FileWriter;
 
@@ -85,16 +88,29 @@ public class VueStatistiques {
         VBox entetePage = new VBox(5, titre, sousTitre);
         entetePage.setAlignment(Pos.CENTER_LEFT);
 
+        IncidentDAO incidentDAO = new IncidentDAO();
+        AlerteDAO alerteDAO = new AlerteDAO();
+
+        long totalIncidents = incidentDAO.findAll().size();
+        long alertesTraitees = alerteDAO.findAll().stream()
+                .filter(a -> "Lue".equals(a.getStatut()))
+                .count();
+        long incidentsResolus = incidentDAO.findAll().stream()
+                .filter(i -> "Résolu".equals(i.getStatut()))
+                .count();
+
         HBox ligne1 = new HBox(
                 20,
-                creerCarteStatistique("Incidents ce mois", "18"),
-                creerCarteStatistique("Alertes traitées", "11")
+                creerCarteStatistique("Incidents enregistrés", String.valueOf(totalIncidents)),
+                creerCarteStatistique("Alertes traitées", String.valueOf(alertesTraitees))
         );
 
         HBox ligne2 = new HBox(
                 20,
-                creerCarteStatistique("Voisins actifs", "74"),
-                creerCarteStatistique("Taux participation", "68%")
+                creerCarteStatistique("Incidents résolus", String.valueOf(incidentsResolus)),
+                creerCarteStatistique("Taux résolution",
+                        totalIncidents == 0 ? "—"
+                        : (incidentsResolus * 100 / totalIncidents) + "%")
         );
 
         ligne1.setAlignment(Pos.CENTER_LEFT);
@@ -125,8 +141,8 @@ public class VueStatistiques {
         styliserBoutonSecondaire(boutonExporter);
 
 
-        boutonActualiser.setOnAction(e -> boutonActualiser.setText("Actualisé"));
-        boutonExporter.setOnAction(e -> exporterStatistiques());
+        boutonActualiser.setOnAction(e -> Navigateur.afficherStatistiques());
+        boutonExporter.setOnAction(e -> exporterStatistiques(totalIncidents, alertesTraitees, incidentsResolus));
 
         HBox ligneBoutons = new HBox(12, boutonActualiser, boutonExporter);
         ligneBoutons.setAlignment(Pos.CENTER_LEFT);
@@ -179,25 +195,18 @@ public class VueStatistiques {
         return carte;
     }
 
-    private void exporterStatistiques() {
-
+    private void exporterStatistiques(long totalIncidents, long alertesTraitees, long incidentsResolus) {
         try {
-
-            File dossier = new File("exports");
-            dossier.mkdirs();
-
-            try (FileWriter writer =
-                         new FileWriter("exports/statistiques.csv")) {
-
+            new File("exports").mkdirs();
+            try (FileWriter writer = new FileWriter("exports/statistiques.csv")) {
                 writer.write("Statistique;Valeur\n");
-                writer.write("Incidents ce mois;18\n");
-                writer.write("Alertes traitées;11\n");
-                writer.write("Voisins actifs;74\n");
-                writer.write("Taux participation;68%\n");
+                writer.write("Incidents enregistrés;" + totalIncidents + "\n");
+                writer.write("Alertes traitées;" + alertesTraitees + "\n");
+                writer.write("Incidents résolus;" + incidentsResolus + "\n");
+                long taux = totalIncidents == 0 ? 0 : incidentsResolus * 100 / totalIncidents;
+                writer.write("Taux résolution;" + taux + "%\n");
             }
-
             System.out.println("Export réussi : exports/statistiques.csv");
-
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -18,4 +18,9 @@ public class AuthService {
 
         return apiClient.post("/auth/sso/exchange", json);
     }
+
+    public String login(String email, String motDePasse) throws Exception {
+        String json = "{\"email\":\"%s\",\"password\":\"%s\"}".formatted(email, motDePasse);
+        return apiClient.post("/auth/login", json);
+    }
 }
