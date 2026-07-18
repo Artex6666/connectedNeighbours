@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
@@ -6,7 +6,7 @@ import { routes } from '@/shared/config/routes'
 
 export function LoginPage() {
   const { t } = useTranslation()
-  const { login } = useAuth()
+  const { login, isAuthenticated, accessToken: existingToken } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -106,6 +106,12 @@ export function LoginPage() {
       throw new Error('Redirection vers Java impossible')
     }
   }
+
+  useEffect(() => {
+    if (isDesktopSso && isAuthenticated && existingToken) {
+      createDesktopSsoCode(existingToken).catch((err: Error) => setError(err.message))
+    }
+  }, [isDesktopSso, isAuthenticated, existingToken])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
