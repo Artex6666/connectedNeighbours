@@ -57,6 +57,8 @@ public class Incident {
         this.dirty = true;
     }
 
+    public void setPriorite(String priorite) { this.priorite = priorite; }
+    public void setPriorite(String priorite) { this.priorite = priorite; }
     public void setId(String id) { this.id = id; }
     public void setSyncedAt(String syncedAt) { this.syncedAt = syncedAt; }
     public void setDirty(boolean dirty) { this.dirty = dirty; }

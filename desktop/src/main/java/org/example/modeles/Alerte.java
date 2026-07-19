@@ -58,6 +58,7 @@ public class Alerte {
         this.dirty = true;
     }
 
+    public void setMessage(String message) { this.message = message; }
     public void setId(String id) { this.id = id; }
     public void setSyncedAt(String syncedAt) { this.syncedAt = syncedAt; }
     public void setDirty(boolean dirty) { this.dirty = dirty; }

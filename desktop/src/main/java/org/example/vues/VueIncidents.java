@@ -19,6 +19,7 @@ import javafx.scene.layout.*;
 import org.example.database.IncidentDAO;
 import org.example.services.SyncService;
 
+import java.time.LocalDate;
 
 public class VueIncidents {
 
@@ -46,148 +47,125 @@ public class VueIncidents {
         styliserBoutonNav(boutonAlertes);
         styliserBoutonNav(boutonStatistiques);
         styliserBoutonNav(boutonPlugins);
-
         styliserBoutonNav(boutonExports);
-
         styliserBoutonDanger(boutonDeconnexion);
 
         boutonDashboard.setOnAction(e -> Navigateur.afficherDashboard());
         boutonAlertes.setOnAction(e -> Navigateur.afficherAlertes());
         boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
         boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
-
         boutonExports.setOnAction(e -> Navigateur.afficherExports());
         boutonDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
 
-        HBox menuGauche = new HBox(
-                20,
-                logo,
-                boutonDashboard,
-                boutonIncidents,
-                boutonAlertes,
-                boutonStatistiques,
-                boutonPlugins,
-                boutonExports
-        );
+        HBox menuGauche = new HBox(20, logo, boutonDashboard, boutonIncidents,
+                boutonAlertes, boutonStatistiques, boutonPlugins, boutonExports);
         menuGauche.setAlignment(Pos.CENTER_LEFT);
 
         Region espace = new Region();
         HBox.setHgrow(espace, Priority.ALWAYS);
 
-        HBox menuDroite = new HBox(boutonDeconnexion);
-        menuDroite.setAlignment(Pos.CENTER_RIGHT);
-
-        HBox navbar = new HBox(20, menuGauche, espace, menuDroite);
+        HBox navbar = new HBox(20, menuGauche, espace, new HBox(boutonDeconnexion));
         navbar.setPadding(new Insets(10, 20, 10, 20));
         navbar.setAlignment(Pos.CENTER);
-        navbar.setStyle(
-                "-fx-background-color: white;" +
-                        "-fx-border-color: #dcdcdc;"
-        );
+        navbar.setStyle("-fx-background-color: white; -fx-border-color: #dcdcdc;");
 
         Label titre = new Label("Gestion des incidents");
-        titre.setStyle(
-                "-fx-font-size: 24px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-text-fill: #2c3e50;"
-        );
+        titre.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
-        Label sousTitre = new Label("Consultez et ajoutez les incidents signalés dans le quartier.");
-        sousTitre.setStyle(
-                "-fx-font-size: 13px;" +
-                        "-fx-text-fill: #6c757d;"
-        );
+        Label sousTitre = new Label("Consultez et gérez les incidents signalés dans le quartier.");
+        sousTitre.setStyle("-fx-font-size: 13px; -fx-text-fill: #6c757d;");
 
         VBox entetePage = new VBox(5, titre, sousTitre);
         entetePage.setAlignment(Pos.CENTER_LEFT);
 
+        // ── Tableau ───────────────────────────────────────────────────────────
         TableView<Incident> tableau = new TableView<>();
         tableau.setItems(listeIncidents);
         tableau.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        tableau.setPrefHeight(320);
+        tableau.setPrefHeight(280);
 
         TableColumn<Incident, String> colonneTitre = new TableColumn<>("Titre");
-        colonneTitre.setCellValueFactory(donnees -> new SimpleStringProperty(donnees.getValue().getTitre()));
+        colonneTitre.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getTitre()));
+
+        TableColumn<Incident, String> colonnePriorite = new TableColumn<>("Priorité");
+        colonnePriorite.setCellValueFactory(d -> new SimpleStringProperty(
+                d.getValue().getPriorite() != null ? d.getValue().getPriorite() : "—"));
 
         TableColumn<Incident, String> colonneStatut = new TableColumn<>("Statut");
-        colonneStatut.setCellValueFactory(donnees -> new SimpleStringProperty(donnees.getValue().getStatut()));
+        colonneStatut.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getStatut()));
 
         TableColumn<Incident, String> colonneDate = new TableColumn<>("Date");
-        colonneDate.setCellValueFactory(donnees -> new SimpleStringProperty(donnees.getValue().getDate()));
+        colonneDate.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getDate()));
 
-        tableau.getColumns().addAll(colonneTitre, colonneStatut, colonneDate);
+        tableau.getColumns().addAll(colonneTitre, colonnePriorite, colonneStatut, colonneDate);
 
-        VBox blocTableau = new VBox(10, tableau);
+        // ── Boutons d'action sur la sélection ─────────────────────────────────
+        Button boutonSupprimer = new Button("Supprimer");
+        styliserBoutonDanger(boutonSupprimer);
+        boutonSupprimer.setOnAction(e -> {
+            Incident selectionne = tableau.getSelectionModel().getSelectedItem();
+            if (selectionne != null) {
+                incidentDAO.delete(selectionne.getId());
+                listeIncidents.remove(selectionne);
+            }
+        });
+
+        Button boutonExporter = new Button("Exporter CSV");
+        styliserBoutonSecondaire(boutonExporter);
+        boutonExporter.setOnAction(e -> ExportService.exportTable(tableau, "incidents.csv"));
+
+        HBox ligneActions = new HBox(12, boutonSupprimer, boutonExporter);
+        ligneActions.setAlignment(Pos.CENTER_LEFT);
+
+        VBox blocTableau = new VBox(10, tableau, ligneActions);
         blocTableau.setPadding(new Insets(20));
-        blocTableau.setStyle(
-                "-fx-background-color: white;" +
-                        "-fx-border-color: #dcdcdc;" +
-                        "-fx-border-radius: 6;" +
-                        "-fx-background-radius: 6;"
-        );
+        blocTableau.setStyle("-fx-background-color: white; -fx-border-color: #dcdcdc;" +
+                "-fx-border-radius: 6; -fx-background-radius: 6;");
 
+        // ── Formulaire d'ajout ────────────────────────────────────────────────
         Label titreFormulaire = new Label("Ajouter un incident");
-        titreFormulaire.setStyle(
-                "-fx-font-size: 16px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-text-fill: #2c3e50;"
-        );
+        titreFormulaire.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
         TextField champTitre = new TextField();
-        champTitre.setPromptText("Titre de l’incident");
-        champTitre.setPrefWidth(260);
+        champTitre.setPromptText("Titre de l'incident");
+        champTitre.setPrefWidth(240);
+
+        ComboBox<String> choixPriorite = new ComboBox<>();
+        choixPriorite.getItems().addAll("Haute", "Moyenne", "Basse");
+        choixPriorite.setPromptText("Priorité");
+        choixPriorite.setPrefWidth(130);
 
         ComboBox<String> choixStatut = new ComboBox<>();
         choixStatut.getItems().addAll("Ouvert", "En cours", "Résolu");
         choixStatut.setPromptText("Statut");
-        choixStatut.setPrefWidth(180);
+        choixStatut.setPrefWidth(130);
 
-        TextField champDate = new TextField();
-        champDate.setPromptText("Date");
-        champDate.setPrefWidth(150);
+        TextField champDate = new TextField(LocalDate.now().toString());
+        champDate.setPrefWidth(130);
 
         Button boutonAjouter = new Button("Ajouter");
         styliserBoutonPrincipal(boutonAjouter);
-        Button boutonExporter = new Button("Exporter CSV");
-        styliserBoutonPrincipal(boutonExporter);
-
-        boutonExporter.setOnAction(e ->
-                ExportService.exportTable(tableau, "incidents.csv")
-        );
 
         boutonAjouter.setOnAction(e -> {
-            if (!champTitre.getText().isEmpty() && !champDate.getText().isEmpty() && choixStatut.getValue() != null) {
-                Incident nouvel = new Incident(
-                        champTitre.getText(),
-                        choixStatut.getValue(),
-                        champDate.getText()
-                );
+            if (!champTitre.getText().isEmpty() && choixStatut.getValue() != null) {
+                Incident nouvel = new Incident(champTitre.getText(), choixStatut.getValue(), champDate.getText());
+                if (choixPriorite.getValue() != null) nouvel.setPriorite(choixPriorite.getValue());
                 incidentDAO.save(nouvel);
                 listeIncidents.add(nouvel);
                 champTitre.clear();
-                champDate.clear();
+                choixPriorite.setValue(null);
                 choixStatut.setValue(null);
+                champDate.setText(LocalDate.now().toString());
             }
         });
 
-        HBox ligneFormulaire = new HBox(
-                12,
-                champTitre,
-                choixStatut,
-                champDate,
-                boutonAjouter,
-                boutonExporter
-        );
+        HBox ligneFormulaire = new HBox(12, champTitre, choixPriorite, choixStatut, champDate, boutonAjouter);
         ligneFormulaire.setAlignment(Pos.CENTER_LEFT);
 
         VBox blocFormulaire = new VBox(12, titreFormulaire, ligneFormulaire);
         blocFormulaire.setPadding(new Insets(20));
-        blocFormulaire.setStyle(
-                "-fx-background-color: white;" +
-                        "-fx-border-color: #dcdcdc;" +
-                        "-fx-border-radius: 6;" +
-                        "-fx-background-radius: 6;"
-        );
+        blocFormulaire.setStyle("-fx-background-color: white; -fx-border-color: #dcdcdc;" +
+                "-fx-border-radius: 6; -fx-background-radius: 6;");
 
         VBox contenu = new VBox(20, entetePage, blocTableau, blocFormulaire);
         contenu.setAlignment(Pos.TOP_LEFT);
@@ -197,9 +175,7 @@ public class VueIncidents {
         VBox racine = new VBox(navbar, contenu);
         racine.setStyle("-fx-background-color: #f5f6fa;");
 
-        Runnable rafraichir = () -> {
-            listeIncidents.setAll(incidentDAO.findAll());
-        };
+        Runnable rafraichir = () -> listeIncidents.setAll(incidentDAO.findAll());
         SyncService.ajouterListenerSyncTerminee(rafraichir);
         racine.sceneProperty().addListener((obs, ancienne, nouvelle) -> {
             if (nouvelle == null) SyncService.retirerListenerSyncTerminee(rafraichir);
@@ -208,43 +184,28 @@ public class VueIncidents {
         return racine;
     }
 
-    private void styliserBoutonNav(Button bouton) {
-        bouton.setStyle(
-                "-fx-background-color: transparent;" +
-                        "-fx-text-fill: #2c3e50;" +
-                        "-fx-font-size: 13px;"
-        );
+    private void styliserBoutonNav(Button b) {
+        b.setStyle("-fx-background-color: transparent; -fx-text-fill: #2c3e50; -fx-font-size: 13px;");
     }
 
-    private void styliserBoutonNavActif(Button bouton) {
-        bouton.setStyle(
-                "-fx-background-color: #e9f2ff;" +
-                        "-fx-text-fill: #2f80ed;" +
-                        "-fx-font-size: 13px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 5;" +
-                        "-fx-padding: 6 12 6 12;"
-        );
+    private void styliserBoutonNavActif(Button b) {
+        b.setStyle("-fx-background-color: #e9f2ff; -fx-text-fill: #2f80ed; -fx-font-size: 13px;" +
+                   "-fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 6 12 6 12;");
     }
 
-    private void styliserBoutonPrincipal(Button bouton) {
-        bouton.setStyle(
-                "-fx-background-color: #2f80ed;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-size: 13px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 6;" +
-                        "-fx-padding: 8 16 8 16;"
-        );
+    private void styliserBoutonPrincipal(Button b) {
+        b.setStyle("-fx-background-color: #2f80ed; -fx-text-fill: white; -fx-font-size: 13px;" +
+                   "-fx-font-weight: bold; -fx-background-radius: 6; -fx-padding: 8 16 8 16;");
     }
 
-    private void styliserBoutonDanger(Button bouton) {
-        bouton.setStyle(
-                "-fx-background-color: #e74c3c;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-size: 13px;" +
-                        "-fx-background-radius: 5;" +
-                        "-fx-padding: 6 12 6 12;"
-        );
+    private void styliserBoutonSecondaire(Button b) {
+        b.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #2c3e50; -fx-font-size: 13px;" +
+                   "-fx-border-color: #cfd6dd; -fx-border-radius: 6; -fx-background-radius: 6;" +
+                   "-fx-padding: 8 16 8 16;");
+    }
+
+    private void styliserBoutonDanger(Button b) {
+        b.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 13px;" +
+                   "-fx-background-radius: 5; -fx-padding: 6 12 6 12;");
     }
 }
