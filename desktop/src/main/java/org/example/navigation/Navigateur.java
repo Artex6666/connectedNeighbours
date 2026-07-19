@@ -50,4 +50,14 @@ public class Navigateur {
         Scene scene = new Scene(new VueConflits().creerVue(), 1200, 700);
         stage.setScene(scene);
     }
+
+    public static void afficherAdmin() {
+        Scene scene = new Scene(new VueAdmin().creerVue(), 1100, 700);
+        stage.setScene(scene);
+    }
+
+    public static void afficherQuartier(String neighborhoodId, String nom) {
+        Scene scene = new Scene(new VueQuartier(neighborhoodId, nom).creerVue(), 1100, 700);
+        stage.setScene(scene);
+    }
 }

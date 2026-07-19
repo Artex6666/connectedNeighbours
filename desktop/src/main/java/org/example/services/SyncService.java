@@ -152,7 +152,12 @@ public class SyncService {
     // ── PULL ──────────────────────────────────────────────────────────────────
 
     private static void pullIncidents(ApiClient api) throws Exception {
-        String reponse = api.get("/incidents");
+        String url = "/incidents";
+        String nid = SessionManager.getNeighborhoodId();
+        if ("moderator".equals(SessionManager.getRole()) && nid != null && !nid.isEmpty()) {
+            url += "?neighborhoodId=" + nid;
+        }
+        String reponse = api.get(url);
         JSONArray tableau = parseArray(reponse, "incidents");
         String now = Instant.now().toString();
 
@@ -176,7 +181,12 @@ public class SyncService {
     }
 
     private static void pullAlertes(ApiClient api) throws Exception {
-        String reponse = api.get("/alertes");
+        String url = "/alertes";
+        String nid = SessionManager.getNeighborhoodId();
+        if ("moderator".equals(SessionManager.getRole()) && nid != null && !nid.isEmpty()) {
+            url += "?neighborhoodId=" + nid;
+        }
+        String reponse = api.get(url);
         JSONArray tableau = parseArray(reponse, "alertes");
         String now = Instant.now().toString();
 
@@ -246,7 +256,7 @@ public class SyncService {
     }
 
     private static Incident incidentFromJson(JSONObject obj, String id, String syncedAt) {
-        return new Incident(
+        Incident inc = new Incident(
                 id,
                 obj.optString("titre", ""),
                 obj.optString("description", ""),
@@ -258,10 +268,13 @@ public class SyncService {
                 false,
                 false
         );
+        String nid = obj.optString("neighborhoodId", null);
+        if (nid != null && !nid.isEmpty()) inc.setNeighborhoodId(nid);
+        return inc;
     }
 
     private static Alerte alerteFromJson(JSONObject obj, String id, String syncedAt) {
-        return new Alerte(
+        Alerte al = new Alerte(
                 id,
                 obj.optString("titre", ""),
                 obj.optString("message", ""),
@@ -273,6 +286,9 @@ public class SyncService {
                 false,
                 false
         );
+        String nid = obj.optString("neighborhoodId", null);
+        if (nid != null && !nid.isEmpty()) al.setNeighborhoodId(nid);
+        return al;
     }
 
     private static void setStatut(String msg) {

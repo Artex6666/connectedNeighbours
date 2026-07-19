@@ -96,7 +96,7 @@ public class SsoService {
             throw new RuntimeException("AccessToken absent de la réponse SSO.");
         }
 
-        apiClient.setAccessToken(accessToken);
+        SessionManager.setToken(accessToken);
 
         System.out.println("SSO terminé avec succès.");
     }

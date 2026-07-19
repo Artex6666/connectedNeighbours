@@ -5,6 +5,7 @@ export interface IAlerte extends Document {
   message: string;
   level: 'info' | 'warning' | 'danger';
   active: boolean;
+  neighborhoodId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +22,10 @@ const AlerteSchema = new Schema<IAlerte>(
     active: {
       type: Boolean,
       default: true,
+    },
+    neighborhoodId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Neighborhood',
     },
   },
   { timestamps: true }

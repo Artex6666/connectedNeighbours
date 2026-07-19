@@ -48,11 +48,24 @@ public class IncidentDAO {
         return null;
     }
 
+    public List<Incident> findByNeighborhood(String neighborhoodId) {
+        List<Incident> liste = new ArrayList<>();
+        String sql = "SELECT * FROM incidents WHERE neighborhood_id = ? ORDER BY date DESC";
+        try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, neighborhoodId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) liste.add(fromResultSet(rs));
+        } catch (SQLException e) {
+            System.err.println("IncidentDAO.findByNeighborhood : " + e.getMessage());
+        }
+        return liste;
+    }
+
     public void save(Incident incident) {
         String sql = """
             INSERT OR REPLACE INTO incidents
-            (id, titre, description, priorite, statut, date, updated_at, synced_at, dirty, local_only)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (id, titre, description, priorite, statut, date, updated_at, synced_at, dirty, local_only, neighborhood_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
             stmt.setString(1, incident.getId());
@@ -65,6 +78,7 @@ public class IncidentDAO {
             stmt.setString(8, incident.getSyncedAt());
             stmt.setInt(9, incident.isDirty() ? 1 : 0);
             stmt.setInt(10, incident.isLocalOnly() ? 1 : 0);
+            stmt.setString(11, incident.getNeighborhoodId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             System.err.println("IncidentDAO.save : " + e.getMessage());
@@ -104,7 +118,7 @@ public class IncidentDAO {
     }
 
     private Incident fromResultSet(ResultSet rs) throws SQLException {
-        return new Incident(
+        Incident inc = new Incident(
                 rs.getString("id"),
                 rs.getString("titre"),
                 rs.getString("description"),
@@ -116,5 +130,7 @@ public class IncidentDAO {
                 rs.getInt("dirty") == 1,
                 rs.getInt("local_only") == 1
         );
+        inc.setNeighborhoodId(rs.getString("neighborhood_id"));
+        return inc;
     }
 }

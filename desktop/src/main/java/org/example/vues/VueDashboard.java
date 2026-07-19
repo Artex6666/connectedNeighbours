@@ -1,5 +1,6 @@
 package org.example;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -8,13 +9,13 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import org.example.Conflit;
+import org.example.database.AlerteDAO;
 import org.example.database.ConflitDAO;
 import org.example.database.IncidentDAO;
 import org.example.services.SyncService;
-import java.time.Instant;
 
 import java.io.FileWriter;
+import java.time.Instant;
 
 public class VueDashboard {
 
@@ -105,10 +106,33 @@ public class VueDashboard {
         VBox entete = new VBox(5, titre, sousTitre);
         entete.setAlignment(Pos.CENTER_LEFT);
 
-        VBox carteIncidents = creerCarte("Incidents ouverts", "12");
-        VBox carteAlertes = creerCarte("Alertes actives", "5");
-        VBox carteUtilisateurs = creerCarte("Utilisateurs", "120");
-        VBox carteSynchronisation = creerCarte("Dernière synchro", "18:45");
+        // ── KPIs dynamiques depuis SQLite ─────────────────────────────────────
+        IncidentDAO incidentDAO = new IncidentDAO();
+        AlerteDAO alerteDAO = new AlerteDAO();
+
+        long nbOuverts = incidentDAO.findAll().stream()
+                .filter(i -> "Ouvert".equals(i.getStatut()) || "En cours".equals(i.getStatut()))
+                .count();
+        long nbAlertes = alerteDAO.findAll().stream()
+                .filter(a -> !"Lue".equals(a.getStatut()))
+                .count();
+
+        Label valeurSynchro = new Label("—");
+        valeurSynchro.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        String statut = SyncService.statutProperty().get();
+        if (statut.startsWith("Synchronisé à ")) {
+            valeurSynchro.setText(statut.replace("Synchronisé à ", ""));
+        }
+        SyncService.statutProperty().addListener((obs, old, val) -> {
+            if (val.startsWith("Synchronisé à ")) {
+                Platform.runLater(() -> valeurSynchro.setText(val.replace("Synchronisé à ", "")));
+            }
+        });
+
+        VBox carteIncidents = creerCarte("Incidents ouverts", String.valueOf(nbOuverts));
+        VBox carteAlertes = creerCarte("Alertes actives", String.valueOf(nbAlertes));
+        VBox carteUtilisateurs = creerCarte("Utilisateurs", "—");
+        VBox carteSynchronisation = creerCarteAvecLabel("Dernière synchro", valeurSynchro);
 
         HBox ligneCartes = new HBox(20, carteIncidents, carteAlertes, carteUtilisateurs, carteSynchronisation);
         ligneCartes.setAlignment(Pos.CENTER_LEFT);
@@ -132,7 +156,7 @@ public class VueDashboard {
 
         Button boutonExporter = new Button("Exporter CSV");
         styliserBoutonPrincipal(boutonExporter);
-        boutonExporter.setOnAction(e -> exporterDashboard());
+        boutonExporter.setOnAction(e -> exporterDashboard(nbOuverts, nbAlertes));
 
         VBox blocResume = new VBox(12, titreBloc, texteBloc, boutonExporter);
         blocResume.setPadding(new Insets(20));
@@ -167,7 +191,6 @@ public class VueDashboard {
                 "-fx-background-radius: 6; -fx-padding: 8 16 8 16;"
         );
         boutonSimulerConflit.setOnAction(e -> {
-            IncidentDAO incidentDAO = new IncidentDAO();
             String entityId = incidentDAO.findAll().isEmpty()
                     ? "demo-incident-id"
                     : incidentDAO.findAll().get(0).getId();
@@ -203,14 +226,13 @@ public class VueDashboard {
         return racine;
     }
 
-    private void exporterDashboard() {
+    private void exporterDashboard(long nbOuverts, long nbAlertes) {
         try (FileWriter writer = new FileWriter("dashboard.csv")) {
             writer.write("statistique;valeur\n");
-            writer.write("Incidents ouverts;12\n");
-            writer.write("Alertes actives;5\n");
-            writer.write("Utilisateurs;120\n");
-            writer.write("Dernière synchro;18:45\n");
-
+            writer.write("Incidents ouverts;" + nbOuverts + "\n");
+            writer.write("Alertes actives;" + nbAlertes + "\n");
+            String synchro = SyncService.statutProperty().get().replace("Synchronisé à ", "");
+            writer.write("Dernière synchro;" + synchro + "\n");
             System.out.println("Export réussi : dashboard.csv");
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -218,17 +240,20 @@ public class VueDashboard {
     }
 
     private VBox creerCarte(String titre, String valeur) {
-        Label labelTitre = new Label(titre);
-        labelTitre.setStyle(
-                "-fx-text-fill: #6c757d;" +
-                        "-fx-font-size: 13px;"
-        );
-
         Label labelValeur = new Label(valeur);
         labelValeur.setStyle(
                 "-fx-font-size: 28px;" +
                         "-fx-font-weight: bold;" +
                         "-fx-text-fill: #2c3e50;"
+        );
+        return creerCarteAvecLabel(titre, labelValeur);
+    }
+
+    private VBox creerCarteAvecLabel(String titre, Label labelValeur) {
+        Label labelTitre = new Label(titre);
+        labelTitre.setStyle(
+                "-fx-text-fill: #6c757d;" +
+                        "-fx-font-size: 13px;"
         );
 
         VBox carte = new VBox(8, labelTitre, labelValeur);

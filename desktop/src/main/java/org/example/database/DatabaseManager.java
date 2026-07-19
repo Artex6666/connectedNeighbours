@@ -67,6 +67,15 @@ public class DatabaseManager {
                 )
             """);
 
+            // Migration : ajout de neighborhood_id si la colonne n'existe pas encore
+            for (String table : new String[]{"incidents", "alertes"}) {
+                try {
+                    stmt.execute("ALTER TABLE " + table + " ADD COLUMN neighborhood_id TEXT");
+                } catch (SQLException ignored) {
+                    // Colonne déjà présente
+                }
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException("Erreur initialisation base de données : " + e.getMessage(), e);
         }

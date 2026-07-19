@@ -12,6 +12,7 @@ public class Alerte {
     private String syncedAt;
     private boolean dirty;
     private boolean localOnly;
+    private String neighborhoodId;
 
     // Constructeur léger pour la saisie rapide dans l'UI
     public Alerte(String titre, String niveau, String date, String statut) {
@@ -51,6 +52,7 @@ public class Alerte {
     public String getSyncedAt() { return syncedAt; }
     public boolean isDirty() { return dirty; }
     public boolean isLocalOnly() { return localOnly; }
+    public String getNeighborhoodId() { return neighborhoodId; }
 
     public void setStatut(String statut) {
         this.statut = statut;
@@ -58,6 +60,8 @@ public class Alerte {
         this.dirty = true;
     }
 
+    public void setMessage(String message) { this.message = message; }
+    public void setNeighborhoodId(String neighborhoodId) { this.neighborhoodId = neighborhoodId; }
     public void setId(String id) { this.id = id; }
     public void setSyncedAt(String syncedAt) { this.syncedAt = syncedAt; }
     public void setDirty(boolean dirty) { this.dirty = dirty; }
