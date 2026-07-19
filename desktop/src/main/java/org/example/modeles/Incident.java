@@ -12,6 +12,7 @@ public class Incident {
     private String syncedAt;
     private boolean dirty;
     private boolean localOnly;
+    private String neighborhoodId;
 
     // Constructeur léger pour la saisie rapide dans l'UI
     public Incident(String titre, String statut, String date) {
@@ -50,6 +51,7 @@ public class Incident {
     public String getSyncedAt() { return syncedAt; }
     public boolean isDirty() { return dirty; }
     public boolean isLocalOnly() { return localOnly; }
+    public String getNeighborhoodId() { return neighborhoodId; }
 
     public void setStatut(String statut) {
         this.statut = statut;
@@ -58,7 +60,7 @@ public class Incident {
     }
 
     public void setPriorite(String priorite) { this.priorite = priorite; }
-    public void setPriorite(String priorite) { this.priorite = priorite; }
+    public void setNeighborhoodId(String neighborhoodId) { this.neighborhoodId = neighborhoodId; }
     public void setId(String id) { this.id = id; }
     public void setSyncedAt(String syncedAt) { this.syncedAt = syncedAt; }
     public void setDirty(boolean dirty) { this.dirty = dirty; }

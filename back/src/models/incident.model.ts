@@ -6,6 +6,7 @@ export interface IIncident extends Document {
   status: 'open' | 'in_progress' | 'resolved';
   priority: 'low' | 'medium' | 'high';
   createdBy?: mongoose.Types.ObjectId;
+  neighborhoodId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,6 +28,10 @@ const IncidentSchema = new Schema<IIncident>(
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+    },
+    neighborhoodId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Neighborhood',
     },
   },
   { timestamps: true }

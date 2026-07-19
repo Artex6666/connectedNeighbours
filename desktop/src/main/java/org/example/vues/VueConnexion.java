@@ -50,7 +50,7 @@ public class VueConnexion {
                 SsoService ssoService = new SsoService(authService, apiClient);
                 ssoService.loginWithBrowser();
 
-                Navigateur.afficherDashboard();
+                routerVersAccueil();
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -121,7 +121,7 @@ public class VueConnexion {
                 if (json.optBoolean("success") && json.has("data")) {
                     String token = json.getJSONObject("data").getString("accessToken");
                     SessionManager.setToken(token);
-                    Navigateur.afficherDashboard();
+                    routerVersAccueil();
                 } else {
                     String msg = json.optString("message", "Email ou mot de passe incorrect.");
                     erreurDirecte.setText(msg);
@@ -138,8 +138,7 @@ public class VueConnexion {
         // Valider avec Entrée depuis le champ mot de passe
         champMotDePasse.setOnAction(e -> boutonDirect.fire());
 
-        VBox racine = new VBox(
-                16,
+        VBox racine = new VBox(16,
                 logo, message, erreur, boutonSSO,
                 separateur,
                 champEmail, champMotDePasse, erreurDirecte, boutonDirect
@@ -149,5 +148,17 @@ public class VueConnexion {
         racine.setStyle("-fx-background-color: linear-gradient(to bottom right, #0f2027, #2c5364, #4CAF50);");
 
         return racine;
+    }
+
+    private static void routerVersAccueil() {
+        String role = SessionManager.getRole();
+        if ("admin".equals(role)) {
+            Navigateur.afficherAdmin();
+        } else if ("moderator".equals(role)) {
+            String nid = SessionManager.getNeighborhoodId();
+            Navigateur.afficherQuartier(nid, "Mon quartier");
+        } else {
+            Navigateur.afficherDashboard();
+        }
     }
 }

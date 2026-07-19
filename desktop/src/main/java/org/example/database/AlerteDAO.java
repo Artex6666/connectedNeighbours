@@ -48,11 +48,24 @@ public class AlerteDAO {
         return null;
     }
 
+    public List<Alerte> findByNeighborhood(String neighborhoodId) {
+        List<Alerte> liste = new ArrayList<>();
+        String sql = "SELECT * FROM alertes WHERE neighborhood_id = ? ORDER BY date DESC";
+        try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, neighborhoodId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) liste.add(fromResultSet(rs));
+        } catch (SQLException e) {
+            System.err.println("AlerteDAO.findByNeighborhood : " + e.getMessage());
+        }
+        return liste;
+    }
+
     public void save(Alerte alerte) {
         String sql = """
             INSERT OR REPLACE INTO alertes
-            (id, titre, message, niveau, statut, date, updated_at, synced_at, dirty, local_only)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (id, titre, message, niveau, statut, date, updated_at, synced_at, dirty, local_only, neighborhood_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
             stmt.setString(1, alerte.getId());
@@ -65,6 +78,7 @@ public class AlerteDAO {
             stmt.setString(8, alerte.getSyncedAt());
             stmt.setInt(9, alerte.isDirty() ? 1 : 0);
             stmt.setInt(10, alerte.isLocalOnly() ? 1 : 0);
+            stmt.setString(11, alerte.getNeighborhoodId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             System.err.println("AlerteDAO.save : " + e.getMessage());
@@ -104,7 +118,7 @@ public class AlerteDAO {
     }
 
     private Alerte fromResultSet(ResultSet rs) throws SQLException {
-        return new Alerte(
+        Alerte alerte = new Alerte(
                 rs.getString("id"),
                 rs.getString("titre"),
                 rs.getString("message"),
@@ -116,5 +130,7 @@ public class AlerteDAO {
                 rs.getInt("dirty") == 1,
                 rs.getInt("local_only") == 1
         );
+        alerte.setNeighborhoodId(rs.getString("neighborhood_id"));
+        return alerte;
     }
 }
