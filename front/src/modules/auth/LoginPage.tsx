@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/shared/context/AuthContext'
 import { routes } from '@/shared/config/routes'
+import { apiBaseUrl } from '@/shared/config/env'
 
 export function LoginPage() {
   const { t } = useTranslation()
@@ -19,12 +20,6 @@ export function LoginPage() {
   const codeChallenge = params.get('code_challenge')
   const isDesktopSso = Boolean(redirectUri && codeChallenge)
 
-  console.log('[SSO] location.href =', window.location.href)
-  console.log('[SSO] location.search =', location.search)
-  console.log('[SSO] redirectUri =', redirectUri)
-  console.log('[SSO] codeChallenge =', codeChallenge)
-  console.log('[SSO] isDesktopSso =', isDesktopSso)
-
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [totpCode, setTotpCode] = useState('')
@@ -33,11 +28,6 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   const createDesktopSsoCode = async (accessToken: string) => {
-    console.log('[SSO] createDesktopSsoCode start')
-    console.log('[SSO] accessToken exists =', Boolean(accessToken))
-    console.log('[SSO] redirectUri before validation =', redirectUri)
-    console.log('[SSO] codeChallenge before validation =', codeChallenge)
-
     if (!redirectUri || !codeChallenge) {
       throw new Error('Paramètres SSO manquants')
     }
@@ -46,15 +36,11 @@ export function LoginPage() {
 
     try {
       callbackUrl = new URL(redirectUri)
-      console.log('[SSO] callbackUrl parsed =', callbackUrl.toString())
-    } catch (err) {
-      console.error('[SSO] redirectUri invalide =', redirectUri, err)
+    } catch {
       throw new Error('redirect_uri invalide')
     }
 
-    console.log('[SSO] POST /auth/sso/code')
-
-    const response = await fetch('http://localhost:3000/api/v1/auth/sso/code', {
+    const response = await fetch(`${apiBaseUrl}/auth/sso/code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -63,14 +49,7 @@ export function LoginPage() {
       body: JSON.stringify({ codeChallenge }),
     })
 
-    console.log('[SSO] /auth/sso/code status =', response.status)
-
-    const json = await response.json().catch((err) => {
-      console.error('[SSO] JSON parse failed', err)
-      return null
-    })
-
-    console.log('[SSO] /auth/sso/code response =', json)
+    const json = await response.json().catch(() => null)
 
     if (!response.ok) {
       const message =
@@ -87,22 +66,15 @@ export function LoginPage() {
             (json as { code?: string }).code)
         : null
 
-    console.log('[SSO] code received =', code)
-
     if (!code) {
       throw new Error('Code SSO manquant')
     }
 
     callbackUrl.searchParams.set('code', code)
 
-    const finalUrl = callbackUrl.toString()
-
-    console.log('[SSO] final callback URL =', finalUrl)
-
     try {
-      window.location.assign(finalUrl)
-    } catch (err) {
-      console.error('[SSO] window.location.assign failed', err)
+      window.location.assign(callbackUrl.toString())
+    } catch {
       throw new Error('Redirection vers Java impossible')
     }
   }
@@ -115,22 +87,13 @@ export function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
-    console.log('[SSO] handleSubmit')
-    console.log('[SSO] email =', email)
-    console.log('[SSO] mfaStep =', mfaStep)
-    console.log('[SSO] isDesktopSso =', isDesktopSso)
-
     setError(null)
     setIsLoading(true)
 
     try {
       const result = await login(email, password, mfaStep ? totpCode : undefined)
 
-      console.log('[SSO] login result =', result)
-
       if (result.mfaRequired) {
-        console.log('[SSO] MFA required')
         setMfaStep(true)
         return
       }
@@ -144,10 +107,8 @@ export function LoginPage() {
         return
       }
 
-      console.log('[SSO] normal navigation to =', from)
       navigate(from, { replace: true })
     } catch (err) {
-      console.error('[SSO] error =', err)
       setError(err instanceof Error ? err.message : t('auth.errors.generic'))
     } finally {
       setIsLoading(false)
