@@ -174,6 +174,29 @@ export function DashboardPage() {
           ))}
         </div>
 
+        {(user?.role === 'admin' || user?.role === 'moderator') && (
+          <div className="flex items-center justify-between gap-6 flex-wrap rounded-2xl p-6"
+            style={{ background: 'linear-gradient(135deg, #f0f4ff, #e8f0fe)', border: '1px solid #c7d7fc' }}>
+            <div className="flex flex-col gap-2">
+              <h2 className="text-base font-semibold m-0" style={{ color: '#1e3a8a' }}>
+                🖥️ Application desktop BobConnect
+              </h2>
+              <p className="text-sm m-0" style={{ color: '#1e40af' }}>
+                Gérez les incidents et alertes hors ligne. Synchronisation automatique dès que la connexion est disponible.
+              </p>
+              <span className="text-xs" style={{ color: '#3b82f6' }}>Java 21 requis · Windows / macOS / Linux</span>
+            </div>
+            <a
+              href="/bobconnect.jar"
+              download="bobconnect.jar"
+              className="button"
+              style={{ whiteSpace: 'nowrap', background: '#1d4ed8', border: 'none' }}
+            >
+              ⬇️ Télécharger l'application
+            </a>
+          </div>
+        )}
+
         <p className="text-sm m-0" style={{ color: 'var(--color-text-muted)' }}>
           💬 La messagerie privée est accessible via la bulle en bas à droite.
         </p>

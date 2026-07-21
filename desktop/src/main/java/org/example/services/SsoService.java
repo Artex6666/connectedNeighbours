@@ -21,7 +21,7 @@ public class SsoService {
     private static final String CALLBACK_PATH = "/callback";
 
     // Front lancé avec pnpm dev:front
-    private static final String FRONT_URL = "http://localhost:5173/login";
+    private static final String FRONT_URL = "https://projet-annuel.lorisrameau.pro/login";
 
     private final AuthService authService;
     private final ApiClient apiClient;
