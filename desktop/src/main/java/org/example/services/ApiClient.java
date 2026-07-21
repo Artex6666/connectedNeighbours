@@ -6,7 +6,7 @@ import java.net.http.*;
 
 public class ApiClient {
 
-    private static final String BASE_URL = "http://localhost:3000/api/v1";
+    private static final String BASE_URL = "https://projet-annuel.lorisrameau.pro/api/v1";
 
     private final HttpClient client = HttpClient.newHttpClient();
     private String accessToken;
