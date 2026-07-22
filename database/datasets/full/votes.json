@@ -1,0 +1,480 @@
+[{
+	"_id": {
+		"$oid": "6a401134e81262a904f290c3"
+	},
+	"question": "Installer un composteur partagé dans la cour ?",
+	"type": "yesno",
+	"options": [
+		{
+			"label": "Pour",
+			"votes": 3,
+			"_id": {
+				"$oid": "6a401134e81262a904f290c4"
+			}
+		},
+		{
+			"label": "Contre",
+			"votes": 0,
+			"_id": {
+				"$oid": "6a401134e81262a904f290c5"
+			}
+		}
+	],
+	"authorId": {
+		"$oid": "6a401134e81262a904f2909a"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"isAnonymous": false,
+	"openAt": {
+		"$date": "2026-06-25T18:06:44.581Z"
+	},
+	"closeAt": {
+		"$date": "2026-07-07T18:06:44.581Z"
+	},
+	"showResultsLive": true,
+	"voters": [
+		{
+			"$oid": "6a401134e81262a904f29098"
+		},
+		{
+			"$oid": "6a401134e81262a904f29099"
+		},
+		{
+			"$oid": "6a401134e81262a904f2909b"
+		}
+	],
+	"ballots": [
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f29098"
+			},
+			"choices": [
+				0
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290c6"
+			}
+		},
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f29099"
+			},
+			"choices": [
+				0
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290c7"
+			}
+		},
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f2909b"
+			},
+			"choices": [
+				0
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290c8"
+			}
+		}
+	],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.595Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.595Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290c9"
+	},
+	"question": "Quel jour pour le prochain repas de quartier ?",
+	"type": "single",
+	"options": [
+		{
+			"label": "Vendredi",
+			"votes": 1,
+			"_id": {
+				"$oid": "6a401134e81262a904f290ca"
+			}
+		},
+		{
+			"label": "Samedi",
+			"votes": 2,
+			"_id": {
+				"$oid": "6a401134e81262a904f290cb"
+			}
+		},
+		{
+			"label": "Dimanche",
+			"votes": 0,
+			"_id": {
+				"$oid": "6a401134e81262a904f290cc"
+			}
+		}
+	],
+	"authorId": {
+		"$oid": "6a401134e81262a904f29099"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"isAnonymous": false,
+	"openAt": {
+		"$date": "2026-06-25T18:06:44.581Z"
+	},
+	"closeAt": {
+		"$date": "2026-07-07T18:06:44.581Z"
+	},
+	"showResultsLive": true,
+	"voters": [
+		{
+			"$oid": "6a401134e81262a904f29098"
+		},
+		{
+			"$oid": "6a401134e81262a904f2909b"
+		},
+		{
+			"$oid": "6a401134e81262a904f2909a"
+		}
+	],
+	"ballots": [
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f29098"
+			},
+			"choices": [
+				1
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290cd"
+			}
+		},
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f2909b"
+			},
+			"choices": [
+				1
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290ce"
+			}
+		},
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f2909a"
+			},
+			"choices": [
+				0
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290cf"
+			}
+		}
+	],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.596Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.596Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290d0"
+	},
+	"question": "Quels ateliers aimeriez-vous voir organisés ?",
+	"type": "multiple",
+	"options": [
+		{
+			"label": "Jardinage",
+			"votes": 2,
+			"_id": {
+				"$oid": "6a401134e81262a904f290d1"
+			}
+		},
+		{
+			"label": "Cuisine",
+			"votes": 1,
+			"_id": {
+				"$oid": "6a401134e81262a904f290d2"
+			}
+		},
+		{
+			"label": "Bricolage",
+			"votes": 1,
+			"_id": {
+				"$oid": "6a401134e81262a904f290d3"
+			}
+		},
+		{
+			"label": "Sport",
+			"votes": 1,
+			"_id": {
+				"$oid": "6a401134e81262a904f290d4"
+			}
+		}
+	],
+	"authorId": {
+		"$oid": "6a401134e81262a904f29098"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"isAnonymous": false,
+	"openAt": {
+		"$date": "2026-06-25T18:06:44.581Z"
+	},
+	"closeAt": {
+		"$date": "2026-07-07T18:06:44.581Z"
+	},
+	"quorum": 3,
+	"showResultsLive": true,
+	"voters": [
+		{
+			"$oid": "6a401134e81262a904f29099"
+		},
+		{
+			"$oid": "6a401134e81262a904f2909b"
+		},
+		{
+			"$oid": "6a401134e81262a904f2909a"
+		}
+	],
+	"ballots": [
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f29099"
+			},
+			"choices": [
+				0,
+				1
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290d5"
+			}
+		},
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f2909b"
+			},
+			"choices": [
+				0,
+				3
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290d6"
+			}
+		},
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f2909a"
+			},
+			"choices": [
+				2
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290d7"
+			}
+		}
+	],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.597Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.597Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290d8"
+	},
+	"question": "Faut-il demander plus d'éclairage le long du canal ?",
+	"type": "yesno",
+	"options": [
+		{
+			"label": "Pour",
+			"votes": 2,
+			"_id": {
+				"$oid": "6a401134e81262a904f290d9"
+			}
+		},
+		{
+			"label": "Contre",
+			"votes": 0,
+			"_id": {
+				"$oid": "6a401134e81262a904f290da"
+			}
+		}
+	],
+	"authorId": {
+		"$oid": "6a401134e81262a904f290ac"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f290aa"
+	},
+	"isAnonymous": false,
+	"openAt": {
+		"$date": "2026-06-25T18:06:44.581Z"
+	},
+	"closeAt": {
+		"$date": "2026-07-07T18:06:44.581Z"
+	},
+	"showResultsLive": true,
+	"voters": [
+		{
+			"$oid": "6a401134e81262a904f290ad"
+		},
+		{
+			"$oid": "6a401134e81262a904f290ae"
+		}
+	],
+	"ballots": [
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f290ad"
+			},
+			"choices": [
+				0
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290db"
+			}
+		},
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f290ae"
+			},
+			"choices": [
+				0
+			],
+			"weights": [],
+			"_id": {
+				"$oid": "6a401134e81262a904f290dc"
+			}
+		}
+	],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.597Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.597Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290dd"
+	},
+	"question": "Répartissez 10 points entre ces projets de quartier",
+	"type": "weighted",
+	"options": [
+		{
+			"label": "Bancs",
+			"votes": 6,
+			"_id": {
+				"$oid": "6a401134e81262a904f290de"
+			}
+		},
+		{
+			"label": "Pistes cyclables",
+			"votes": 5,
+			"_id": {
+				"$oid": "6a401134e81262a904f290df"
+			}
+		},
+		{
+			"label": "Espaces verts",
+			"votes": 6,
+			"_id": {
+				"$oid": "6a401134e81262a904f290e0"
+			}
+		},
+		{
+			"label": "Aire de jeux",
+			"votes": 3,
+			"_id": {
+				"$oid": "6a401134e81262a904f290e1"
+			}
+		}
+	],
+	"authorId": {
+		"$oid": "6a401134e81262a904f290ad"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f290aa"
+	},
+	"isAnonymous": true,
+	"openAt": {
+		"$date": "2026-06-25T18:06:44.581Z"
+	},
+	"closeAt": {
+		"$date": "2026-07-07T18:06:44.581Z"
+	},
+	"showResultsLive": true,
+	"voters": [
+		{
+			"$oid": "6a401134e81262a904f290ac"
+		},
+		{
+			"$oid": "6a401134e81262a904f290ae"
+		}
+	],
+	"ballots": [
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f290ac"
+			},
+			"choices": [],
+			"weights": [
+				4,
+				3,
+				2,
+				1
+			],
+			"_id": {
+				"$oid": "6a401134e81262a904f290e2"
+			}
+		},
+		{
+			"userId": {
+				"$oid": "6a401134e81262a904f290ae"
+			},
+			"choices": [],
+			"weights": [
+				2,
+				2,
+				4,
+				2
+			],
+			"_id": {
+				"$oid": "6a401134e81262a904f290e3"
+			}
+		}
+	],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.597Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.597Z"
+	}
+}]
+

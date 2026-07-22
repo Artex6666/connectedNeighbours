@@ -56,6 +56,10 @@ function ringsOverlap(a: Ring, b: Ring): boolean {
   return false;
 }
 
+/**
+ * GET /neighborhoods — liste tous les quartiers (les plus récents d'abord),
+ * avec l'administrateur référent de chacun.
+ */
 export async function listNeighborhoods(_req: Request, res: Response) {
   const neighborhoods = await Neighborhood.find()
     .sort({ createdAt: -1 })
@@ -63,6 +67,10 @@ export async function listNeighborhoods(_req: Request, res: Response) {
   return success(res, neighborhoods);
 }
 
+/**
+ * GET /neighborhoods/:id — détail d'un quartier et de son administrateur.
+ * Répond 404 si le quartier est introuvable.
+ */
 export async function getNeighborhood(req: Request, res: Response) {
   const neighborhood = await Neighborhood.findById(req.params.id).populate(
     'adminId',
@@ -72,6 +80,12 @@ export async function getNeighborhood(req: Request, res: Response) {
   return success(res, neighborhood);
 }
 
+/**
+ * POST /neighborhoods — crée un quartier délimité par un polygone GeoJSON (admin uniquement).
+ * Le polygone est validé (anneau fermé d'au moins 4 points, coordonnées [lng,lat] valides)
+ * et ne doit chevaucher aucun quartier existant. Répond 400 si invalide, 409 en cas de
+ * chevauchement, 201 avec le quartier créé.
+ */
 export async function createNeighborhood(req: Request, res: Response) {
   const { name, description, polygon } = req.body as {
     name?: string;
@@ -103,6 +117,11 @@ export async function createNeighborhood(req: Request, res: Response) {
   return success(res, created, 201);
 }
 
+/**
+ * PUT /neighborhoods/:id — met à jour le nom, la description et/ou le polygone d'un
+ * quartier (admin uniquement). Un nouveau polygone est validé et vérifié contre les
+ * autres quartiers. Répond 404 si introuvable, 400 si invalide, 409 en cas de chevauchement.
+ */
 export async function updateNeighborhood(req: Request, res: Response) {
   const { id } = req.params;
   const { name, description, polygon } = req.body as {
@@ -135,6 +154,10 @@ export async function updateNeighborhood(req: Request, res: Response) {
   return success(res, current);
 }
 
+/**
+ * DELETE /neighborhoods/:id — supprime un quartier (admin uniquement).
+ * Refusé avec 409 tant que des habitants y sont rattachés ; 404 si introuvable.
+ */
 export async function deleteNeighborhood(req: Request, res: Response) {
   const { id } = req.params;
   const linked = await User.countDocuments({ neighborhoodId: id });

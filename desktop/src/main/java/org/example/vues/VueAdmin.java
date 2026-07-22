@@ -14,8 +14,19 @@ import org.example.services.SessionManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * Écran d'administration global de l'application desktop.
+ * Liste tous les quartiers récupérés depuis l'API sous forme de cartes et permet
+ * d'ouvrir la vue détaillée d'un quartier, en plus de la navigation générale.
+ */
 public class VueAdmin {
 
+    /**
+     * Construit l'arborescence JavaFX de la vue admin : navbar avec badge ADMIN,
+     * en-tête et zone défilante contenant les cartes de quartiers.
+     *
+     * @return le nœud racine de la vue admin
+     */
     public Parent creerVue() {
 
         Image logoImage = new Image(getClass().getResourceAsStream("/logo.png"));
@@ -93,6 +104,12 @@ public class VueAdmin {
         return racine;
     }
 
+    /**
+     * Appelle l'endpoint {@code /neighborhoods} de l'API et ajoute une carte par quartier
+     * au conteneur fourni. En cas d'erreur, un libellé d'erreur est ajouté à la place.
+     *
+     * @param cartes conteneur qui reçoit les cartes de quartiers
+     */
     private void chargerQuartiers(FlowPane cartes) {
         try {
             ApiClient api = SessionManager.getApiClient();

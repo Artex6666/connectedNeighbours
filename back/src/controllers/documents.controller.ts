@@ -26,6 +26,10 @@ function canAccess(
 
 // ─── List / get ───────────────────────────────────────────────────────────────
 
+/**
+ * GET /documents — liste les documents où l'utilisateur est importateur ou signataire,
+ * du plus récent au plus ancien, avec les noms des personnes concernées.
+ */
 export async function listDocuments(req: Request, res: Response) {
   const userId = req.user!._id;
   const docs = await DocumentModel.find({
@@ -38,6 +42,10 @@ export async function listDocuments(req: Request, res: Response) {
   return success(res, docs);
 }
 
+/**
+ * GET /documents/:id — détail d'un document.
+ * Accès limité à l'importateur et aux signataires (403 sinon), 404 si introuvable.
+ */
 export async function getDocument(req: Request, res: Response) {
   const userId = req.user!._id.toString();
   const doc = await DocumentModel.findById(req.params.id)
@@ -50,6 +58,11 @@ export async function getDocument(req: Request, res: Response) {
 
 // ─── Upload PDF ─────────────────────────────────────────────────────────────────
 
+/**
+ * POST /documents — importe un PDF (champ multipart « file ») et calcule son hash sha256,
+ * qui servira ensuite à vérifier l'intégrité. Le document est créé au statut « draft ».
+ * Répond 400 si aucun fichier n'est reçu, 403 si l'utilisateur n'a pas de quartier.
+ */
 export async function uploadDocument(req: Request, res: Response) {
   const file = req.file;
   if (!file) return error(res, 'Aucun fichier PDF reçu', 400);
@@ -77,6 +90,10 @@ export async function uploadDocument(req: Request, res: Response) {
 
 // ─── Placer les zones de signature ───────────────────────────────────────────────
 
+/**
+ * PUT /documents/:id/zones — enregistre les zones de signature (page + position relative).
+ * Réservé à l'importateur (403) et uniquement tant que le document est un brouillon (400).
+ */
 export async function setZones(req: Request, res: Response) {
   const doc = await DocumentModel.findById(req.params.id);
   if (!doc) return error(res, 'Document introuvable', 404);
@@ -108,6 +125,11 @@ export async function setZones(req: Request, res: Response) {
 
 // ─── Envoyer pour signature ──────────────────────────────────────────────────────
 
+/**
+ * POST /documents/:id/send — désigne les signataires (avec leur ordre) et passe le
+ * document au statut « pending_signatures ». Réservé à l'importateur (403), 400 si
+ * aucun signataire n'est fourni. Une notification email est envoyée en best-effort.
+ */
 export async function sendForSignature(req: Request, res: Response) {
   const doc = await DocumentModel.findById(req.params.id);
   if (!doc) return error(res, 'Document introuvable', 404);
@@ -152,6 +174,12 @@ export async function sendForSignature(req: Request, res: Response) {
 
 // ─── Signer (MFA requis) ──────────────────────────────────────────────────────────
 
+/**
+ * POST /documents/:id/sign — appose la signature de l'utilisateur (MFA vérifiée en amont).
+ * Contrôle le statut du document, la qualité de signataire, l'absence de double signature
+ * et le respect de l'ordre de passage. Calcule un hash de signature horodaté ; quand tous
+ * les signataires ont signé, le PDF est tamponné puis le document est verrouillé.
+ */
 export async function signDocument(req: Request, res: Response) {
   const userId = req.user!._id.toString();
   const doc = await DocumentModel.findById(req.params.id);
@@ -217,6 +245,12 @@ export async function signDocument(req: Request, res: Response) {
 
 // ─── Vérifier l'intégrité ─────────────────────────────────────────────────────────
 
+/**
+ * GET /documents/:id/verify — vérifie l'intégrité du document en recalculant le hash
+ * du fichier et en le comparant à celui enregistré.
+ * Renvoie integrity = 'ok' | 'altered' | 'missing' ainsi que la chaîne des signatures.
+ * Accès limité à l'importateur et aux signataires (403).
+ */
 export async function verifyDocument(req: Request, res: Response) {
   const userId = req.user!._id.toString();
   const doc = await DocumentModel.findById(req.params.id);

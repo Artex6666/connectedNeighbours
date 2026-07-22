@@ -6,8 +6,17 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Accès aux données des alertes stockées dans la base SQLite locale.
+ * Fournit la lecture, l'écriture et le suivi de l'état de synchronisation
+ * (indicateurs {@code dirty} / {@code local_only}) de la table {@code alertes}.
+ */
 public class AlerteDAO {
 
+    /**
+     * Retourne toutes les alertes locales, de la plus récente à la plus ancienne.
+     * @return liste des alertes (vide en cas d'erreur SQL)
+     */
     public List<Alerte> findAll() {
         List<Alerte> liste = new ArrayList<>();
         String sql = "SELECT * FROM alertes ORDER BY date DESC";
@@ -22,6 +31,10 @@ public class AlerteDAO {
         return liste;
     }
 
+    /**
+     * Retourne les alertes modifiées localement et non encore poussées vers le serveur.
+     * @return liste des alertes marquées {@code dirty}
+     */
     public List<Alerte> findDirty() {
         List<Alerte> liste = new ArrayList<>();
         String sql = "SELECT * FROM alertes WHERE dirty = 1";
@@ -36,6 +49,11 @@ public class AlerteDAO {
         return liste;
     }
 
+    /**
+     * Recherche une alerte par son identifiant.
+     * @param id identifiant de l'alerte (identifiant serveur ou identifiant local)
+     * @return l'alerte trouvée, ou {@code null} si elle n'existe pas
+     */
     public Alerte findById(String id) {
         String sql = "SELECT * FROM alertes WHERE id = ?";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
@@ -48,6 +66,11 @@ public class AlerteDAO {
         return null;
     }
 
+    /**
+     * Retourne les alertes d'un quartier donné, de la plus récente à la plus ancienne.
+     * @param neighborhoodId identifiant du quartier
+     * @return liste des alertes de ce quartier
+     */
     public List<Alerte> findByNeighborhood(String neighborhoodId) {
         List<Alerte> liste = new ArrayList<>();
         String sql = "SELECT * FROM alertes WHERE neighborhood_id = ? ORDER BY date DESC";
@@ -61,6 +84,10 @@ public class AlerteDAO {
         return liste;
     }
 
+    /**
+     * Insère l'alerte ou la remplace si son identifiant existe déjà.
+     * @param alerte alerte à enregistrer localement
+     */
     public void save(Alerte alerte) {
         String sql = """
             INSERT OR REPLACE INTO alertes
@@ -85,6 +112,12 @@ public class AlerteDAO {
         }
     }
 
+    /**
+     * Marque une alerte comme synchronisée avec le serveur
+     * (remise à zéro de {@code dirty} et {@code local_only}).
+     * @param id identifiant de l'alerte
+     * @param syncedAt date de synchronisation à enregistrer
+     */
     public void markSynced(String id, String syncedAt) {
         String sql = "UPDATE alertes SET dirty = 0, local_only = 0, synced_at = ? WHERE id = ?";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
@@ -96,6 +129,12 @@ public class AlerteDAO {
         }
     }
 
+    /**
+     * Remplace l'identifiant d'une alerte, typiquement après une création
+     * en ligne qui renvoie l'identifiant attribué par le serveur.
+     * @param ancienId identifiant local actuel
+     * @param nouveauId nouvel identifiant à appliquer
+     */
     public void updateId(String ancienId, String nouveauId) {
         String sql = "UPDATE alertes SET id = ? WHERE id = ?";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
@@ -107,6 +146,10 @@ public class AlerteDAO {
         }
     }
 
+    /**
+     * Supprime une alerte de la base locale.
+     * @param id identifiant de l'alerte à supprimer
+     */
     public void delete(String id) {
         String sql = "DELETE FROM alertes WHERE id = ?";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {

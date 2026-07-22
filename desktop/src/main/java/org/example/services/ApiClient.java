@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.*;
 
+/**
+ * Client HTTP bas niveau vers l'API REST BobConnect.
+ * Centralise les appels GET/POST/PUT, l'ajout du jeton JWT
+ * et la détection des réponses en erreur.
+ */
 public class ApiClient {
 
     private static final String BASE_URL = "https://projet-annuel.lorisrameau.pro/api/v1";
@@ -15,6 +20,13 @@ public class ApiClient {
         this.accessToken = accessToken;
     }
 
+    /**
+     * Exécute une requête GET, authentifiée si un jeton est défini.
+     * @param endpoint chemin relatif à la base API (ex: "/incidents")
+     * @return corps de la réponse JSON brut
+     * @throws IOException si l'appel échoue ou si le statut HTTP n'est pas 2xx
+     * @throws InterruptedException si l'attente de la réponse est interrompue
+     */
     public String get(String endpoint) throws IOException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + endpoint))
@@ -27,6 +39,14 @@ public class ApiClient {
         return send(builder.build());
     }
 
+    /**
+     * Exécute une requête POST avec un corps JSON, authentifiée si un jeton est défini.
+     * @param endpoint chemin relatif à la base API
+     * @param jsonBody corps JSON à envoyer
+     * @return corps de la réponse JSON brut
+     * @throws IOException si l'appel échoue ou si le statut HTTP n'est pas 2xx
+     * @throws InterruptedException si l'attente de la réponse est interrompue
+     */
     public String post(String endpoint, String jsonBody) throws IOException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + endpoint))
@@ -40,6 +60,14 @@ public class ApiClient {
         return send(builder.build());
     }
 
+    /**
+     * Exécute une requête PUT avec un corps JSON, authentifiée si un jeton est défini.
+     * @param endpoint chemin relatif à la base API
+     * @param jsonBody corps JSON à envoyer
+     * @return corps de la réponse JSON brut
+     * @throws IOException si l'appel échoue ou si le statut HTTP n'est pas 2xx
+     * @throws InterruptedException si l'attente de la réponse est interrompue
+     */
     public String put(String endpoint, String jsonBody) throws IOException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + endpoint))
@@ -64,6 +92,10 @@ public class ApiClient {
         return response.body();
     }
 
+    /**
+     * Teste la joignabilité de l'API en interrogeant {@code /users/me}.
+     * @return {@code true} si le serveur répond avec un statut inférieur à 500
+     */
     public boolean ping() {
         try {
             HttpRequest request = HttpRequest.newBuilder()

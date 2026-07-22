@@ -1,5 +1,10 @@
 package org.example;
 
+/**
+ * Modèle d'une alerte de quartier.
+ * Porte les champs métier (titre, message, niveau, statut, date) ainsi que les
+ * métadonnées de synchronisation hors-ligne (updatedAt, syncedAt, dirty, localOnly).
+ */
 public class Alerte {
 
     private String id;
@@ -54,6 +59,12 @@ public class Alerte {
     public boolean isLocalOnly() { return localOnly; }
     public String getNeighborhoodId() { return neighborhoodId; }
 
+    /**
+     * Modifie le statut de l'alerte, met à jour l'horodatage de modification
+     * et marque l'alerte comme à synchroniser.
+     *
+     * @param statut nouveau statut
+     */
     public void setStatut(String statut) {
         this.statut = statut;
         this.updatedAt = java.time.Instant.now().toString();

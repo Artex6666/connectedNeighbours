@@ -1,0 +1,257 @@
+[{
+	"_id": {
+		"$oid": "6a401134e81262a904f29093"
+	},
+	"firstName": "Alice",
+	"lastName": "Bernard",
+	"email": "admin@bobconnect.fr",
+	"password": "$2a$10$RPXvsh7GgHumQr4GwWCDJu7R8nFeyK6zWAJgRuSR23PyrLOR5lG.2",
+	"phone": "0615151617",
+	"address": "Mairie du 11e, 75011 Paris",
+	"role": "admin",
+	"isMfaEnabled": false,
+	"points": 100,
+	"isVerified": true,
+	"isBlocked": false,
+	"emailPreferences": {
+		"messages": true,
+		"annonces": true,
+		"events": true,
+		"newsletter": true
+	},
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.409Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.453Z"
+	},
+	"__v": 0,
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f29099"
+	},
+	"firstName": "Camille",
+	"lastName": "Martin",
+	"email": "camille@bobconnect.fr",
+	"password": "$2a$10$RPXvsh7GgHumQr4GwWCDJu7R8nFeyK6zWAJgRuSR23PyrLOR5lG.2",
+	"phone": "0605060708",
+	"address": "24 rue de Charonne, 75011 Paris",
+	"role": "resident",
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"isMfaEnabled": false,
+	"points": 8,
+	"isVerified": true,
+	"isBlocked": false,
+	"emailPreferences": {
+		"messages": true,
+		"annonces": true,
+		"events": true,
+		"newsletter": true
+	},
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.475Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.475Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290ae"
+	},
+	"firstName": "Hugo",
+	"lastName": "Faure",
+	"email": "hugo@bobconnect.fr",
+	"password": "$2a$10$RPXvsh7GgHumQr4GwWCDJu7R8nFeyK6zWAJgRuSR23PyrLOR5lG.2",
+	"phone": "0622324252",
+	"address": "30 rue de Lancry, 75010 Paris",
+	"role": "resident",
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f290aa"
+	},
+	"isMfaEnabled": false,
+	"points": 6,
+	"isVerified": true,
+	"isBlocked": false,
+	"emailPreferences": {
+		"messages": true,
+		"annonces": true,
+		"events": true,
+		"newsletter": true
+	},
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.527Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.527Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f29098"
+	},
+	"firstName": "Jean",
+	"lastName": "Dupont",
+	"email": "jean@bobconnect.fr",
+	"password": "$2a$10$RPXvsh7GgHumQr4GwWCDJu7R8nFeyK6zWAJgRuSR23PyrLOR5lG.2",
+	"phone": "0601020304",
+	"address": "12 rue de Charonne, 75011 Paris",
+	"role": "resident",
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"isMfaEnabled": false,
+	"points": 12,
+	"isVerified": true,
+	"isBlocked": false,
+	"emailPreferences": {
+		"messages": true,
+		"annonces": true,
+		"events": true,
+		"newsletter": true
+	},
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.474Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.474Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290ad"
+	},
+	"firstName": "Léa",
+	"lastName": "Moreau",
+	"email": "lea@bobconnect.fr",
+	"password": "$2a$10$RPXvsh7GgHumQr4GwWCDJu7R8nFeyK6zWAJgRuSR23PyrLOR5lG.2",
+	"phone": "0621314151",
+	"address": "14 rue Bichat, 75010 Paris",
+	"role": "resident",
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f290aa"
+	},
+	"isMfaEnabled": false,
+	"points": 9,
+	"isVerified": true,
+	"isBlocked": false,
+	"emailPreferences": {
+		"messages": true,
+		"annonces": true,
+		"events": true,
+		"newsletter": true
+	},
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.527Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.527Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290ac"
+	},
+	"firstName": "Marc",
+	"lastName": "Petit",
+	"email": "marc@bobconnect.fr",
+	"password": "$2a$10$RPXvsh7GgHumQr4GwWCDJu7R8nFeyK6zWAJgRuSR23PyrLOR5lG.2",
+	"phone": "0620304050",
+	"address": "5 quai de Valmy, 75010 Paris",
+	"role": "resident",
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f290aa"
+	},
+	"isMfaEnabled": false,
+	"points": 16,
+	"isVerified": true,
+	"isBlocked": false,
+	"emailPreferences": {
+		"messages": true,
+		"annonces": true,
+		"events": true,
+		"newsletter": true
+	},
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.527Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.527Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f2909a"
+	},
+	"firstName": "Nassim",
+	"lastName": "Leroy",
+	"email": "nassim@bobconnect.fr",
+	"password": "$2a$10$RPXvsh7GgHumQr4GwWCDJu7R8nFeyK6zWAJgRuSR23PyrLOR5lG.2",
+	"phone": "0607080910",
+	"address": "7 passage Saint-Ambroise, 75011 Paris",
+	"role": "moderator",
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"isMfaEnabled": false,
+	"points": 20,
+	"isVerified": true,
+	"isBlocked": false,
+	"emailPreferences": {
+		"messages": true,
+		"annonces": true,
+		"events": true,
+		"newsletter": true
+	},
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.475Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.475Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f2909b"
+	},
+	"firstName": "Sarah",
+	"lastName": "Benali",
+	"email": "sarah@bobconnect.fr",
+	"password": "$2a$10$RPXvsh7GgHumQr4GwWCDJu7R8nFeyK6zWAJgRuSR23PyrLOR5lG.2",
+	"phone": "0611121314",
+	"address": "18 boulevard Richard-Lenoir, 75011 Paris",
+	"role": "resident",
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"isMfaEnabled": false,
+	"points": 4,
+	"isVerified": true,
+	"isBlocked": false,
+	"emailPreferences": {
+		"messages": true,
+		"annonces": true,
+		"events": true,
+		"newsletter": true
+	},
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.475Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.475Z"
+	},
+	"__v": 0
+}]
+

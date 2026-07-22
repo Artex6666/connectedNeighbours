@@ -1,0 +1,226 @@
+[{
+	"_id": {
+		"$oid": "6a401134e81262a904f290a0"
+	},
+	"title": "Cours de guitare — débutants bienvenus",
+	"description": "Je donne des cours de guitare acoustique le week-end. 1h de cours pour 2 points.",
+	"category": "cours_particuliers",
+	"isPaid": true,
+	"points": 2,
+	"authorId": {
+		"$oid": "6a401134e81262a904f2909a"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"status": "open",
+	"photos": [],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.488Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.488Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290a1"
+	},
+	"title": "Garde de chat pendant les vacances",
+	"description": "Disponible pour garder votre chat à mon domicile. Je suis présente toute la journée.",
+	"category": "garde_animaux",
+	"isPaid": true,
+	"points": 3,
+	"authorId": {
+		"$oid": "6a401134e81262a904f29099"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"status": "open",
+	"photos": [],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.488Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.488Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290a2"
+	},
+	"title": "Aide au déménagement",
+	"description": "Je cherche des bras pour m'aider à déménager samedi prochain. En échange je vous offre à manger !",
+	"category": "demenagement",
+	"isPaid": false,
+	"points": 0,
+	"authorId": {
+		"$oid": "6a401134e81262a904f29098"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"status": "open",
+	"photos": [],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.489Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.489Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290a3"
+	},
+	"title": "Petits travaux de bricolage",
+	"description": "Montage de meubles IKEA, pose d'étagères, petites réparations. 4 points de l'heure.",
+	"category": "bricolage",
+	"isPaid": true,
+	"points": 4,
+	"authorId": {
+		"$oid": "6a401134e81262a904f2909b"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"status": "open",
+	"photos": [],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.489Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.489Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290a4"
+	},
+	"title": "Jardinage et entretien balcon",
+	"description": "Propose aide pour rempotage, taille et entretien de vos plantes de balcon.",
+	"category": "jardinage",
+	"isPaid": true,
+	"points": 2,
+	"authorId": {
+		"$oid": "6a401134e81262a904f29099"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"status": "open",
+	"photos": [],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.489Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.489Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290b2"
+	},
+	"title": "Prêt de perceuse et outils",
+	"description": "Je prête volontiers ma perceuse et ma caisse à outils aux voisins. Passez quand vous voulez !",
+	"category": "bricolage",
+	"isPaid": false,
+	"points": 0,
+	"authorId": {
+		"$oid": "6a401134e81262a904f290ac"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f290aa"
+	},
+	"status": "open",
+	"photos": [],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.535Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.535Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290b3"
+	},
+	"title": "Cours de cuisine italienne",
+	"description": "Pâtes fraîches, risotto, tiramisu… Je partage mes recettes de famille. 3 points la session.",
+	"category": "cours_particuliers",
+	"isPaid": true,
+	"points": 3,
+	"authorId": {
+		"$oid": "6a401134e81262a904f290ad"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f290aa"
+	},
+	"status": "open",
+	"photos": [],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.536Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.536Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290b4"
+	},
+	"title": "Promenade de chiens le matin",
+	"description": "Disponible tôt le matin pour promener vos chiens le long du canal. 2 points la balade.",
+	"category": "garde_animaux",
+	"isPaid": true,
+	"points": 2,
+	"authorId": {
+		"$oid": "6a401134e81262a904f290ae"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f290aa"
+	},
+	"status": "open",
+	"photos": [],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.536Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.536Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290b5"
+	},
+	"title": "Aide aux courses pour personnes âgées",
+	"description": "Bénévolement, je fais les courses pour les voisins qui ont du mal à se déplacer.",
+	"category": "autre",
+	"isPaid": false,
+	"points": 0,
+	"authorId": {
+		"$oid": "6a401134e81262a904f290ad"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f290aa"
+	},
+	"status": "open",
+	"photos": [],
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.536Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.536Z"
+	}
+}]
+

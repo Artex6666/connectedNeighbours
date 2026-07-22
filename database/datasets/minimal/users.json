@@ -1,0 +1,33 @@
+[{
+	"_id": {
+		"$oid": "6a401134e81262a904f29093"
+	},
+	"firstName": "Alice",
+	"lastName": "Bernard",
+	"email": "admin@bobconnect.fr",
+	"password": "$2a$10$RPXvsh7GgHumQr4GwWCDJu7R8nFeyK6zWAJgRuSR23PyrLOR5lG.2",
+	"phone": "0615151617",
+	"address": "Mairie du 11e, 75011 Paris",
+	"role": "admin",
+	"isMfaEnabled": false,
+	"points": 100,
+	"isVerified": true,
+	"isBlocked": false,
+	"emailPreferences": {
+		"messages": true,
+		"annonces": true,
+		"events": true,
+		"newsletter": true
+	},
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.409Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.453Z"
+	},
+	"__v": 0,
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	}
+}]
+

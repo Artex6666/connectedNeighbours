@@ -2,11 +2,21 @@ package org.example.database;
 
 import java.sql.*;
 
+/**
+ * Gère la connexion à la base SQLite locale de l'application desktop.
+ * Maintient une connexion unique partagée et crée le schéma
+ * (incidents, alertes, conflits) au démarrage.
+ */
 public class DatabaseManager {
 
     private static final String DB_URL = "jdbc:sqlite:bobconnect.db";
     private static Connection connection;
 
+    /**
+     * Retourne la connexion SQLite partagée, en la rouvrant si nécessaire.
+     * @return connexion ouverte vers la base locale
+     * @throws SQLException si la connexion ne peut pas être établie
+     */
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             connection = DriverManager.getConnection(DB_URL);
@@ -14,6 +24,10 @@ public class DatabaseManager {
         return connection;
     }
 
+    /**
+     * Initialise la base : réglages PRAGMA, création des tables si absentes
+     * et migration ajoutant la colonne {@code neighborhood_id}.
+     */
     public static void initialiser() {
         try {
             Connection conn = getConnection();

@@ -18,6 +18,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Orchestre la synchronisation entre la base SQLite locale et l'API.
+ * Pousse périodiquement les incidents et alertes modifiés hors ligne,
+ * récupère les données du serveur, détecte les conflits et publie
+ * l'état de synchronisation observable par l'interface JavaFX.
+ */
 public class SyncService {
 
     private static final SimpleStringProperty statut = new SimpleStringProperty("Non synchronisé");
@@ -33,6 +39,9 @@ public class SyncService {
     public static SimpleStringProperty statutProperty() { return statut; }
     public static SimpleIntegerProperty nbConflitsProperty() { return nbConflits; }
 
+    /**
+     * Active ou désactive le mode hors ligne simulé et met à jour le statut affiché.
+     */
     public static void basculerModeHorsLigne() {
         modeHorsLigneSimule = !modeHorsLigneSimule;
         setStatut(modeHorsLigneSimule ? "Hors ligne (simulé)" : "Non synchronisé");
@@ -40,14 +49,26 @@ public class SyncService {
 
     public static boolean estHorsLigneSimule() { return modeHorsLigneSimule; }
 
+    /**
+     * Enregistre une action à exécuter après chaque synchronisation réussie.
+     * @param listener action exécutée sur le thread JavaFX
+     */
     public static void ajouterListenerSyncTerminee(Runnable listener) {
         listenersSyncTerminee.add(listener);
     }
 
+    /**
+     * Retire une action précédemment enregistrée après synchronisation.
+     * @param listener action à retirer
+     */
     public static void retirerListenerSyncTerminee(Runnable listener) {
         listenersSyncTerminee.remove(listener);
     }
 
+    /**
+     * Démarre la synchronisation périodique en tâche de fond
+     * (première exécution après 5 s, puis toutes les 30 s).
+     */
     public static void demarrer() {
         scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "sync-thread");
@@ -57,10 +78,17 @@ public class SyncService {
         scheduler.scheduleAtFixedRate(SyncService::synchroniser, 5, 30, TimeUnit.SECONDS);
     }
 
+    /**
+     * Arrête l'ordonnanceur de synchronisation périodique.
+     */
     public static void arreter() {
         if (scheduler != null) scheduler.shutdown();
     }
 
+    /**
+     * Déclenche immédiatement une synchronisation sur le thread de fond,
+     * sans attendre la prochaine exécution planifiée.
+     */
     public static void synchroniserMaintenant() {
         if (scheduler != null) scheduler.execute(SyncService::synchroniser);
     }

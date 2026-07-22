@@ -17,8 +17,21 @@ import org.example.services.SyncService;
 import java.io.FileWriter;
 import java.time.Instant;
 
+/**
+ * Écran principal (tableau de bord) de l'application desktop.
+ * Affiche la barre de navigation, des indicateurs calculés depuis la base locale
+ * (incidents ouverts, alertes actives, dernière synchronisation) ainsi qu'un bloc
+ * d'outils de démonstration (mode hors ligne simulé, création d'un conflit de test).
+ */
 public class VueDashboard {
 
+    /**
+     * Construit l'arborescence JavaFX du tableau de bord : navbar, cartes d'indicateurs
+     * lues via {@link IncidentDAO} et {@link AlerteDAO}, bloc résumé avec export CSV
+     * et bloc d'outils de démo.
+     *
+     * @return le nœud racine de la vue tableau de bord
+     */
     public Parent creerVue() {
 
         Image logoImage = new Image(getClass().getResourceAsStream("/logo.png"));
@@ -226,6 +239,12 @@ public class VueDashboard {
         return racine;
     }
 
+    /**
+     * Écrit les indicateurs du tableau de bord dans le fichier CSV {@code dashboard.csv}.
+     *
+     * @param nbOuverts nombre d'incidents ouverts ou en cours
+     * @param nbAlertes nombre d'alertes non lues
+     */
     private void exporterDashboard(long nbOuverts, long nbAlertes) {
         try (FileWriter writer = new FileWriter("dashboard.csv")) {
             writer.write("statistique;valeur\n");
@@ -233,7 +252,6 @@ public class VueDashboard {
             writer.write("Alertes actives;" + nbAlertes + "\n");
             String synchro = SyncService.statutProperty().get().replace("Synchronisé à ", "");
             writer.write("Dernière synchro;" + synchro + "\n");
-            System.out.println("Export réussi : dashboard.csv");
         } catch (Exception ex) {
             ex.printStackTrace();
         }

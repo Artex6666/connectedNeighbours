@@ -118,6 +118,12 @@ function toCsv(data: ExportData): string {
   return parts.join('\n');
 }
 
+/**
+ * GET /users/me/export — export RGPD (droit d'accès et de portabilité) de toutes les
+ * données de l'utilisateur : profil, annonces, événements, messages, votes, incidents.
+ * Le format est JSON par défaut, ou CSV avec `?format=csv` ; le fichier est renvoyé
+ * en pièce jointe téléchargeable.
+ */
 export async function exportMyData(req: Request, res: Response) {
   const userId = req.user!._id.toString();
   const data = await collectUserData(userId);
@@ -140,6 +146,12 @@ export async function exportMyData(req: Request, res: Response) {
 // partagées (messages, contrats/services archivés) tout en effaçant les données
 // personnelles. Le compte devient inutilisable.
 
+/**
+ * DELETE /users/me — droit à l'effacement RGPD. Le compte n'est pas détruit mais
+ * ANONYMISÉ (identité, contacts, préférences, secret 2FA effacés, mot de passe
+ * remplacé par une valeur aléatoire, compte bloqué), ce qui préserve l'intégrité des
+ * données partagées. Toutes les sessions actives sont ensuite révoquées.
+ */
 export async function deleteMyAccount(req: Request, res: Response) {
   const userId = req.user!._id.toString();
   const randomPassword = await bcrypt.hash(crypto.randomBytes(24).toString('hex'), 10);

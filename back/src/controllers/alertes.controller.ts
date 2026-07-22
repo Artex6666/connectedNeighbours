@@ -2,6 +2,11 @@ import { Request, Response } from 'express';
 import Alerte from '../models/alerte.model';
 import { success, error } from '../utils/response.utils';
 
+/**
+ * GET /alertes — liste les alertes du plus récent au plus ancien.
+ * Route réservée aux rôles admin/modérateur : un modérateur ne voit que les
+ * alertes de son quartier, un admin voit tout (filtrable via ?neighborhoodId=).
+ */
 export const listAlertes = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
@@ -20,6 +25,10 @@ export const listAlertes = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * GET /alertes/:id — détail d'une alerte.
+ * Renvoie 404 si l'alerte n'existe pas, 500 en cas d'erreur serveur.
+ */
 export const getAlerte = async (req: Request, res: Response) => {
   try {
     const alerte = await Alerte.findById(req.params.id);
@@ -30,6 +39,10 @@ export const getAlerte = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * POST /alertes — crée une alerte rattachée au quartier de l'utilisateur courant.
+ * Répond 201 avec l'alerte créée, 400 si les données sont invalides.
+ */
 export const createAlerte = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
@@ -43,6 +56,10 @@ export const createAlerte = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * PUT /alertes/:id — met à jour une alerte et renvoie la version modifiée.
+ * Répond 404 si l'alerte est introuvable, 400 si la mise à jour échoue.
+ */
 export const updateAlerte = async (req: Request, res: Response) => {
   try {
     const alerte = await Alerte.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -53,6 +70,10 @@ export const updateAlerte = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * DELETE /alertes/:id — supprime définitivement une alerte (réservé aux admins).
+ * Répond 404 si l'alerte est introuvable.
+ */
 export const deleteAlerte = async (req: Request, res: Response) => {
   try {
     const alerte = await Alerte.findByIdAndDelete(req.params.id);

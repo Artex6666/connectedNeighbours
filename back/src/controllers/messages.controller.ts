@@ -45,6 +45,10 @@ async function maybeEmailOfflineReceiver(
   }
 }
 
+/**
+ * GET /messages — liste les conversations de l'utilisateur : un interlocuteur par
+ * ligne avec son dernier message, son statut en ligne et ses initiales d'avatar.
+ */
 export async function listConversations(req: Request, res: Response) {
   const currentUserId = req.user!._id.toString();
   const messages = await Message.find({
@@ -98,6 +102,11 @@ export async function listConversations(req: Request, res: Response) {
   return success(res, conversations);
 }
 
+/**
+ * GET /messages/:userId — renvoie la conversation avec un interlocuteur (messages
+ * triés du plus ancien au plus récent). L'ouverture marque les messages reçus comme
+ * lus, ce qui réarme la notification email. Répond 404 si l'interlocuteur est inconnu.
+ */
 export async function getConversation(req: Request, res: Response) {
   const currentUserId = req.user!._id.toString();
   const participant = await User.findById(req.params.userId)
@@ -138,6 +147,11 @@ export async function getConversation(req: Request, res: Response) {
   });
 }
 
+/**
+ * POST /messages/:userId — envoie un message texte à un autre habitant.
+ * Répond 400 si le contenu est vide, 404 si le destinataire est introuvable, 201 sinon.
+ * Un email de notification est envoyé si le destinataire est hors ligne.
+ */
 export async function sendMessage(req: Request, res: Response) {
   const { content, type = 'text' } = req.body;
   if (!content) {
@@ -178,6 +192,12 @@ export async function sendMessage(req: Request, res: Response) {
   );
 }
 
+/**
+ * POST /messages/:userId/upload — envoie une pièce jointe (image ou audio) comme message.
+ * Le type est déduit du mimetype et doit correspondre au type éventuellement déclaré ;
+ * tout fichier refusé est supprimé du disque. Répond 400 (fichier absent/type interdit),
+ * 404 (destinataire inconnu) ou 201 avec le message dont le contenu est l'URL publique.
+ */
 export async function uploadAttachment(req: Request, res: Response) {
   const file = req.file;
   if (!file) {
@@ -241,6 +261,10 @@ export async function uploadAttachment(req: Request, res: Response) {
   );
 }
 
+/**
+ * DELETE /messages/:id — supprime un message dont l'utilisateur est l'expéditeur.
+ * Répond 404 si le message n'existe pas ou n'a pas été envoyé par l'utilisateur.
+ */
 export async function deleteMessage(req: Request, res: Response) {
   const deletedMessage = await Message.findOneAndDelete({
     _id: req.params.id,

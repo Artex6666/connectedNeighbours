@@ -15,6 +15,11 @@ import java.util.Base64;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Gère la connexion SSO du client desktop via le navigateur (flux PKCE).
+ * Ouvre la page de login du site, écoute le code d'autorisation sur un
+ * serveur HTTP local, puis l'échange contre un jeton d'accès et ouvre la session.
+ */
 public class SsoService {
 
     private static final int CALLBACK_PORT = 49152;
@@ -31,6 +36,13 @@ public class SsoService {
         this.apiClient = apiClient;
     }
 
+    /**
+     * Lance la connexion SSO : ouvre le navigateur sur la page de login,
+     * attend jusqu'à 2 minutes le code renvoyé sur le callback local,
+     * l'échange contre un jeton et l'enregistre dans le SessionManager.
+     * @throws Exception si aucun code n'est reçu, si l'échange échoue
+     *                   ou si la réponse ne contient pas de jeton d'accès
+     */
     public void loginWithBrowser() throws Exception {
         String codeVerifier = generateCodeVerifier();
         String codeChallenge = generateCodeChallenge(codeVerifier);
@@ -73,8 +85,6 @@ public class SsoService {
                 + "?redirect_uri=" + encode(redirectUri)
                 + "&code_challenge=" + encode(codeChallenge);
 
-        System.out.println("SSO URL = " + url);
-
         Desktop.getDesktop().browse(new URI(url));
 
         boolean received = latch.await(2, TimeUnit.MINUTES);
@@ -84,11 +94,7 @@ public class SsoService {
             throw new RuntimeException("Aucun code SSO reçu.");
         }
 
-        System.out.println("SSO code reçu = " + receivedCode[0]);
-
         String response = authService.exchangeSsoCode(receivedCode[0], codeVerifier);
-
-        System.out.println("Réponse exchange SSO = " + response);
 
         String accessToken = extractJsonValue(response, "accessToken");
 
@@ -97,8 +103,6 @@ public class SsoService {
         }
 
         SessionManager.setToken(accessToken);
-
-        System.out.println("SSO terminé avec succès.");
     }
 
     private String generateCodeVerifier() {

@@ -1,5 +1,9 @@
 package org.example.plugins;
 
+/**
+ * Contrat que doit implémenter tout plugin externe de l'application.
+ * Les implémentations sont découvertes par {@link PluginLoader} via ServiceLoader.
+ */
 public interface Plugin {
 
     /**

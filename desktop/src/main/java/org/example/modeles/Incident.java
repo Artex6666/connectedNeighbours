@@ -1,5 +1,10 @@
 package org.example;
 
+/**
+ * Modèle d'un incident signalé dans un quartier.
+ * Porte les champs métier (titre, description, priorité, statut, date) ainsi que
+ * les métadonnées de synchronisation hors-ligne (updatedAt, syncedAt, dirty, localOnly).
+ */
 public class Incident {
 
     private String id;
@@ -53,6 +58,12 @@ public class Incident {
     public boolean isLocalOnly() { return localOnly; }
     public String getNeighborhoodId() { return neighborhoodId; }
 
+    /**
+     * Modifie le statut de l'incident, met à jour l'horodatage de modification
+     * et marque l'incident comme à synchroniser.
+     *
+     * @param statut nouveau statut
+     */
     public void setStatut(String statut) {
         this.statut = statut;
         this.updatedAt = java.time.Instant.now().toString();

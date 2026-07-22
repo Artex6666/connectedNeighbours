@@ -93,31 +93,6 @@ async function apiRequest<T>(path: string, init?: RequestInit, token?: string): 
   return payload.data
 }
 
-// For legacy endpoints (incidents/alertes/stats) that return raw JSON without
-// the `{success, data}` envelope.
-async function apiRaw<T>(path: string, init?: RequestInit, token?: string): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-  })
-
-  const payload = await response.json().catch(() => null)
-
-  if (!response.ok) {
-    const message =
-      payload && typeof payload === 'object' && 'message' in payload
-        ? String((payload as { message?: unknown }).message ?? 'An API error occurred.')
-        : 'An API error occurred.'
-    throw new Error(message)
-  }
-
-  return payload as T
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function splitFullName(fullName: string) {
@@ -540,31 +515,31 @@ export type UpdateIncidentPayload = Partial<CreateIncidentPayload> & {
 
 export const incidentsApi = {
   async list(token: string) {
-    return apiRaw<Incident[]>('/incidents', undefined, token)
+    return apiRequest<Incident[]>('/incidents', undefined, token)
   },
   async get(token: string, id: string) {
-    return apiRaw<Incident>(`/incidents/${id}`, undefined, token)
+    return apiRequest<Incident>(`/incidents/${id}`, undefined, token)
   },
   async create(token: string, payload: CreateIncidentPayload) {
-    return apiRaw<Incident>(
+    return apiRequest<Incident>(
       '/incidents',
       { method: 'POST', body: JSON.stringify(payload) },
       token,
     )
   },
   async update(token: string, id: string, payload: UpdateIncidentPayload) {
-    return apiRaw<Incident>(
+    return apiRequest<Incident>(
       `/incidents/${id}`,
       { method: 'PUT', body: JSON.stringify(payload) },
       token,
     )
   },
   async delete(token: string, id: string) {
-    return apiRaw<{ message: string }>(`/incidents/${id}`, { method: 'DELETE' }, token)
+    return apiRequest<{ message: string }>(`/incidents/${id}`, { method: 'DELETE' }, token)
   },
 }
 
-// ─── Alertes API (raw response) ──────────────────────────────────────────────
+// ─── Alertes API ─────────────────────────────────────────────────────────────
 
 export type AlerteLevel = 'info' | 'warning' | 'danger'
 
@@ -589,27 +564,27 @@ export type UpdateAlertePayload = Partial<CreateAlertePayload>
 
 export const alertesApi = {
   async list(token: string) {
-    return apiRaw<Alerte[]>('/alertes', undefined, token)
+    return apiRequest<Alerte[]>('/alertes', undefined, token)
   },
   async get(token: string, id: string) {
-    return apiRaw<Alerte>(`/alertes/${id}`, undefined, token)
+    return apiRequest<Alerte>(`/alertes/${id}`, undefined, token)
   },
   async create(token: string, payload: CreateAlertePayload) {
-    return apiRaw<Alerte>(
+    return apiRequest<Alerte>(
       '/alertes',
       { method: 'POST', body: JSON.stringify(payload) },
       token,
     )
   },
   async update(token: string, id: string, payload: UpdateAlertePayload) {
-    return apiRaw<Alerte>(
+    return apiRequest<Alerte>(
       `/alertes/${id}`,
       { method: 'PUT', body: JSON.stringify(payload) },
       token,
     )
   },
   async delete(token: string, id: string) {
-    return apiRaw<{ message: string }>(`/alertes/${id}`, { method: 'DELETE' }, token)
+    return apiRequest<{ message: string }>(`/alertes/${id}`, { method: 'DELETE' }, token)
   },
 }
 

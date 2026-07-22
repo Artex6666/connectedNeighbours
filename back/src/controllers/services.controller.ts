@@ -8,6 +8,11 @@ import User from '../models/User.model';
 
 // ─── List services ────────────────────────────────────────────────────────────
 
+/**
+ * GET /services — liste les annonces du quartier de l'utilisateur, les plus récentes
+ * d'abord. Filtres optionnels : category, status, isPaid. Un admin/modérateur peut
+ * passer `all=true` pour ignorer le filtrage par quartier.
+ */
 export async function listServices(req: Request, res: Response) {
   try {
     const neighborhoodId = req.user?.neighborhoodId;
@@ -33,6 +38,10 @@ export async function listServices(req: Request, res: Response) {
 
 // ─── Get service by ID ────────────────────────────────────────────────────────
 
+/**
+ * GET /services/:id — détail d'une annonce avec son auteur.
+ * Répond 404 si l'annonce est introuvable.
+ */
 export async function getService(req: Request, res: Response) {
   try {
     const service = await Service.findById(req.params.id)
@@ -49,6 +58,12 @@ export async function getService(req: Request, res: Response) {
 
 // ─── Create service ───────────────────────────────────────────────────────────
 
+/**
+ * POST /services — publie une annonce dans le quartier de l'utilisateur.
+ * Les points ne sont pris en compte que si l'annonce est payante.
+ * Répond 400 si un champ obligatoire manque, 403 sans quartier, 201 sinon.
+ * Les voisins opt-in sont notifiés par email (envoi non bloquant).
+ */
 export async function createService(req: Request, res: Response) {
   try {
     const { title, description, category, isPaid, points } = req.body;
@@ -101,6 +116,10 @@ export async function createService(req: Request, res: Response) {
 
 // ─── Update service ───────────────────────────────────────────────────────────
 
+/**
+ * PUT /services/:id — modifie une annonce (champs fournis uniquement).
+ * Réservé à l'auteur (403) et uniquement tant que l'annonce est au statut « open » (400).
+ */
 export async function updateService(req: Request, res: Response) {
   try {
     const service = await Service.findById(req.params.id);
@@ -133,6 +152,10 @@ export async function updateService(req: Request, res: Response) {
 
 // ─── Delete service ───────────────────────────────────────────────────────────
 
+/**
+ * DELETE /services/:id — supprime une annonce.
+ * Réservé à l'auteur ou à un admin (403), 404 si l'annonce est introuvable.
+ */
 export async function deleteService(req: Request, res: Response) {
   try {
     const service = await Service.findById(req.params.id);
@@ -156,6 +179,12 @@ export async function deleteService(req: Request, res: Response) {
 
 // ─── Accept service ───────────────────────────────────────────────────────────
 
+/**
+ * POST /services/:id/accept — un voisin accepte une annonce ouverte, qui passe
+ * « in_progress ». On ne peut pas accepter sa propre annonce (400). Pour une annonce
+ * payante, les points du demandeur sont vérifiés puis débités immédiatement (400 si
+ * solde insuffisant) et un contrat PDF signable par les deux parties est généré.
+ */
 export async function acceptService(req: Request, res: Response) {
   try {
     const service = await Service.findById(req.params.id);
@@ -209,6 +238,10 @@ export async function acceptService(req: Request, res: Response) {
 
 // ─── My services ──────────────────────────────────────────────────────────────
 
+/**
+ * GET /services/mine — renvoie les annonces de l'utilisateur : `posted` (celles qu'il
+ * a publiées) et `accepted` (celles qu'il a acceptées, en cours ou terminées).
+ */
 export async function myServices(req: Request, res: Response) {
   try {
     const userId = req.user?._id;
@@ -230,6 +263,11 @@ export async function myServices(req: Request, res: Response) {
 
 // ─── Complete service ─────────────────────────────────────────────────────────
 
+/**
+ * POST /services/:id/complete — l'auteur clôture une annonce en cours (statut « done »).
+ * Pour une annonce payante, les points débités au demandeur sont crédités à l'auteur.
+ * Répond 400 si l'annonce n'est pas en cours, 403 si l'appelant n'est pas l'auteur.
+ */
 export async function completeService(req: Request, res: Response) {
   try {
     const service = await Service.findById(req.params.id);

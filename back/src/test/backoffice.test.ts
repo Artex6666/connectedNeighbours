@@ -25,19 +25,19 @@ describe('Incidents (admin / modérateur)', () => {
       .set('Authorization', bearer(mod))
       .send({ title: 'Lampadaire cassé', description: 'Rue des Lilas', priority: 'high' });
     expect(created.status).toBe(201);
-    expect(created.body.title).toBe('Lampadaire cassé');
-    expect(created.body.status).toBe('open');
+    expect(created.body.data.title).toBe('Lampadaire cassé');
+    expect(created.body.data.status).toBe('open');
 
     const list = await api().get('/api/v1/incidents').set('Authorization', bearer(mod));
     expect(list.status).toBe(200);
-    expect(list.body).toHaveLength(1);
+    expect(list.body.data).toHaveLength(1);
 
     const updated = await api()
-      .put(`/api/v1/incidents/${created.body._id}`)
+      .put(`/api/v1/incidents/${created.body.data._id}`)
       .set('Authorization', bearer(mod))
       .send({ status: 'resolved' });
     expect(updated.status).toBe(200);
-    expect(updated.body.status).toBe('resolved');
+    expect(updated.body.data.status).toBe('resolved');
   });
 
   it('seul un admin peut supprimer (modérateur → 403, admin → 200)', async () => {
@@ -50,12 +50,12 @@ describe('Incidents (admin / modérateur)', () => {
       .send({ title: 'X', description: 'Y' });
 
     const asMod = await api()
-      .delete(`/api/v1/incidents/${created.body._id}`)
+      .delete(`/api/v1/incidents/${created.body.data._id}`)
       .set('Authorization', bearer(mod));
     expect(asMod.status).toBe(403);
 
     const asAdmin = await api()
-      .delete(`/api/v1/incidents/${created.body._id}`)
+      .delete(`/api/v1/incidents/${created.body.data._id}`)
       .set('Authorization', bearer(admin));
     expect(asAdmin.status).toBe(200);
   });
@@ -77,11 +77,11 @@ describe('Alertes (admin / modérateur)', () => {
       .set('Authorization', bearer(admin))
       .send({ title: 'Coupure d\'eau', message: 'Demain 8h-12h', level: 'warning' });
     expect(created.status).toBe(201);
-    expect(created.body.active).toBe(true);
+    expect(created.body.data.active).toBe(true);
 
     const list = await api().get('/api/v1/alertes').set('Authorization', bearer(admin));
     expect(list.status).toBe(200);
-    expect(list.body).toHaveLength(1);
+    expect(list.body.data).toHaveLength(1);
   });
 });
 

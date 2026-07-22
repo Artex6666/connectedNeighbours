@@ -11,8 +11,20 @@ import org.example.services.SessionManager;
 import org.example.services.SsoService;
 import org.json.JSONObject;
 
+/**
+ * Écran de connexion de l'application desktop.
+ * Propose l'authentification SSO via le navigateur ainsi qu'une connexion directe
+ * par email et mot de passe, puis oriente l'utilisateur selon son rôle.
+ */
 public class VueConnexion {
 
+    /**
+     * Construit l'arborescence JavaFX de l'écran de connexion : bouton SSO
+     * ({@link SsoService}), formulaire email / mot de passe ({@link AuthService})
+     * et affichage des messages d'erreur.
+     *
+     * @return le nœud racine de la vue de connexion
+     */
     public Parent creerVue() {
 
         Image logoImage = new Image(getClass().getResourceAsStream("/logo.png"));
@@ -150,6 +162,10 @@ public class VueConnexion {
         return racine;
     }
 
+    /**
+     * Redirige l'utilisateur après une connexion réussie selon son rôle :
+     * vue admin, vue de son quartier pour un modérateur, sinon le tableau de bord.
+     */
     private static void routerVersAccueil() {
         String role = SessionManager.getRole();
         if ("admin".equals(role)) {

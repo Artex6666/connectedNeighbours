@@ -17,6 +17,12 @@ import org.json.JSONObject;
 
 import java.time.Instant;
 
+/**
+ * Écran de résolution des conflits de synchronisation.
+ * Liste les conflits non résolus de la base locale et affiche, pour celui sélectionné,
+ * une comparaison entre la version locale et la version serveur.
+ * Permet de choisir la version à conserver, ce qui résout le conflit et relance la synchronisation.
+ */
 public class VueConflits {
 
     private final ConflitDAO conflitDAO = new ConflitDAO();
@@ -27,6 +33,12 @@ public class VueConflits {
     private ListView<Conflit> listView;
     private VBox panneauDetail;
 
+    /**
+     * Construit l'arborescence JavaFX de la vue conflits : navbar, liste des conflits
+     * non résolus et panneau de détail mis à jour selon la sélection.
+     *
+     * @return le nœud racine de la vue conflits
+     */
     public Parent creerVue() {
         Image logoImage = new Image(getClass().getResourceAsStream("/logo.png"));
         ImageView logo = new ImageView(logoImage);
@@ -122,6 +134,12 @@ public class VueConflits {
         panneauDetail.getChildren().add(msg);
     }
 
+    /**
+     * Remplit le panneau de détail avec la comparaison des données locales et serveur
+     * du conflit, ainsi que les boutons de choix de version.
+     *
+     * @param conflit conflit sélectionné dans la liste
+     */
     private void afficherDetail(Conflit conflit) {
         panneauDetail.getChildren().clear();
 
@@ -179,6 +197,14 @@ public class VueConflits {
         return colonne;
     }
 
+    /**
+     * Applique la version retenue à l'incident ou à l'alerte concerné, marque le conflit
+     * comme résolu, le retire de la liste et déclenche une synchronisation immédiate.
+     *
+     * @param conflit         conflit à résoudre
+     * @param versionChoisie  données JSON de la version conservée
+     * @param estLocale       {@code true} si la version locale est conservée, {@code false} pour celle du serveur
+     */
     private void resoudreAvecVersion(Conflit conflit, JSONObject versionChoisie, boolean estLocale) {
         String now = Instant.now().toString();
 

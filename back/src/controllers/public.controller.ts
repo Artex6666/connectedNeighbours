@@ -12,6 +12,11 @@ import Vote from '../models/Vote.model';
  * upcoming events before signing up. No emails, no private content.
  */
 
+
+/**
+ * GET /public/stats — compteurs publics de la vitrine (sans authentification) :
+ * quartiers, habitants non bloqués, annonces, événements actifs et votes.
+ */
 export async function publicStats(_req: Request, res: Response) {
   const [neighborhoods, residents, services, events, votes] = await Promise.all([
     Neighborhood.countDocuments(),
@@ -23,6 +28,10 @@ export async function publicStats(_req: Request, res: Response) {
   return success(res, { neighborhoods, residents, services, events, votes });
 }
 
+/**
+ * GET /public/neighborhoods — liste publique des quartiers (nom, description, polygone)
+ * pour l'affichage de la carte sur la page vitrine.
+ */
 export async function publicNeighborhoods(_req: Request, res: Response) {
   const neighborhoods = await Neighborhood.find()
     .select('name description polygon')
@@ -31,6 +40,10 @@ export async function publicNeighborhoods(_req: Request, res: Response) {
   return success(res, neighborhoods);
 }
 
+/**
+ * GET /public/services — 12 dernières annonces ouvertes ou en cours, en version
+ * anonymisée (prénom de l'auteur, description tronquée à 160 caractères).
+ */
 export async function publicServices(_req: Request, res: Response) {
   const services = await Service.find({ status: { $in: ['open', 'in_progress'] } })
     .sort({ createdAt: -1 })
@@ -61,6 +74,10 @@ export async function publicServices(_req: Request, res: Response) {
   );
 }
 
+/**
+ * GET /public/votes — 8 derniers votes avec leurs options, le nombre de votants et
+ * un indicateur de clôture, sans contenu privé.
+ */
 export async function publicVotes(_req: Request, res: Response) {
   const votes = await Vote.find()
     .sort({ createdAt: -1 })
@@ -89,6 +106,10 @@ export async function publicVotes(_req: Request, res: Response) {
   );
 }
 
+/**
+ * GET /public/events — 8 prochains événements non annulés (date croissante), avec le
+ * nombre de participants et le quartier concerné.
+ */
 export async function publicEvents(_req: Request, res: Response) {
   const events = await Event.find({ isCancelled: { $ne: true } })
     .sort({ date: 1 })

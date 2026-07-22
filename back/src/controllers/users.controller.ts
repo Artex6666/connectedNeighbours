@@ -9,6 +9,10 @@ import Neighborhood from '../models/Neighborhood.model';
 
 const EMAIL_PREF_KEYS = ['messages', 'annonces', 'events', 'newsletter'] as const;
 
+/**
+ * GET /users/me — profil complet de l'utilisateur connecté (sans mot de passe ni
+ * secret 2FA), avec son quartier. Répond 404 si le compte n'existe plus.
+ */
 export async function getMe(req: Request, res: Response) {
   const user = await User.findById(req.user!._id)
     .select('-password -mfaSecret')
@@ -17,6 +21,10 @@ export async function getMe(req: Request, res: Response) {
   return success(res, user);
 }
 
+/**
+ * PUT /users/me — met à jour son propre profil. Seuls firstName, lastName, phone et
+ * address sont modifiables ; un `password` fourni est re-haché en bcrypt.
+ */
 export async function updateMe(req: Request, res: Response) {
   const allowed = ['firstName', 'lastName', 'phone', 'address'];
   const updates: Record<string, string> = {};
@@ -34,12 +42,20 @@ export async function updateMe(req: Request, res: Response) {
   return success(res, user);
 }
 
+/**
+ * GET /users/:id — profil public d'un autre habitant (sans mot de passe ni secret 2FA).
+ * Répond 404 si l'utilisateur est introuvable.
+ */
 export async function getUserById(req: Request, res: Response) {
   const user = await User.findById(req.params.id).select('-password -mfaSecret');
   if (!user) return error(res, 'Utilisateur introuvable', 404);
   return success(res, user);
 }
 
+/**
+ * GET /users/neighbors — liste les autres habitants du quartier de l'utilisateur,
+ * triés par prénom/nom, avec leur statut de présence (`isOnline`).
+ */
 export async function listMyNeighbors(req: Request, res: Response) {
   const neighborhoodId = req.user?.neighborhoodId;
   const filter: Record<string, unknown> = { _id: { $ne: req.user!._id } };
@@ -54,6 +70,11 @@ export async function listMyNeighbors(req: Request, res: Response) {
 
 // ─── Préférences de notification email ──────────────────────────────────────────
 
+/**
+ * PUT /users/me/preferences — met à jour les préférences de notification email
+ * (messages, annonces, events, newsletter). Seules les valeurs booléennes sont
+ * prises en compte ; répond 400 si aucune préférence valide n'est fournie.
+ */
 export async function updateMyPreferences(req: Request, res: Response) {
   const updates: Record<string, boolean> = {};
   for (const key of EMAIL_PREF_KEYS) {
@@ -73,6 +94,11 @@ export async function updateMyPreferences(req: Request, res: Response) {
 
 // ─── Présence (heartbeat) ────────────────────────────────────────────────────────
 
+/**
+ * POST /users/heartbeat — signal de présence envoyé périodiquement par le front :
+ * rafraîchit `lastSeenAt`, ce qui alimente le statut « en ligne » et la règle
+ * « email uniquement si le destinataire est hors ligne ».
+ */
 export async function heartbeat(req: Request, res: Response) {
   await User.findByIdAndUpdate(req.user!._id, { lastSeenAt: new Date() });
   return success(res, { ok: true });
@@ -80,6 +106,12 @@ export async function heartbeat(req: Request, res: Response) {
 
 // ─── Rejoindre un quartier (self-service) ─────────────────────────────────────────
 
+/**
+ * PUT /users/me/neighborhood — rejoindre un quartier, ou le quitter si `neighborhoodId`
+ * est null/vide. Le quartier étant encodé dans le JWT (filtrage annonces/votes/events),
+ * un nouvel access token est renvoyé pour que le changement s'applique sans re-login.
+ * Répond 404 si le quartier demandé n'existe pas.
+ */
 export async function setMyNeighborhood(req: Request, res: Response) {
   const { neighborhoodId } = req.body as { neighborhoodId?: string | null };
   const leaving = neighborhoodId === null || neighborhoodId === '';
@@ -108,11 +140,18 @@ export async function setMyNeighborhood(req: Request, res: Response) {
   return success(res, { user, accessToken });
 }
 
+/**
+ * GET /users — liste tous les comptes, les plus récents d'abord (admin/modérateur).
+ */
 export async function listUsers(_req: Request, res: Response) {
   const users = await User.find().select('-password -mfaSecret').sort({ createdAt: -1 });
   return success(res, users);
 }
 
+/**
+ * DELETE /users/:id — supprime définitivement un compte (admin uniquement).
+ * Répond 404 si l'utilisateur est introuvable.
+ */
 export async function deleteUser(req: Request, res: Response) {
   const user = await User.findByIdAndDelete(req.params.id);
   if (!user) return error(res, 'Utilisateur introuvable', 404);
@@ -121,6 +160,11 @@ export async function deleteUser(req: Request, res: Response) {
 
 const ALLOWED_ROLES = ['resident', 'moderator', 'admin'] as const;
 
+/**
+ * PUT /users/:id/role — change le rôle d'un compte (admin uniquement).
+ * Le rôle doit être resident, moderator ou admin, et un admin ne peut pas se
+ * rétrograder lui-même (400 dans les deux cas).
+ */
 export async function updateUserRole(req: Request, res: Response) {
   const { role } = req.body as { role?: string };
   if (!role || !ALLOWED_ROLES.includes(role as (typeof ALLOWED_ROLES)[number])) {
@@ -136,6 +180,10 @@ export async function updateUserRole(req: Request, res: Response) {
   return success(res, user);
 }
 
+/**
+ * PUT /users/:id/neighborhood — rattache un habitant à un quartier, ou l'en détache si
+ * `neighborhoodId` est null/vide (admin uniquement). Répond 404 si le compte est introuvable.
+ */
 export async function updateUserNeighborhood(req: Request, res: Response) {
   const { neighborhoodId } = req.body as { neighborhoodId?: string | null };
   const update =
@@ -151,6 +199,11 @@ export async function updateUserNeighborhood(req: Request, res: Response) {
 
 // ─── Blocage de compte (admin/modérateur) ───────────────────────────────────────
 
+/**
+ * PUT /users/:id/block — bloque ou débloque un compte (admin/modérateur).
+ * Le champ booléen `blocked` est obligatoire et l'on ne peut pas se bloquer soi-même (400).
+ * Un blocage révoque également toutes les sessions actives du compte.
+ */
 export async function setUserBlocked(req: Request, res: Response) {
   const { blocked } = req.body as { blocked?: boolean };
   if (typeof blocked !== 'boolean') {

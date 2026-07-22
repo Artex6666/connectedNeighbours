@@ -20,12 +20,26 @@ import org.example.services.SyncService;
 
 import java.time.LocalDate;
 
+/**
+ * Écran de gestion des alertes de l'application desktop.
+ * Affiche les alertes de la base locale dans un tableau (titre, niveau, date, statut),
+ * permet de les marquer comme lues ou de les archiver, et propose un formulaire
+ * de création d'alerte.
+ */
 public class VueAlertes {
 
     private final AlerteDAO alerteDAO = new AlerteDAO();
     private final ObservableList<Alerte> listeAlertes =
             FXCollections.observableArrayList(new AlerteDAO().findAll());
 
+    /**
+     * Construit l'arborescence JavaFX de la vue alertes : navbar, tableau des alertes
+     * avec ses actions (marquer comme lue, archiver) et formulaire de création.
+     * Enregistre également un rafraîchissement de la liste à la fin de chaque
+     * synchronisation, retiré lorsque la vue quitte la scène.
+     *
+     * @return le nœud racine de la vue alertes
+     */
     public Parent creerVue() {
 
         Image logoImage = new Image(getClass().getResourceAsStream("/logo.png"));

@@ -2,6 +2,11 @@ import { Request, Response } from 'express';
 import Incident from '../models/incident.model';
 import { success, error } from '../utils/response.utils';
 
+/**
+ * GET /incidents — liste les incidents du plus récent au plus ancien.
+ * Route réservée aux rôles admin/modérateur : un modérateur ne voit que les
+ * incidents de son quartier, un admin voit tout (filtrable via ?neighborhoodId=).
+ */
 export const listIncidents = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
@@ -20,6 +25,10 @@ export const listIncidents = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * GET /incidents/:id — détail d'un incident.
+ * Répond 404 si l'incident est introuvable, 500 en cas d'erreur serveur.
+ */
 export const getIncident = async (req: Request, res: Response) => {
   try {
     const incident = await Incident.findById(req.params.id);
@@ -30,6 +39,10 @@ export const getIncident = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * POST /incidents — signale un incident (titre, description, priorité), rattaché à
+ * l'auteur et à son quartier. Répond 201, ou 400 si les données sont invalides.
+ */
 export const createIncident = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
@@ -49,6 +62,10 @@ export const createIncident = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * PUT /incidents/:id — met à jour un incident (statut, priorité…) et renvoie la
+ * version modifiée. Répond 404 si l'incident est introuvable.
+ */
 export const updateIncident = async (req: Request, res: Response) => {
   try {
     const incident = await Incident.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -59,6 +76,10 @@ export const updateIncident = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * DELETE /incidents/:id — supprime définitivement un incident (réservé aux admins).
+ * Répond 404 si l'incident est introuvable.
+ */
 export const deleteIncident = async (req: Request, res: Response) => {
   try {
     const incident = await Incident.findByIdAndDelete(req.params.id);

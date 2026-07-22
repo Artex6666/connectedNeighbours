@@ -16,10 +16,23 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+/**
+ * Écran « Plugins » de l'application desktop.
+ * Présente les extensions disponibles sous forme de cartes indiquant leur état
+ * (non installé, actif, désactivé) à partir du contenu du dossier « plugins »,
+ * et permet de les installer, activer, désactiver, supprimer ou exécuter.
+ */
 public class VuePlugins {
 
     private final File dossierPlugins = new File("plugins");
 
+    /**
+     * Construit l'écran de gestion des plugins : crée le dossier « plugins » s'il
+     * n'existe pas, affiche la barre de navigation, les cartes des extensions et le
+     * bouton de chargement des plugins actifs via {@link PluginLoader}.
+     *
+     * @return le nœud racine de la vue
+     */
     public Parent creerVue() {
 
         if (!dossierPlugins.exists()) {

@@ -1,0 +1,58 @@
+[{
+	"_id": {
+		"$oid": "6a401134e81262a904f290eb"
+	},
+	"groupId": {
+		"$oid": "6a401134e81262a904f290e9"
+	},
+	"senderId": {
+		"$oid": "6a401134e81262a904f2909a"
+	},
+	"content": "On vise le 14 juin, ça vous va ?",
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.616Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.616Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290ec"
+	},
+	"groupId": {
+		"$oid": "6a401134e81262a904f290e9"
+	},
+	"senderId": {
+		"$oid": "6a401134e81262a904f29099"
+	},
+	"content": "Parfait pour moi ! J'amène une grande salade.",
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.616Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.616Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290ed"
+	},
+	"groupId": {
+		"$oid": "6a401134e81262a904f290e9"
+	},
+	"senderId": {
+		"$oid": "6a401134e81262a904f29098"
+	},
+	"content": "Je m'occupe des boissons et des tables.",
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.616Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.616Z"
+	}
+}]
+

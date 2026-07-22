@@ -6,8 +6,17 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Accès aux données des conflits de synchronisation enregistrés localement.
+ * Un conflit est créé quand une entité modifiée hors ligne a aussi été
+ * modifiée côté serveur ; il reste en attente jusqu'à sa résolution.
+ */
 public class ConflitDAO {
 
+    /**
+     * Retourne les conflits non résolus, du plus récent au plus ancien.
+     * @return liste des conflits en attente de résolution
+     */
     public List<Conflit> findUnresolved() {
         List<Conflit> liste = new ArrayList<>();
         String sql = "SELECT * FROM conflits WHERE resolved = 0 ORDER BY detected_at DESC";
@@ -22,6 +31,10 @@ public class ConflitDAO {
         return liste;
     }
 
+    /**
+     * Compte les conflits non résolus.
+     * @return nombre de conflits en attente (0 en cas d'erreur SQL)
+     */
     public int count() {
         String sql = "SELECT COUNT(*) FROM conflits WHERE resolved = 0";
         try (Statement stmt = DatabaseManager.getConnection().createStatement();
@@ -33,6 +46,10 @@ public class ConflitDAO {
         return 0;
     }
 
+    /**
+     * Enregistre un nouveau conflit, marqué comme non résolu.
+     * @param conflit conflit détecté à conserver
+     */
     public void save(Conflit conflit) {
         String sql = """
             INSERT INTO conflits (entity_type, entity_id, local_data, server_data, detected_at, resolved)
@@ -50,6 +67,10 @@ public class ConflitDAO {
         }
     }
 
+    /**
+     * Marque un conflit comme résolu.
+     * @param id identifiant du conflit
+     */
     public void resolve(int id) {
         String sql = "UPDATE conflits SET resolved = 1 WHERE id = ?";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {

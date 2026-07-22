@@ -6,8 +6,17 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Accès aux données des incidents stockés dans la base SQLite locale.
+ * Fournit la lecture, l'écriture et le suivi de l'état de synchronisation
+ * (indicateurs {@code dirty} / {@code local_only}) de la table {@code incidents}.
+ */
 public class IncidentDAO {
 
+    /**
+     * Retourne tous les incidents locaux, du plus récent au plus ancien.
+     * @return liste des incidents (vide en cas d'erreur SQL)
+     */
     public List<Incident> findAll() {
         List<Incident> liste = new ArrayList<>();
         String sql = "SELECT * FROM incidents ORDER BY date DESC";
@@ -22,6 +31,10 @@ public class IncidentDAO {
         return liste;
     }
 
+    /**
+     * Retourne les incidents modifiés localement et non encore poussés vers le serveur.
+     * @return liste des incidents marqués {@code dirty}
+     */
     public List<Incident> findDirty() {
         List<Incident> liste = new ArrayList<>();
         String sql = "SELECT * FROM incidents WHERE dirty = 1";
@@ -36,6 +49,11 @@ public class IncidentDAO {
         return liste;
     }
 
+    /**
+     * Recherche un incident par son identifiant.
+     * @param id identifiant de l'incident (identifiant serveur ou identifiant local)
+     * @return l'incident trouvé, ou {@code null} s'il n'existe pas
+     */
     public Incident findById(String id) {
         String sql = "SELECT * FROM incidents WHERE id = ?";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
@@ -48,6 +66,11 @@ public class IncidentDAO {
         return null;
     }
 
+    /**
+     * Retourne les incidents d'un quartier donné, du plus récent au plus ancien.
+     * @param neighborhoodId identifiant du quartier
+     * @return liste des incidents de ce quartier
+     */
     public List<Incident> findByNeighborhood(String neighborhoodId) {
         List<Incident> liste = new ArrayList<>();
         String sql = "SELECT * FROM incidents WHERE neighborhood_id = ? ORDER BY date DESC";
@@ -61,6 +84,10 @@ public class IncidentDAO {
         return liste;
     }
 
+    /**
+     * Insère l'incident ou le remplace si son identifiant existe déjà.
+     * @param incident incident à enregistrer localement
+     */
     public void save(Incident incident) {
         String sql = """
             INSERT OR REPLACE INTO incidents
@@ -85,6 +112,12 @@ public class IncidentDAO {
         }
     }
 
+    /**
+     * Marque un incident comme synchronisé avec le serveur
+     * (remise à zéro de {@code dirty} et {@code local_only}).
+     * @param id identifiant de l'incident
+     * @param syncedAt date de synchronisation à enregistrer
+     */
     public void markSynced(String id, String syncedAt) {
         String sql = "UPDATE incidents SET dirty = 0, local_only = 0, synced_at = ? WHERE id = ?";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
@@ -96,6 +129,12 @@ public class IncidentDAO {
         }
     }
 
+    /**
+     * Remplace l'identifiant d'un incident, typiquement après une création
+     * en ligne qui renvoie l'identifiant attribué par le serveur.
+     * @param ancienId identifiant local actuel
+     * @param nouveauId nouvel identifiant à appliquer
+     */
     public void updateId(String ancienId, String nouveauId) {
         String sql = "UPDATE incidents SET id = ? WHERE id = ?";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
@@ -107,6 +146,10 @@ public class IncidentDAO {
         }
     }
 
+    /**
+     * Supprime un incident de la base locale.
+     * @param id identifiant de l'incident à supprimer
+     */
     public void delete(String id) {
         String sql = "DELETE FROM incidents WHERE id = ?";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {

@@ -8,6 +8,12 @@ export interface GeoPoint {
   lng: number;
 }
 
+/**
+ * Convertit une adresse postale en coordonnées via l'API Nominatim (OpenStreetMap).
+ * Ne lève jamais d'exception : toute erreur réseau ou réponse inexploitable renvoie null.
+ * @param address Adresse en texte libre (chaîne vide ⇒ null)
+ * @returns Le point { lat, lng } du premier résultat, ou null si introuvable
+ */
 export async function geocodeAddress(address: string): Promise<GeoPoint | null> {
   if (!address || !address.trim()) return null;
   try {

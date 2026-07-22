@@ -5,14 +5,23 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ServiceLoader;
 
+/**
+ * Chargeur de plugins de l'application desktop.
+ * Parcourt les fichiers .jar du dossier "plugins" et instancie les
+ * implémentations de {@link Plugin} déclarées via le mécanisme ServiceLoader.
+ */
 public class PluginLoader {
 
+    /**
+     * Charge et exécute tous les plugins présents dans le dossier "plugins".
+     * Crée le dossier s'il n'existe pas. Chaque jar est chargé dans son propre
+     * URLClassLoader ; une erreur sur un jar n'interrompt pas les suivants.
+     */
     public void loadPlugins() {
 
         File dossierPlugins = new File("plugins");
 
         if (!dossierPlugins.exists()) {
-            System.out.println("Le dossier plugins n'existe pas.");
             dossierPlugins.mkdirs();
             return;
         }
@@ -22,7 +31,6 @@ public class PluginLoader {
         );
 
         if (fichiersJar == null || fichiersJar.length == 0) {
-            System.out.println("Aucun plugin trouvé.");
             return;
         }
 
@@ -38,8 +46,6 @@ public class PluginLoader {
                         ServiceLoader.load(Plugin.class, classLoader);
 
                 for (Plugin plugin : plugins) {
-                    System.out.println("Plugin chargé : " + plugin.getName());
-
                     // Exécution du plugin
                     plugin.execute();
                 }

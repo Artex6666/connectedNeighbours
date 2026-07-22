@@ -20,6 +20,12 @@ import org.example.services.SyncService;
 
 import java.util.List;
 
+/**
+ * Écran de détail d'un quartier de l'application desktop.
+ * Affiche, pour le quartier sélectionné, des indicateurs (incidents ouverts,
+ * alertes actives, incidents résolus) ainsi que les tableaux des incidents et
+ * des alertes filtrés sur ce quartier.
+ */
 public class VueQuartier {
 
     private final String neighborhoodId;
@@ -27,11 +33,24 @@ public class VueQuartier {
     private final IncidentDAO incidentDAO = new IncidentDAO();
     private final AlerteDAO alerteDAO = new AlerteDAO();
 
+    /**
+     * Crée la vue pour un quartier donné.
+     *
+     * @param neighborhoodId identifiant du quartier utilisé pour filtrer incidents et alertes
+     * @param nom nom du quartier affiché dans le titre de la page
+     */
     public VueQuartier(String neighborhoodId, String nom) {
         this.neighborhoodId = neighborhoodId;
         this.nom = nom;
     }
 
+    /**
+     * Construit l'écran du quartier : barre de navigation adaptée au rôle de la session,
+     * indicateurs calculés depuis {@link IncidentDAO} et {@link AlerteDAO}, tableaux des
+     * incidents et des alertes, et abonnement à {@link SyncService} pour les rafraîchir.
+     *
+     * @return le nœud racine de la vue
+     */
     public Parent creerVue() {
 
         Image logoImage = new Image(getClass().getResourceAsStream("/logo.png"));

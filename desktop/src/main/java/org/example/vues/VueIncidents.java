@@ -21,12 +21,25 @@ import org.example.services.SyncService;
 
 import java.time.LocalDate;
 
+/**
+ * Écran « Incidents » de l'application desktop.
+ * Affiche dans un tableau les incidents issus de {@link IncidentDAO}
+ * (titre, priorité, statut, date) et permet d'en ajouter, d'en supprimer
+ * et d'exporter le tableau au format CSV.
+ */
 public class VueIncidents {
 
     private final IncidentDAO incidentDAO = new IncidentDAO();
     private final ObservableList<Incident> listeIncidents =
             FXCollections.observableArrayList(new IncidentDAO().findAll());
 
+    /**
+     * Construit l'écran de gestion des incidents : barre de navigation, tableau des
+     * incidents avec suppression et export CSV, formulaire d'ajout, et abonnement à
+     * {@link SyncService} pour rafraîchir la liste après une synchronisation.
+     *
+     * @return le nœud racine de la vue
+     */
     public Parent creerVue() {
 
         Image logoImage = new Image(getClass().getResourceAsStream("/logo.png"));

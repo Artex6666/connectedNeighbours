@@ -2,6 +2,12 @@ import { Request, Response } from 'express';
 import Incident from '../models/incident.model';
 import Alerte from '../models/alerte.model';
 
+/**
+ * GET /stats/dashboard — indicateurs du tableau de bord (admin/modérateur) :
+ * nombre total d'incidents et leur répartition par statut (ouverts, en cours,
+ * résolus), plus le total d'alertes et le nombre d'alertes actives.
+ * Répond 500 en cas d'erreur de chargement.
+ */
 export const dashboard = async (_req: Request, res: Response) => {
   try {
     const totalIncidents = await Incident.countDocuments();

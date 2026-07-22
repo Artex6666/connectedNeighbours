@@ -14,8 +14,21 @@ import org.example.database.IncidentDAO;
 import java.io.File;
 import java.io.FileWriter;
 
+/**
+ * Écran « Statistiques » de l'application desktop.
+ * Affiche des cartes de synthèse calculées à partir des incidents et des alertes
+ * (incidents enregistrés, alertes traitées, incidents résolus, taux de résolution),
+ * et permet d'actualiser la vue ou d'exporter ces chiffres en CSV.
+ */
 public class VueStatistiques {
 
+    /**
+     * Construit l'écran des statistiques : barre de navigation, cartes de synthèse
+     * alimentées par {@link IncidentDAO} et {@link AlerteDAO}, et bloc de résumé
+     * avec les boutons « Actualiser » et « Exporter ».
+     *
+     * @return le nœud racine de la vue
+     */
     public Parent creerVue() {
 
         Image logoImage = new Image(getClass().getResourceAsStream("/logo.png"));
@@ -206,7 +219,6 @@ public class VueStatistiques {
                 long taux = totalIncidents == 0 ? 0 : incidentsResolus * 100 / totalIncidents;
                 writer.write("Taux résolution;" + taux + "%\n");
             }
-            System.out.println("Export réussi : exports/statistiques.csv");
         } catch (Exception e) {
             e.printStackTrace();
         }

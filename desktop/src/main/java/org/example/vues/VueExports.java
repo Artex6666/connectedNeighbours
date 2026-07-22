@@ -14,11 +14,23 @@ import java.awt.Desktop;
 import java.io.File;
 import java.util.Arrays;
 
+/**
+ * Écran « Exports » de l'application desktop.
+ * Liste les fichiers CSV présents dans le dossier « exports » du répertoire de travail
+ * et permet d'ouvrir le fichier sélectionné ou d'actualiser la liste.
+ */
 public class VueExports {
 
     private final File dossierExports =
             new File(System.getProperty("user.dir"), "exports");
 
+    /**
+     * Construit l'écran des exports : crée le dossier « exports » s'il n'existe pas,
+     * affiche la barre de navigation, la liste des fichiers CSV et les boutons
+     * « Ouvrir » et « Actualiser ».
+     *
+     * @return le nœud racine de la vue
+     */
     public Parent creerVue() {
         if (!dossierExports.exists()) {
             dossierExports.mkdirs();

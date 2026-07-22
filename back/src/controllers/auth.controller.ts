@@ -22,6 +22,12 @@ const ssoCodes = new Map<
 
 // ─── Register ────────────────────────────────────────────────────────────────
 
+/**
+ * POST /auth/register — inscription d'un nouvel habitant (mot de passe haché bcrypt).
+ * Si le SMTP est configuré, le compte reste non vérifié et un code à 6 chiffres est
+ * envoyé par email ; sinon (dev/test/seed) le compte est vérifié automatiquement.
+ * Répond 201 avec le profil créé, 400 si un champ manque, 409 si l'email existe déjà.
+ */
 export async function register(req: Request, res: Response) {
   try {
     const { firstName, lastName, email, password, phone, address } = req.body;
@@ -86,6 +92,12 @@ export async function register(req: Request, res: Response) {
 
 // ─── Login ───────────────────────────────────────────────────────────────────
 
+/**
+ * POST /auth/login — authentifie par email + mot de passe et délivre les jetons.
+ * Refuse les comptes bloqués ou non vérifiés (403). Si la 2FA est active, renvoie
+ * `{ mfaRequired: true }` tant que `totpCode` n'est pas fourni, puis 401 si le code
+ * est faux. En cas de succès : accessToken + refreshToken (persisté en base) + profil.
+ */
 export async function login(req: Request, res: Response) {
   try {
     const { email, password } = req.body;
@@ -147,6 +159,11 @@ export async function login(req: Request, res: Response) {
 
 // ─── Refresh token ───────────────────────────────────────────────────────────
 
+/**
+ * POST /auth/refresh — délivre un nouvel access token à partir d'un refresh token.
+ * Le jeton doit exister en base et avoir une signature valide ; s'il est expiré il
+ * est supprimé et l'appel renvoie 401. Répond 404 si l'utilisateur n'existe plus.
+ */
 export async function refresh(req: Request, res: Response) {
   try {
     const { refreshToken } = req.body;
@@ -183,6 +200,10 @@ export async function refresh(req: Request, res: Response) {
 
 // ─── Logout ──────────────────────────────────────────────────────────────────
 
+/**
+ * POST /auth/logout — invalide le refresh token fourni en le supprimant de la base.
+ * Répond 400 s'il est absent, 401 s'il est inconnu.
+ */
 export async function logout(req: Request, res: Response) {
   try {
     const { refreshToken } = req.body;
@@ -199,6 +220,10 @@ export async function logout(req: Request, res: Response) {
 
 // ─── Logout all devices ──────────────────────────────────────────────────────
 
+/**
+ * POST /auth/logout-all — révoque toutes les sessions de l'utilisateur authentifié
+ * en supprimant l'ensemble de ses refresh tokens. Répond 401 si non authentifié.
+ */
 export async function logoutAll(req: Request, res: Response) {
   try {
     const userId = req.user?._id?.toString();
@@ -214,6 +239,11 @@ export async function logoutAll(req: Request, res: Response) {
 
 // ─── Verify email ────────────────────────────────────────────────────────────
 
+/**
+ * POST /auth/verify-email — valide un compte avec le code à 6 chiffres reçu par email.
+ * Répond 400 si le code est faux ou expiré (TTL de 30 minutes), 404 si l'utilisateur
+ * est inconnu. Un compte déjà vérifié renvoie simplement un message de succès.
+ */
 export async function verifyEmail(req: Request, res: Response) {
   try {
     const { email, code } = req.body as { email?: string; code?: string };
@@ -245,6 +275,11 @@ export async function verifyEmail(req: Request, res: Response) {
 
 // ─── Resend verification code ──────────────────────────────────────────────────
 
+/**
+ * POST /auth/resend-verification — renvoie un nouveau code de vérification par email.
+ * La réponse est volontairement neutre pour ne pas révéler l'existence d'un compte.
+ * Si l'envoi d'emails est désactivé sur le serveur, le compte est vérifié directement.
+ */
 export async function resendVerification(req: Request, res: Response) {
   try {
     const { email } = req.body as { email?: string };
@@ -323,6 +358,11 @@ function sha256base64url(value: string): string {
     .digest('base64url');
 }
 
+/**
+ * POST /auth/sso/code — émet un code SSO à usage unique pour l'application desktop.
+ * L'utilisateur doit être authentifié et fournir un `codeChallenge` (PKCE). Le code
+ * est conservé en mémoire et expire au bout de 2 minutes.
+ */
 export async function createSsoCode(req: Request, res: Response) {
   try {
     const userId = req.user?._id?.toString();
@@ -353,6 +393,12 @@ export async function createSsoCode(req: Request, res: Response) {
   }
 }
 
+/**
+ * POST /auth/sso/exchange — échange un code SSO + `codeVerifier` (PKCE) contre des jetons.
+ * Vérifie que le code existe, n'est pas expiré et que sha256(codeVerifier) correspond au
+ * challenge enregistré ; le code est consommé dans tous les cas de succès. Répond 401 si
+ * le code ou le PKCE est invalide, 403 si le compte est bloqué, 404 s'il n'existe plus.
+ */
 export async function ssoExchange(req: Request, res: Response) {
   try {
     const { code, codeVerifier } = req.body as {

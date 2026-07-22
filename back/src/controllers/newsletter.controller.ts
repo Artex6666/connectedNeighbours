@@ -39,6 +39,10 @@ export async function processDueNewsletters(): Promise<void> {
 
 // ─── CRUD ────────────────────────────────────────────────────────────────────────
 
+/**
+ * GET /newsletter — liste toutes les newsletters (brouillons, planifiées, envoyées),
+ * les plus récentes d'abord. Réservé aux rôles admin/modérateur.
+ */
 export async function listNewsletters(_req: Request, res: Response) {
   const newsletters = await Newsletter.find()
     .sort({ createdAt: -1 })
@@ -46,6 +50,10 @@ export async function listNewsletters(_req: Request, res: Response) {
   return success(res, newsletters);
 }
 
+/**
+ * GET /newsletter/:id — détail d'une newsletter et de son auteur.
+ * Répond 404 si elle est introuvable.
+ */
 export async function getNewsletter(req: Request, res: Response) {
   const newsletter = await Newsletter.findById(req.params.id).populate(
     'authorId',
@@ -55,6 +63,10 @@ export async function getNewsletter(req: Request, res: Response) {
   return success(res, newsletter);
 }
 
+/**
+ * POST /newsletter — crée une newsletter, au statut « scheduled » si `scheduledAt`
+ * est fourni, sinon « draft ». Répond 400 si le sujet est vide ou la date invalide.
+ */
 export async function createNewsletter(req: Request, res: Response) {
   const { subject, contentHtml, scheduledAt } = req.body as {
     subject?: string;
@@ -78,6 +90,11 @@ export async function createNewsletter(req: Request, res: Response) {
   return success(res, newsletter, 201);
 }
 
+/**
+ * PUT /newsletter/:id — modifie une newsletter non encore envoyée.
+ * Vider `scheduledAt` la repasse en brouillon, le renseigner la planifie.
+ * Répond 404 si introuvable, 400 si déjà envoyée ou si la date est invalide.
+ */
 export async function updateNewsletter(req: Request, res: Response) {
   const newsletter = await Newsletter.findById(req.params.id);
   if (!newsletter) return error(res, 'Newsletter introuvable', 404);
@@ -109,6 +126,9 @@ export async function updateNewsletter(req: Request, res: Response) {
   return success(res, newsletter);
 }
 
+/**
+ * DELETE /newsletter/:id — supprime une newsletter. Répond 404 si elle est introuvable.
+ */
 export async function deleteNewsletter(req: Request, res: Response) {
   const deleted = await Newsletter.findByIdAndDelete(req.params.id);
   if (!deleted) return error(res, 'Newsletter introuvable', 404);

@@ -1,0 +1,199 @@
+[{
+	"_id": {
+		"$oid": "6a401134e81262a904f290a6"
+	},
+	"senderId": {
+		"$oid": "6a401134e81262a904f29099"
+	},
+	"receiverId": {
+		"$oid": "6a401134e81262a904f29098"
+	},
+	"conversationId": "6a401134e81262a904f29098__6a401134e81262a904f29099",
+	"content": "Je peux passer pour les plantes demain vers 18h si tu veux.",
+	"type": "text",
+	"isRead": false,
+	"createdAt": {
+		"$date": "2026-06-27T17:51:44.505Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T17:51:44.505Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290a7"
+	},
+	"senderId": {
+		"$oid": "6a401134e81262a904f29098"
+	},
+	"receiverId": {
+		"$oid": "6a401134e81262a904f29099"
+	},
+	"conversationId": "6a401134e81262a904f29098__6a401134e81262a904f29099",
+	"content": "Oui parfait, je te laisse le digicode en prive.",
+	"type": "text",
+	"isRead": false,
+	"createdAt": {
+		"$date": "2026-06-27T17:18:44.505Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T17:18:44.505Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290a8"
+	},
+	"senderId": {
+		"$oid": "6a401134e81262a904f2909a"
+	},
+	"receiverId": {
+		"$oid": "6a401134e81262a904f29098"
+	},
+	"conversationId": "6a401134e81262a904f29098__6a401134e81262a904f2909a",
+	"content": "La collecte de samedi est confirmee, on ouvre les inscriptions ce soir.",
+	"type": "text",
+	"isRead": false,
+	"createdAt": {
+		"$date": "2026-06-27T15:06:44.505Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T15:06:44.505Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a462d2ff65b550ec5abd494"
+	},
+	"senderId": {
+		"$oid": "6a462ba3f65b550ec5abd3c3"
+	},
+	"receiverId": {
+		"$oid": "6a462cb8f65b550ec5abd41d"
+	},
+	"conversationId": "6a462ba3f65b550ec5abd3c3__6a462cb8f65b550ec5abd41d",
+	"content": "coucou ptit filou",
+	"type": "text",
+	"isRead": true,
+	"createdAt": {
+		"$date": "2026-07-02T09:19:43.575Z"
+	},
+	"updatedAt": {
+		"$date": "2026-07-02T09:20:09.379Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a462d64f65b550ec5abd524"
+	},
+	"senderId": {
+		"$oid": "6a462cb8f65b550ec5abd41d"
+	},
+	"receiverId": {
+		"$oid": "6a462ba3f65b550ec5abd3c3"
+	},
+	"conversationId": "6a462ba3f65b550ec5abd3c3__6a462cb8f65b550ec5abd41d",
+	"content": "/uploads/messages/1782984036665-b5e88b69e1c262385e363208.png",
+	"type": "photo",
+	"isRead": true,
+	"createdAt": {
+		"$date": "2026-07-02T09:20:36.676Z"
+	},
+	"updatedAt": {
+		"$date": "2026-07-02T09:20:36.9Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a5dd4b0a3e0412686c68688"
+	},
+	"senderId": {
+		"$oid": "6a5dd47ca3e0412686c68664"
+	},
+	"receiverId": {
+		"$oid": "6a462ba3f65b550ec5abd3c3"
+	},
+	"conversationId": "6a462ba3f65b550ec5abd3c3__6a5dd47ca3e0412686c68664",
+	"content": "cc",
+	"type": "text",
+	"isRead": true,
+	"createdAt": {
+		"$date": "2026-07-20T07:56:32.813Z"
+	},
+	"updatedAt": {
+		"$date": "2026-07-20T10:21:36.074Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a5dd4e4a3e0412686c686e0"
+	},
+	"senderId": {
+		"$oid": "6a5dd47ca3e0412686c68664"
+	},
+	"receiverId": {
+		"$oid": "6a462ba3f65b550ec5abd3c3"
+	},
+	"conversationId": "6a462ba3f65b550ec5abd3c3__6a5dd47ca3e0412686c68664",
+	"content": "/uploads/messages/1784534244311-87a3aad5eb8a56a86196ead8.png",
+	"type": "photo",
+	"isRead": true,
+	"createdAt": {
+		"$date": "2026-07-20T07:57:24.382Z"
+	},
+	"updatedAt": {
+		"$date": "2026-07-20T10:21:36.074Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a5df6f3a3e0412686c68880"
+	},
+	"senderId": {
+		"$oid": "6a462ba3f65b550ec5abd3c3"
+	},
+	"receiverId": {
+		"$oid": "6a5dd47ca3e0412686c68664"
+	},
+	"conversationId": "6a462ba3f65b550ec5abd3c3__6a5dd47ca3e0412686c68664",
+	"content": "j'ai pris une photo opif",
+	"type": "text",
+	"isRead": false,
+	"createdAt": {
+		"$date": "2026-07-20T10:22:43.499Z"
+	},
+	"updatedAt": {
+		"$date": "2026-07-20T10:22:43.499Z"
+	},
+	"__v": 0
+},
+{
+	"_id": {
+		"$oid": "6a5df6f7a3e0412686c68890"
+	},
+	"senderId": {
+		"$oid": "6a462ba3f65b550ec5abd3c3"
+	},
+	"receiverId": {
+		"$oid": "6a5dd47ca3e0412686c68664"
+	},
+	"conversationId": "6a462ba3f65b550ec5abd3c3__6a5dd47ca3e0412686c68664",
+	"content": "/uploads/messages/1784542967751-33d0ec416051af0c06beae24.jpg",
+	"type": "photo",
+	"isRead": false,
+	"createdAt": {
+		"$date": "2026-07-20T10:22:47.783Z"
+	},
+	"updatedAt": {
+		"$date": "2026-07-20T10:22:47.783Z"
+	},
+	"__v": 0
+}]
+

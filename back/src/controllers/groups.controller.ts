@@ -22,6 +22,10 @@ function isMember(group: { members: unknown[] }, userId: string): boolean {
 
 // ─── Liste / création ───────────────────────────────────────────────────────────
 
+/**
+ * GET /groups — liste les groupes du quartier de l'utilisateur (les plus récemment
+ * actifs d'abord), avec le nombre de membres et un indicateur `isMember`.
+ */
 export async function listGroups(req: Request, res: Response) {
   const userId = req.user!._id.toString();
   const neighborhoodId = req.user?.neighborhoodId;
@@ -43,6 +47,11 @@ export async function listGroups(req: Request, res: Response) {
   );
 }
 
+/**
+ * POST /groups — crée un groupe de discussion dans le quartier de l'utilisateur.
+ * Le créateur est automatiquement membre, en plus des `memberIds` éventuels.
+ * Répond 400 si le nom est vide, 403 si l'utilisateur n'appartient à aucun quartier.
+ */
 export async function createGroup(req: Request, res: Response) {
   const { name, description, memberIds } = req.body as {
     name?: string;
@@ -67,6 +76,10 @@ export async function createGroup(req: Request, res: Response) {
 
 // ─── Détail + messages (membres) ──────────────────────────────────────────────────
 
+/**
+ * GET /groups/:id — détail d'un groupe avec ses membres et l'historique des messages.
+ * Réservé aux membres du groupe (403), 404 si le groupe est introuvable.
+ */
 export async function getGroup(req: Request, res: Response) {
   const userId = req.user!._id.toString();
   const group = await Group.findById(req.params.id)
@@ -95,6 +108,10 @@ export async function getGroup(req: Request, res: Response) {
   });
 }
 
+/**
+ * POST /groups/:id/messages — publie un message dans le groupe (tronqué à 2000 caractères).
+ * Réservé aux membres (403). Répond 400 si le message est vide, 201 avec le message créé.
+ */
 export async function sendGroupMessage(req: Request, res: Response) {
   const userId = req.user!._id.toString();
   const { content } = req.body as { content?: string };
@@ -120,6 +137,10 @@ export async function sendGroupMessage(req: Request, res: Response) {
 
 // ─── Rejoindre / quitter ──────────────────────────────────────────────────────────
 
+/**
+ * POST /groups/:id/join — ajoute l'utilisateur aux membres du groupe (idempotent).
+ * Répond 404 si le groupe est introuvable.
+ */
 export async function joinGroup(req: Request, res: Response) {
   const group = await Group.findByIdAndUpdate(
     req.params.id,
@@ -130,6 +151,10 @@ export async function joinGroup(req: Request, res: Response) {
   return success(res, { message: 'Groupe rejoint', memberCount: group.members.length });
 }
 
+/**
+ * POST /groups/:id/leave — retire l'utilisateur des membres du groupe.
+ * Répond 404 si le groupe est introuvable.
+ */
 export async function leaveGroup(req: Request, res: Response) {
   const group = await Group.findByIdAndUpdate(
     req.params.id,
@@ -142,6 +167,10 @@ export async function leaveGroup(req: Request, res: Response) {
 
 // ─── Modération ─────────────────────────────────────────────────────────────────
 
+/**
+ * DELETE /groups/:id — supprime un groupe et tous ses messages.
+ * Réservé au créateur, à un modérateur ou à un admin (403).
+ */
 export async function deleteGroup(req: Request, res: Response) {
   const group = await Group.findById(req.params.id);
   if (!group) return error(res, 'Groupe introuvable', 404);
@@ -156,6 +185,10 @@ export async function deleteGroup(req: Request, res: Response) {
   return success(res, { message: 'Groupe supprimé' });
 }
 
+/**
+ * DELETE /groups/messages/:messageId — supprime un message de groupe.
+ * Réservé à l'auteur du message, à un modérateur ou à un admin (403).
+ */
 export async function deleteGroupMessage(req: Request, res: Response) {
   const message = await GroupMessage.findById(req.params.messageId);
   if (!message) return error(res, 'Message introuvable', 404);

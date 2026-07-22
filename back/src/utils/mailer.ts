@@ -33,6 +33,11 @@ function getTransporter(): Transporter | null {
   return transporter;
 }
 
+/**
+ * Indique si l'envoi d'emails est actif sur ce serveur, c'est-à-dire si la
+ * variable d'environnement SMTP_HOST est définie.
+ * @returns true si un serveur SMTP est configuré
+ */
 export function isMailEnabled(): boolean {
   return Boolean(process.env.SMTP_HOST);
 }

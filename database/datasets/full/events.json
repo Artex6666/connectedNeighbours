@@ -1,0 +1,141 @@
+[{
+	"_id": {
+		"$oid": "6a401134e81262a904f290bc"
+	},
+	"title": "Repas de quartier — Place Léon Blum",
+	"description": "Grande tablée conviviale pour se retrouver entre voisins. Chacun apporte un plat à partager. Boissons et couverts fournis.",
+	"date": {
+		"$date": "2026-07-02T18:06:44.558Z"
+	},
+	"location": "Place Léon Blum, 75011 Paris",
+	"maxParticipants": 40,
+	"organizerId": {
+		"$oid": "6a401134e81262a904f2909a"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"participants": [
+		{
+			"$oid": "6a401134e81262a904f2909a"
+		},
+		{
+			"$oid": "6a401134e81262a904f29099"
+		}
+	],
+	"waitingList": [],
+	"isCancelled": false,
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.562Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.562Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290bd"
+	},
+	"title": "Atelier jardinage partagé",
+	"description": "Venez apprendre à faire pousser des herbes aromatiques sur votre balcon. Graines et pots fournis, amenez vos gants !",
+	"date": {
+		"$date": "2026-07-09T18:06:44.558Z"
+	},
+	"location": "Jardin partagé Saint-Ambroise, 75011 Paris",
+	"maxParticipants": 15,
+	"organizerId": {
+		"$oid": "6a401134e81262a904f29099"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"participants": [
+		{
+			"$oid": "6a401134e81262a904f29099"
+		},
+		{
+			"$oid": "6a401134e81262a904f2909b"
+		}
+	],
+	"waitingList": [],
+	"isCancelled": false,
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.562Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.562Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290be"
+	},
+	"title": "Collecte de vêtements solidaire",
+	"description": "Nous organisons une collecte de vêtements pour les associations locales. Apportez vos dons entre 10h et 17h.",
+	"date": {
+		"$date": "2026-06-30T18:06:44.558Z"
+	},
+	"location": "Salle polyvalente, 23 rue de la Roquette, 75011 Paris",
+	"maxParticipants": 20,
+	"organizerId": {
+		"$oid": "6a401134e81262a904f2909a"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"participants": [
+		{
+			"$oid": "6a401134e81262a904f2909a"
+		},
+		{
+			"$oid": "6a401134e81262a904f29099"
+		},
+		{
+			"$oid": "6a401134e81262a904f2909b"
+		}
+	],
+	"waitingList": [],
+	"isCancelled": false,
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.563Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.563Z"
+	}
+},
+{
+	"_id": {
+		"$oid": "6a401134e81262a904f290bf"
+	},
+	"title": "Tournoi de pétanque du quartier",
+	"description": "Tournoi amical ouvert à tous ! Équipes de 2 personnes. Inscription sur place. Petite collation offerte aux participants.",
+	"date": {
+		"$date": "2026-07-16T18:06:44.558Z"
+	},
+	"location": "Square de la République, 75011 Paris",
+	"maxParticipants": 24,
+	"organizerId": {
+		"$oid": "6a401134e81262a904f29098"
+	},
+	"neighborhoodId": {
+		"$oid": "6a401134e81262a904f29095"
+	},
+	"participants": [
+		{
+			"$oid": "6a401134e81262a904f29098"
+		}
+	],
+	"waitingList": [],
+	"isCancelled": false,
+	"__v": 0,
+	"createdAt": {
+		"$date": "2026-06-27T18:06:44.563Z"
+	},
+	"updatedAt": {
+		"$date": "2026-06-27T18:06:44.563Z"
+	}
+}]
+

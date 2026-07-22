@@ -5,6 +5,11 @@ import Event from '../models/Event.model';
 
 // ─── List events ──────────────────────────────────────────────────────────────
 
+/**
+ * GET /events — liste les événements du quartier de l'utilisateur, triés par date croissante.
+ * Les événements annulés sont masqués par défaut. Un admin/modérateur peut passer
+ * `all=true` (tous les quartiers) et/ou `includeCancelled=true`.
+ */
 export async function listEvents(req: Request, res: Response) {
   try {
     const neighborhoodId = req.user?.neighborhoodId;
@@ -33,6 +38,10 @@ export async function listEvents(req: Request, res: Response) {
 
 // ─── Get event by ID ──────────────────────────────────────────────────────────
 
+/**
+ * GET /events/:id — détail d'un événement avec l'organisateur, les participants
+ * et la liste d'attente. Répond 404 si l'événement n'existe pas.
+ */
 export async function getEvent(req: Request, res: Response) {
   try {
     const event = await Event.findById(req.params.id)
@@ -51,6 +60,10 @@ export async function getEvent(req: Request, res: Response) {
 
 // ─── Create event ─────────────────────────────────────────────────────────────
 
+/**
+ * POST /events — crée un événement ; l'organisateur est inscrit comme premier participant.
+ * Répond 400 si un champ obligatoire manque, 403 si l'utilisateur n'a pas de quartier.
+ */
 export async function createEvent(req: Request, res: Response) {
   try {
     const { title, description, date, location, maxParticipants } = req.body;
@@ -85,6 +98,11 @@ export async function createEvent(req: Request, res: Response) {
 
 // ─── Update event ─────────────────────────────────────────────────────────────
 
+/**
+ * PUT /events/:id — met à jour un événement (champs fournis uniquement).
+ * Réservé à l'organisateur (403), impossible sur un événement annulé (400) et
+ * `maxParticipants` ne peut pas descendre sous le nombre d'inscrits actuel (400).
+ */
 export async function updateEvent(req: Request, res: Response) {
   try {
     const event = await Event.findById(req.params.id);
@@ -122,6 +140,10 @@ export async function updateEvent(req: Request, res: Response) {
 
 // ─── Delete / cancel event ────────────────────────────────────────────────────
 
+/**
+ * DELETE /events/:id — annule un événement (marquage `isCancelled`, pas de suppression).
+ * Réservé à l'organisateur ou à un admin (403), 404 si l'événement est introuvable.
+ */
 export async function deleteEvent(req: Request, res: Response) {
   try {
     const event = await Event.findById(req.params.id);
@@ -147,6 +169,11 @@ export async function deleteEvent(req: Request, res: Response) {
 
 // ─── Register to event ────────────────────────────────────────────────────────
 
+/**
+ * POST /events/:id/register — inscrit l'utilisateur à l'événement.
+ * S'il reste de la place il devient participant, sinon il est placé en liste d'attente.
+ * Répond 400 si l'événement est annulé ou s'il est déjà inscrit.
+ */
 export async function registerToEvent(req: Request, res: Response) {
   try {
     const event = await Event.findById(req.params.id);
@@ -186,6 +213,11 @@ export async function registerToEvent(req: Request, res: Response) {
 
 // ─── Unregister from event ────────────────────────────────────────────────────
 
+/**
+ * DELETE /events/:id/register — désinscrit l'utilisateur de l'événement.
+ * Si une place de participant se libère, la première personne en liste d'attente est
+ * promue automatiquement. Répond 400 s'il n'était pas inscrit ou si l'événement est annulé.
+ */
 export async function unregisterFromEvent(req: Request, res: Response) {
   try {
     const event = await Event.findById(req.params.id);

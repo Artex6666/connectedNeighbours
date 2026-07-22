@@ -55,6 +55,11 @@ function serializeVote(v: IVote, userId: string, commentsCount = 0) {
 
 // ─── List / get ───────────────────────────────────────────────────────────────
 
+/**
+ * GET /votes — liste les votes du quartier de l'utilisateur, les plus récents d'abord,
+ * avec le nombre de commentaires. Les résultats ne sont exposés que si le vote est en
+ * affichage direct, clôturé, ou si l'utilisateur a déjà voté.
+ */
 export async function listVotes(req: Request, res: Response) {
   try {
     const userId = req.user!._id.toString();
@@ -82,6 +87,10 @@ export async function listVotes(req: Request, res: Response) {
   }
 }
 
+/**
+ * GET /votes/:id — détail d'un vote (options, quorum, dates, mon bulletin, résultats
+ * si visibles) et nombre de commentaires. Répond 404 si le vote est introuvable.
+ */
 export async function getVote(req: Request, res: Response) {
   try {
     const userId = req.user!._id.toString();
@@ -96,6 +105,13 @@ export async function getVote(req: Request, res: Response) {
 
 // ─── Create (ouvert à tous les habitants) ────────────────────────────────────────
 
+/**
+ * POST /votes — crée un vote, ouvert à tous les habitants d'un quartier.
+ * Le type doit être yesno, single, multiple ou weighted ; un vote yesno génère
+ * automatiquement les options Pour/Contre, les autres exigent au moins 2 options.
+ * Par défaut le vote ouvre immédiatement et se clôture 7 jours plus tard.
+ * Répond 400 (question, type, options ou dates invalides) ou 403 (aucun quartier).
+ */
 export async function createVote(req: Request, res: Response) {
   try {
     const { question, type, options, isAnonymous, openAt, closeAt, quorum, showResultsLive } =
@@ -164,6 +180,12 @@ export async function createVote(req: Request, res: Response) {
 
 // ─── Voter ────────────────────────────────────────────────────────────────────
 
+/**
+ * POST /votes/:id/cast — enregistre le bulletin de l'utilisateur (un seul par personne).
+ * Refuse un vote pas encore ouvert, clôturé ou déjà exprimé (400). Selon le type :
+ * `choice` (yesno/single), `choices` (multiple) ou `weights` répartissant exactement
+ * 10 points (weighted). Les compteurs d'options sont incrémentés en conséquence.
+ */
 export async function castVote(req: Request, res: Response) {
   try {
     const userId = req.user!._id.toString();
@@ -226,6 +248,10 @@ export async function castVote(req: Request, res: Response) {
 
 // ─── Supprimer (auteur, modérateur ou admin) ─────────────────────────────────────
 
+/**
+ * DELETE /votes/:id — supprime un vote ainsi que tous ses commentaires.
+ * Réservé à l'auteur, à un modérateur ou à un admin (403).
+ */
 export async function deleteVote(req: Request, res: Response) {
   try {
     const vote = await Vote.findById(req.params.id);
@@ -248,6 +274,10 @@ export async function deleteVote(req: Request, res: Response) {
 
 // ─── Commentaires ────────────────────────────────────────────────────────────────
 
+/**
+ * GET /votes/:id/comments — liste les commentaires d'un vote, du plus ancien au plus
+ * récent, avec le nom et le rôle de leur auteur.
+ */
 export async function listComments(req: Request, res: Response) {
   const comments = await VoteComment.find({ voteId: req.params.id })
     .sort({ createdAt: 1 })
@@ -267,6 +297,10 @@ export async function listComments(req: Request, res: Response) {
   );
 }
 
+/**
+ * POST /votes/:id/comments — ajoute un commentaire à un vote (tronqué à 1000 caractères).
+ * Répond 400 si le commentaire est vide, 404 si le vote est introuvable, 201 sinon.
+ */
 export async function addComment(req: Request, res: Response) {
   const { content } = req.body as { content?: string };
   if (!content || !content.trim()) return error(res, 'Le commentaire est vide', 400);
@@ -293,6 +327,10 @@ export async function addComment(req: Request, res: Response) {
   );
 }
 
+/**
+ * DELETE /votes/comments/:commentId — supprime un commentaire.
+ * Réservé à l'auteur, à un modérateur ou à un admin (403).
+ */
 export async function deleteComment(req: Request, res: Response) {
   const comment = await VoteComment.findById(req.params.commentId);
   if (!comment) return error(res, 'Commentaire introuvable', 404);
