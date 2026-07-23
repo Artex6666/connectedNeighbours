@@ -28,6 +28,23 @@
             <version>${javafx.version}</version>
             <classifier>win</classifier>
         </dependency>
+        <!-- Déclarées explicitement : ce sont des dépendances transitives de javafx-controls/
+             javafx-fxml, et un classifier posé sur ces dernières ne se propage pas à leurs
+             propres dépendances transitives. C'est javafx-graphics qui embarque les natives
+             (glass, prism...) ; sans cette déclaration explicite, elle serait résolue sans
+             classifier selon l'OS de la machine qui build. -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
