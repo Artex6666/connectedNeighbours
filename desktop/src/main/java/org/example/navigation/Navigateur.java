@@ -27,11 +27,6 @@ public class Navigateur {
         stage.setScene(scene);
     }
 
-    public static void afficherDashboard() {
-        Scene scene = new Scene(new VueDashboard().creerVue(), 1100, 700);
-        stage.setScene(scene);
-    }
-
     public static void afficherIncidents() {
         Scene scene = new Scene(new VueIncidents().creerVue(), 1100, 700);
         stage.setScene(scene);

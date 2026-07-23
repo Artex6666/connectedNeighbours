@@ -42,11 +42,10 @@ public class DatabaseManager {
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS incidents (
                     id TEXT PRIMARY KEY,
-                    titre TEXT NOT NULL,
+                    title TEXT NOT NULL,
                     description TEXT,
-                    priorite TEXT,
-                    statut TEXT,
-                    date TEXT,
+                    priority TEXT,
+                    status TEXT,
                     updated_at TEXT,
                     synced_at TEXT,
                     dirty INTEGER DEFAULT 1,
@@ -57,11 +56,10 @@ public class DatabaseManager {
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS alertes (
                     id TEXT PRIMARY KEY,
-                    titre TEXT NOT NULL,
+                    title TEXT NOT NULL,
                     message TEXT,
-                    niveau TEXT,
+                    level TEXT,
                     statut TEXT,
-                    date TEXT,
                     updated_at TEXT,
                     synced_at TEXT,
                     dirty INTEGER DEFAULT 1,

@@ -16,9 +16,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.example.database.AlerteDAO;
+import org.example.services.SessionManager;
 import org.example.services.SyncService;
-
-import java.time.LocalDate;
 
 /**
  * Écran de gestion des alertes de l'application desktop.
@@ -47,31 +46,33 @@ public class VueAlertes {
         logo.setFitHeight(40);
         logo.setPreserveRatio(true);
 
-        Button boutonDashboard = new Button("Dashboard");
+        boolean estAdmin = "admin".equals(SessionManager.getRole());
+        boolean estModerateur = "moderator".equals(SessionManager.getRole());
+
+        Button boutonDashboard = new Button(
+                estAdmin ? "← Tous les quartiers" : estModerateur ? "← Mon quartier" : "Dashboard");
         Button boutonIncidents = new Button("Incidents");
         Button boutonAlertes = new Button("Alertes");
         Button boutonStatistiques = new Button("Statistiques");
-        Button boutonPlugins = new Button("Plugins");
-        Button boutonExports = new Button("Exports");
         Button boutonDeconnexion = new Button("Déconnexion");
 
         styliserBoutonNav(boutonDashboard);
         styliserBoutonNav(boutonIncidents);
         styliserBoutonNavActif(boutonAlertes);
         styliserBoutonNav(boutonStatistiques);
-        styliserBoutonNav(boutonPlugins);
-        styliserBoutonNav(boutonExports);
         styliserBoutonDanger(boutonDeconnexion);
 
-        boutonDashboard.setOnAction(e -> Navigateur.afficherDashboard());
+        boutonDashboard.setOnAction(e -> {
+            if (estAdmin) Navigateur.afficherAdmin();
+            else if (estModerateur) Navigateur.afficherQuartier(SessionManager.getNeighborhoodId(), "Mon quartier");
+            else Navigateur.afficherConnexion();
+        });
         boutonIncidents.setOnAction(e -> Navigateur.afficherIncidents());
         boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
-        boutonExports.setOnAction(e -> Navigateur.afficherExports());
-        boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
         boutonDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
 
         HBox menuGauche = new HBox(20, logo, boutonDashboard, boutonIncidents,
-                boutonAlertes, boutonStatistiques, boutonPlugins, boutonExports);
+                boutonAlertes, boutonStatistiques);
         menuGauche.setAlignment(Pos.CENTER_LEFT);
 
         Region espace = new Region();
@@ -103,8 +104,8 @@ public class VueAlertes {
         TableColumn<Alerte, String> colonneNiveau = new TableColumn<>("Niveau");
         colonneNiveau.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getNiveau()));
 
-        TableColumn<Alerte, String> colonneDate = new TableColumn<>("Date");
-        colonneDate.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getDate()));
+        TableColumn<Alerte, String> colonneDate = new TableColumn<>("Dernière mise à jour");
+        colonneDate.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getUpdatedAt()));
 
         TableColumn<Alerte, String> colonneStatut = new TableColumn<>("Statut");
         colonneStatut.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getStatut()));
@@ -166,7 +167,6 @@ public class VueAlertes {
                 Alerte nouvelle = new Alerte(
                         champTitre.getText(),
                         choixNiveau.getValue(),
-                        LocalDate.now().toString(),
                         "Active"
                 );
                 nouvelle.setMessage(champMessage.getText());

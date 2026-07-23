@@ -1,5 +1,6 @@
 package org.example.plugins;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -13,7 +14,8 @@ public class ExportStatsPlugin implements Plugin {
 
     @Override
     public void execute() {
-        String fileName = "export-statistiques-plugin.csv";
+        new File("exports").mkdirs();
+        String fileName = "exports/export-statistiques-plugin.csv";
 
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.write("statistique;valeur\n");

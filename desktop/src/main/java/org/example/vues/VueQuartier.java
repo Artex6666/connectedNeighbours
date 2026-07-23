@@ -61,11 +61,10 @@ public class VueQuartier {
         boolean estAdmin = "admin".equals(SessionManager.getRole());
 
         Button boutonRetour = new Button(estAdmin ? "← Tous les quartiers" : "Dashboard");
+        boutonRetour.setVisible(estAdmin);
+        boutonRetour.setManaged(estAdmin);
         styliserBoutonNav(boutonRetour);
-        boutonRetour.setOnAction(e -> {
-            if (estAdmin) Navigateur.afficherAdmin();
-            else Navigateur.afficherDashboard();
-        });
+        boutonRetour.setOnAction(e -> Navigateur.afficherAdmin());
 
         Button boutonIncidents = new Button("Incidents");
         Button boutonAlertes = new Button("Alertes");
@@ -172,7 +171,9 @@ public class VueQuartier {
         VBox entete = new VBox(5, titre, sousTitre);
         entete.setAlignment(Pos.CENTER_LEFT);
 
-        VBox contenu = new VBox(20, entete, kpis, tableaux);
+        VBox blocDemo = VueOutilsDemo.creerBlocDemo();
+
+        VBox contenu = new VBox(20, entete, kpis, tableaux, blocDemo);
         contenu.setPadding(new Insets(30));
 
         VBox racine = new VBox(navbar, contenu);

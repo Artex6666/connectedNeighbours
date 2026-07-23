@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.example.plugins.PluginLoader;
+import org.example.services.SessionManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,26 +44,25 @@ public class VuePlugins {
         logo.setFitHeight(40);
         logo.setPreserveRatio(true);
 
-        Button boutonDashboard = new Button("Dashboard");
-        Button boutonIncidents = new Button("Incidents");
-        Button boutonAlertes = new Button("Alertes");
-        Button boutonStatistiques = new Button("Statistiques");
+        boolean estAdmin = "admin".equals(SessionManager.getRole());
+        boolean estModerateur = "moderator".equals(SessionManager.getRole());
+
+        Button boutonDashboard = new Button(
+                estAdmin ? "← Tous les quartiers" : estModerateur ? "← Mon quartier" : "Dashboard");
         Button boutonPlugins = new Button("Plugins");
         Button boutonExports = new Button("Exports");
         Button boutonDeconnexion = new Button("Déconnexion");
 
         styliserBoutonNav(boutonDashboard);
-        styliserBoutonNav(boutonIncidents);
-        styliserBoutonNav(boutonAlertes);
-        styliserBoutonNav(boutonStatistiques);
         styliserBoutonNavActif(boutonPlugins);
         styliserBoutonNav(boutonExports);
         styliserBoutonDanger(boutonDeconnexion);
 
-        boutonDashboard.setOnAction(e -> Navigateur.afficherDashboard());
-        boutonIncidents.setOnAction(e -> Navigateur.afficherIncidents());
-        boutonAlertes.setOnAction(e -> Navigateur.afficherAlertes());
-        boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
+        boutonDashboard.setOnAction(e -> {
+            if (estAdmin) Navigateur.afficherAdmin();
+            else if (estModerateur) Navigateur.afficherQuartier(SessionManager.getNeighborhoodId(), "Mon quartier");
+            else Navigateur.afficherConnexion();
+        });
         boutonExports.setOnAction(e -> Navigateur.afficherExports());
         boutonDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
 
@@ -70,9 +70,6 @@ public class VuePlugins {
                 20,
                 logo,
                 boutonDashboard,
-                boutonIncidents,
-                boutonAlertes,
-                boutonStatistiques,
                 boutonPlugins,
                 boutonExports
         );
