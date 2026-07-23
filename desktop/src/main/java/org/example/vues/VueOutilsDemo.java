@@ -77,7 +77,21 @@ public class VueOutilsDemo {
             boutonSimulerConflit.setDisable(true);
         });
 
-        HBox ligneDemo = new HBox(12, boutonHorsLigne, boutonForcerSync, boutonSimulerConflit);
+        Button boutonVoirConflits = new Button("⚠ Voir les conflits");
+        boutonVoirConflits.setStyle(
+                "-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-size: 13px;" +
+                "-fx-background-radius: 6; -fx-padding: 8 16 8 16;"
+        );
+        boutonVoirConflits.setVisible(SyncService.nbConflitsProperty().get() > 0);
+        boutonVoirConflits.setManaged(SyncService.nbConflitsProperty().get() > 0);
+        SyncService.nbConflitsProperty().addListener((obs, ancien, nb) -> {
+            boolean present = nb.intValue() > 0;
+            boutonVoirConflits.setVisible(present);
+            boutonVoirConflits.setManaged(present);
+        });
+        boutonVoirConflits.setOnAction(e -> Navigateur.afficherConflits());
+
+        HBox ligneDemo = new HBox(12, boutonHorsLigne, boutonForcerSync, boutonSimulerConflit, boutonVoirConflits);
         ligneDemo.setAlignment(Pos.CENTER_LEFT);
 
         VBox blocDemo = new VBox(12, titreDemo, labelStatutSync, ligneDemo);

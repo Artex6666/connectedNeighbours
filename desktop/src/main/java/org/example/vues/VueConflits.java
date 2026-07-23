@@ -221,6 +221,7 @@ public class VueConflits {
             Incident inc = incidentDAO.findById(conflit.getEntityId());
             if (inc != null) {
                 if (!estLocale) {
+                    String neighborhoodId = inc.getNeighborhoodId();
                     inc = new Incident(
                             conflit.getEntityId(),
                             versionChoisie.optString("title", inc.getTitre()),
@@ -229,8 +230,10 @@ public class VueConflits {
                             versionChoisie.optString("status", inc.getStatut()),
                             now, now, false, false
                     );
+                    inc.setNeighborhoodId(neighborhoodId);
                 } else {
                     inc.setDirty(true);
+                    inc.setSyncedAt(now);
                 }
                 incidentDAO.save(inc);
             }
@@ -238,6 +241,7 @@ public class VueConflits {
             Alerte al = alerteDAO.findById(conflit.getEntityId());
             if (al != null) {
                 if (!estLocale) {
+                    String neighborhoodId = al.getNeighborhoodId();
                     al = new Alerte(
                             conflit.getEntityId(),
                             versionChoisie.optString("title", al.getTitre()),
@@ -246,8 +250,10 @@ public class VueConflits {
                             al.getStatut(),
                             now, now, false, false
                     );
+                    al.setNeighborhoodId(neighborhoodId);
                 } else {
                     al.setDirty(true);
+                    al.setSyncedAt(now);
                 }
                 alerteDAO.save(al);
             }
