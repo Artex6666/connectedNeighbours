@@ -135,11 +135,10 @@ public class SyncService {
 
     private static void pushIncidents(ApiClient api) throws Exception {
         for (Incident inc : incidentDAO.findDirty()) {
-            String json = incidentToJson(inc).toString();
             String now = Instant.now().toString();
 
             if (inc.isLocalOnly()) {
-                String reponse = api.post("/incidents", json);
+                String reponse = api.post("/incidents", incidentToJson(inc).toString());
                 JSONObject obj = new JSONObject(reponse);
                 String serverId = obj.optString("_id", obj.optString("id", null));
                 if (serverId != null && !serverId.isEmpty()) {
@@ -148,20 +147,31 @@ public class SyncService {
                 } else {
                     incidentDAO.markSynced(inc.getId(), now);
                 }
-            } else {
-                api.put("/incidents/" + inc.getId(), json);
-                incidentDAO.markSynced(inc.getId(), now);
+                continue;
             }
+
+            // L'entité existe déjà côté serveur : on vérifie qu'elle n'a pas été modifiée
+            // là-bas depuis notre dernière synchro avant d'écraser avec notre version locale.
+            JSONObject serveur = parseObject(api.get("/incidents/" + inc.getId()));
+            String serverUpdatedAt = serveur.optString("updatedAt", serveur.optString("updated_at", ""));
+
+            if (inc.getSyncedAt() != null && !serverUpdatedAt.isEmpty()
+                    && serverUpdatedAt.compareTo(inc.getSyncedAt()) > 0) {
+                enregistrerConflit("incident", inc.getId(), incidentToJson(inc), serveur);
+                continue;
+            }
+
+            api.put("/incidents/" + inc.getId(), incidentToJson(inc).toString());
+            incidentDAO.markSynced(inc.getId(), now);
         }
     }
 
     private static void pushAlertes(ApiClient api) throws Exception {
         for (Alerte al : alerteDAO.findDirty()) {
-            String json = alerteToJson(al).toString();
             String now = Instant.now().toString();
 
             if (al.isLocalOnly()) {
-                String reponse = api.post("/alertes", json);
+                String reponse = api.post("/alertes", alerteToJson(al).toString());
                 JSONObject obj = new JSONObject(reponse);
                 String serverId = obj.optString("_id", obj.optString("id", null));
                 if (serverId != null && !serverId.isEmpty()) {
@@ -170,10 +180,20 @@ public class SyncService {
                 } else {
                     alerteDAO.markSynced(al.getId(), now);
                 }
-            } else {
-                api.put("/alertes/" + al.getId(), json);
-                alerteDAO.markSynced(al.getId(), now);
+                continue;
             }
+
+            JSONObject serveur = parseObject(api.get("/alertes/" + al.getId()));
+            String serverUpdatedAt = serveur.optString("updatedAt", serveur.optString("updated_at", ""));
+
+            if (al.getSyncedAt() != null && !serverUpdatedAt.isEmpty()
+                    && serverUpdatedAt.compareTo(al.getSyncedAt()) > 0) {
+                enregistrerConflit("alerte", al.getId(), alerteToJson(al), serveur);
+                continue;
+            }
+
+            api.put("/alertes/" + al.getId(), alerteToJson(al).toString());
+            alerteDAO.markSynced(al.getId(), now);
         }
     }
 
@@ -263,6 +283,15 @@ public class SyncService {
             if (obj.has("data")) return obj.getJSONArray("data");
         } catch (Exception ignored) {}
         return new JSONArray();
+    }
+
+    /**
+     * Déballe l'enveloppe {@code {success, data}} d'une réponse API portant sur une
+     * entité unique (ex. {@code GET /incidents/:id}).
+     */
+    private static JSONObject parseObject(String reponse) {
+        JSONObject obj = new JSONObject(reponse);
+        return obj.has("data") ? obj.getJSONObject("data") : obj;
     }
 
     // ── Traduction français (UI locale) ↔ anglais (API / enums Mongoose) ───────
