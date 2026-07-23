@@ -11,6 +11,7 @@ back/uploads/
 
 # Java / Maven
 desktop/target/
+desktop/dependency-reduced-pom.xml
 *.class
 *.jar
 *.db
