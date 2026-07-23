@@ -34,23 +34,14 @@ public class VueAdmin {
         logo.setFitHeight(40);
         logo.setPreserveRatio(true);
 
-        Button boutonIncidents = new Button("Incidents");
-        Button boutonAlertes = new Button("Alertes");
-        Button boutonStatistiques = new Button("Statistiques");
         Button boutonPlugins = new Button("Plugins");
         Button boutonExports = new Button("Exports");
         Button boutonDeconnexion = new Button("Déconnexion");
 
-        styliserBoutonNav(boutonIncidents);
-        styliserBoutonNav(boutonAlertes);
-        styliserBoutonNav(boutonStatistiques);
         styliserBoutonNav(boutonPlugins);
         styliserBoutonNav(boutonExports);
         styliserBoutonDanger(boutonDeconnexion);
 
-        boutonIncidents.setOnAction(e -> Navigateur.afficherIncidents());
-        boutonAlertes.setOnAction(e -> Navigateur.afficherAlertes());
-        boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
         boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
         boutonExports.setOnAction(e -> Navigateur.afficherExports());
         boutonDeconnexion.setOnAction(e -> {
@@ -62,8 +53,7 @@ public class VueAdmin {
         badgeAdmin.setStyle("-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-size: 11px;" +
                 "-fx-font-weight: bold; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
 
-        HBox menuGauche = new HBox(20, logo, badgeAdmin, boutonIncidents, boutonAlertes,
-                boutonStatistiques, boutonPlugins, boutonExports);
+        HBox menuGauche = new HBox(20, logo, badgeAdmin, boutonPlugins, boutonExports);
         menuGauche.setAlignment(Pos.CENTER_LEFT);
 
         Region espace = new Region();
@@ -90,7 +80,11 @@ public class VueAdmin {
 
         chargerQuartiers(cartes);
 
-        ScrollPane scroll = new ScrollPane(cartes);
+        VBox blocDemo = VueOutilsDemo.creerBlocDemo();
+
+        VBox contenuScroll = new VBox(20, cartes, blocDemo);
+
+        ScrollPane scroll = new ScrollPane(contenuScroll);
         scroll.setFitToWidth(true);
         scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
         VBox.setVgrow(scroll, Priority.ALWAYS);

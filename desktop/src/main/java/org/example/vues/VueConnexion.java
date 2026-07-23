@@ -62,7 +62,7 @@ public class VueConnexion {
                 SsoService ssoService = new SsoService(authService, apiClient);
                 ssoService.loginWithBrowser();
 
-                routerVersAccueil();
+                routerVersAccueil(erreur);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -133,7 +133,7 @@ public class VueConnexion {
                 if (json.optBoolean("success") && json.has("data")) {
                     String token = json.getJSONObject("data").getString("accessToken");
                     SessionManager.setToken(token);
-                    routerVersAccueil();
+                    routerVersAccueil(erreurDirecte);
                 } else {
                     String msg = json.optString("message", "Email ou mot de passe incorrect.");
                     erreurDirecte.setText(msg);
@@ -164,9 +164,13 @@ public class VueConnexion {
 
     /**
      * Redirige l'utilisateur après une connexion réussie selon son rôle :
-     * vue admin, vue de son quartier pour un modérateur, sinon le tableau de bord.
+     * vue admin, vue de son quartier pour un modérateur. L'application desktop est
+     * réservée aux admins et modérateurs ; tout autre rôle (résident) est refusé et
+     * la session est immédiatement fermée.
+     *
+     * @param labelErreur label sur lequel afficher le message d'accès refusé le cas échéant
      */
-    private static void routerVersAccueil() {
+    private static void routerVersAccueil(Label labelErreur) {
         String role = SessionManager.getRole();
         if ("admin".equals(role)) {
             Navigateur.afficherAdmin();
@@ -174,7 +178,8 @@ public class VueConnexion {
             String nid = SessionManager.getNeighborhoodId();
             Navigateur.afficherQuartier(nid, "Mon quartier");
         } else {
-            Navigateur.afficherDashboard();
+            SessionManager.deconnecter();
+            labelErreur.setText("Accès refusé : l'application desktop est réservée aux administrateurs et modérateurs.");
         }
     }
 }

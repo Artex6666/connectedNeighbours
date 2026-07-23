@@ -19,7 +19,7 @@ public class IncidentDAO {
      */
     public List<Incident> findAll() {
         List<Incident> liste = new ArrayList<>();
-        String sql = "SELECT * FROM incidents ORDER BY date DESC";
+        String sql = "SELECT * FROM incidents ORDER BY updated_at DESC";
         try (Statement stmt = DatabaseManager.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -73,7 +73,7 @@ public class IncidentDAO {
      */
     public List<Incident> findByNeighborhood(String neighborhoodId) {
         List<Incident> liste = new ArrayList<>();
-        String sql = "SELECT * FROM incidents WHERE neighborhood_id = ? ORDER BY date DESC";
+        String sql = "SELECT * FROM incidents WHERE neighborhood_id = ? ORDER BY updated_at DESC";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
             stmt.setString(1, neighborhoodId);
             ResultSet rs = stmt.executeQuery();
@@ -91,8 +91,8 @@ public class IncidentDAO {
     public void save(Incident incident) {
         String sql = """
             INSERT OR REPLACE INTO incidents
-            (id, titre, description, priorite, statut, date, updated_at, synced_at, dirty, local_only, neighborhood_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (id, title, description, priority, status, updated_at, synced_at, dirty, local_only, neighborhood_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
             stmt.setString(1, incident.getId());
@@ -100,12 +100,11 @@ public class IncidentDAO {
             stmt.setString(3, incident.getDescription());
             stmt.setString(4, incident.getPriorite());
             stmt.setString(5, incident.getStatut());
-            stmt.setString(6, incident.getDate());
-            stmt.setString(7, incident.getUpdatedAt());
-            stmt.setString(8, incident.getSyncedAt());
-            stmt.setInt(9, incident.isDirty() ? 1 : 0);
-            stmt.setInt(10, incident.isLocalOnly() ? 1 : 0);
-            stmt.setString(11, incident.getNeighborhoodId());
+            stmt.setString(6, incident.getUpdatedAt());
+            stmt.setString(7, incident.getSyncedAt());
+            stmt.setInt(8, incident.isDirty() ? 1 : 0);
+            stmt.setInt(9, incident.isLocalOnly() ? 1 : 0);
+            stmt.setString(10, incident.getNeighborhoodId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             System.err.println("IncidentDAO.save : " + e.getMessage());
@@ -163,11 +162,10 @@ public class IncidentDAO {
     private Incident fromResultSet(ResultSet rs) throws SQLException {
         Incident inc = new Incident(
                 rs.getString("id"),
-                rs.getString("titre"),
+                rs.getString("title"),
                 rs.getString("description"),
-                rs.getString("priorite"),
-                rs.getString("statut"),
-                rs.getString("date"),
+                rs.getString("priority"),
+                rs.getString("status"),
                 rs.getString("updated_at"),
                 rs.getString("synced_at"),
                 rs.getInt("dirty") == 1,

@@ -265,32 +265,92 @@ public class SyncService {
         return new JSONArray();
     }
 
+    // ── Traduction français (UI locale) ↔ anglais (API / enums Mongoose) ───────
+    // Le formulaire desktop utilise des libellés français tandis que les schémas
+    // Mongoose du backend attendent des noms de champs et des valeurs d'enum en
+    // anglais ; sans cette traduction, l'API renvoie systématiquement 400.
+
+    private static String statutVersAnglais(String statut) {
+        if (statut == null) return "open";
+        return switch (statut) {
+            case "En cours" -> "in_progress";
+            case "Résolu" -> "resolved";
+            default -> "open";
+        };
+    }
+
+    private static String statutVersFrancais(String statut) {
+        if (statut == null) return "Ouvert";
+        return switch (statut) {
+            case "in_progress" -> "En cours";
+            case "resolved" -> "Résolu";
+            default -> "Ouvert";
+        };
+    }
+
+    private static String prioriteVersAnglais(String priorite) {
+        if (priorite == null) return "medium";
+        return switch (priorite) {
+            case "Haute" -> "high";
+            case "Basse" -> "low";
+            default -> "medium";
+        };
+    }
+
+    private static String prioriteVersFrancais(String priorite) {
+        if (priorite == null) return "Moyenne";
+        return switch (priorite) {
+            case "high" -> "Haute";
+            case "low" -> "Basse";
+            default -> "Moyenne";
+        };
+    }
+
+    private static String niveauVersAnglais(String niveau) {
+        if (niveau == null) return "info";
+        return switch (niveau) {
+            case "Urgent" -> "warning";
+            case "Critique" -> "danger";
+            default -> "info";
+        };
+    }
+
+    private static String niveauVersFrancais(String niveau) {
+        if (niveau == null) return "Info";
+        return switch (niveau) {
+            case "warning" -> "Urgent";
+            case "danger" -> "Critique";
+            default -> "Info";
+        };
+    }
+
     private static JSONObject incidentToJson(Incident inc) {
         JSONObject obj = new JSONObject();
-        obj.put("titre", inc.getTitre());
-        obj.put("description", inc.getDescription() != null ? inc.getDescription() : "");
-        obj.put("priorite", inc.getPriorite() != null ? inc.getPriorite() : "");
-        obj.put("statut", inc.getStatut());
+        obj.put("title", inc.getTitre());
+        // description requise par le backend mais pas encore collectée par le formulaire desktop
+        obj.put("description", inc.getDescription() != null && !inc.getDescription().isBlank()
+                ? inc.getDescription() : inc.getTitre());
+        obj.put("priority", prioriteVersAnglais(inc.getPriorite()));
+        obj.put("status", statutVersAnglais(inc.getStatut()));
         return obj;
     }
 
     private static JSONObject alerteToJson(Alerte al) {
         JSONObject obj = new JSONObject();
-        obj.put("titre", al.getTitre());
-        obj.put("message", al.getMessage() != null ? al.getMessage() : "");
-        obj.put("niveau", al.getNiveau());
-        obj.put("statut", al.getStatut());
+        obj.put("title", al.getTitre());
+        obj.put("message", al.getMessage() != null && !al.getMessage().isBlank()
+                ? al.getMessage() : al.getTitre());
+        obj.put("level", niveauVersAnglais(al.getNiveau()));
         return obj;
     }
 
     private static Incident incidentFromJson(JSONObject obj, String id, String syncedAt) {
         Incident inc = new Incident(
                 id,
-                obj.optString("titre", ""),
+                obj.optString("title", ""),
                 obj.optString("description", ""),
-                obj.optString("priorite", ""),
-                obj.optString("statut", ""),
-                obj.optString("createdAt", obj.optString("date", "")),
+                prioriteVersFrancais(obj.optString("priority", "")),
+                statutVersFrancais(obj.optString("status", "")),
                 obj.optString("updatedAt", obj.optString("updated_at", syncedAt)),
                 syncedAt,
                 false,
@@ -304,11 +364,10 @@ public class SyncService {
     private static Alerte alerteFromJson(JSONObject obj, String id, String syncedAt) {
         Alerte al = new Alerte(
                 id,
-                obj.optString("titre", ""),
+                obj.optString("title", ""),
                 obj.optString("message", ""),
-                obj.optString("niveau", ""),
-                obj.optString("statut", ""),
-                obj.optString("createdAt", obj.optString("date", "")),
+                niveauVersFrancais(obj.optString("level", "")),
+                "Active",
                 obj.optString("updatedAt", obj.optString("updated_at", syncedAt)),
                 syncedAt,
                 false,

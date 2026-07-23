@@ -12,6 +12,7 @@ import javafx.scene.layout.*;
 import org.example.database.AlerteDAO;
 import org.example.database.ConflitDAO;
 import org.example.database.IncidentDAO;
+import org.example.services.SessionManager;
 import org.example.services.SyncService;
 import org.json.JSONObject;
 
@@ -45,7 +46,11 @@ public class VueConflits {
         logo.setFitHeight(40);
         logo.setPreserveRatio(true);
 
-        Button boutonDashboard = new Button("Dashboard");
+        boolean estAdmin = "admin".equals(SessionManager.getRole());
+        boolean estModerateur = "moderator".equals(SessionManager.getRole());
+
+        Button boutonDashboard = new Button(
+                estAdmin ? "← Tous les quartiers" : estModerateur ? "← Mon quartier" : "Dashboard");
         Button boutonIncidents = new Button("Incidents");
         Button boutonAlertes = new Button("Alertes");
         Button boutonStatistiques = new Button("Statistiques");
@@ -57,7 +62,11 @@ public class VueConflits {
         styliserBoutonNav(boutonStatistiques);
         styliserBoutonDanger(boutonDeconnexion);
 
-        boutonDashboard.setOnAction(e -> Navigateur.afficherDashboard());
+        boutonDashboard.setOnAction(e -> {
+            if (estAdmin) Navigateur.afficherAdmin();
+            else if (estModerateur) Navigateur.afficherQuartier(SessionManager.getNeighborhoodId(), "Mon quartier");
+            else Navigateur.afficherConnexion();
+        });
         boutonIncidents.setOnAction(e -> Navigateur.afficherIncidents());
         boutonAlertes.setOnAction(e -> Navigateur.afficherAlertes());
         boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
@@ -214,11 +223,11 @@ public class VueConflits {
                 if (!estLocale) {
                     inc = new Incident(
                             conflit.getEntityId(),
-                            versionChoisie.optString("titre", inc.getTitre()),
+                            versionChoisie.optString("title", inc.getTitre()),
                             versionChoisie.optString("description", inc.getDescription()),
-                            versionChoisie.optString("priorite", inc.getPriorite()),
-                            versionChoisie.optString("statut", inc.getStatut()),
-                            inc.getDate(), now, now, false, false
+                            versionChoisie.optString("priority", inc.getPriorite()),
+                            versionChoisie.optString("status", inc.getStatut()),
+                            now, now, false, false
                     );
                 } else {
                     inc.setDirty(true);
@@ -231,11 +240,11 @@ public class VueConflits {
                 if (!estLocale) {
                     al = new Alerte(
                             conflit.getEntityId(),
-                            versionChoisie.optString("titre", al.getTitre()),
+                            versionChoisie.optString("title", al.getTitre()),
                             versionChoisie.optString("message", al.getMessage()),
-                            versionChoisie.optString("niveau", al.getNiveau()),
-                            versionChoisie.optString("statut", al.getStatut()),
-                            al.getDate(), now, now, false, false
+                            versionChoisie.optString("level", al.getNiveau()),
+                            al.getStatut(),
+                            now, now, false, false
                     );
                 } else {
                     al.setDirty(true);

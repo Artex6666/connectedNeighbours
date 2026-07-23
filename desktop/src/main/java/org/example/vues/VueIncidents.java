@@ -17,9 +17,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.example.database.IncidentDAO;
+import org.example.services.SessionManager;
 import org.example.services.SyncService;
-
-import java.time.LocalDate;
 
 /**
  * Écran « Incidents » de l'application desktop.
@@ -47,31 +46,33 @@ public class VueIncidents {
         logo.setFitHeight(40);
         logo.setPreserveRatio(true);
 
-        Button boutonDashboard = new Button("Dashboard");
+        boolean estAdmin = "admin".equals(SessionManager.getRole());
+        boolean estModerateur = "moderator".equals(SessionManager.getRole());
+
+        Button boutonDashboard = new Button(
+                estAdmin ? "← Tous les quartiers" : estModerateur ? "← Mon quartier" : "Dashboard");
         Button boutonIncidents = new Button("Incidents");
         Button boutonAlertes = new Button("Alertes");
         Button boutonStatistiques = new Button("Statistiques");
-        Button boutonPlugins = new Button("Plugins");
-        Button boutonExports = new Button("Exports");
         Button boutonDeconnexion = new Button("Déconnexion");
 
         styliserBoutonNav(boutonDashboard);
         styliserBoutonNavActif(boutonIncidents);
         styliserBoutonNav(boutonAlertes);
         styliserBoutonNav(boutonStatistiques);
-        styliserBoutonNav(boutonPlugins);
-        styliserBoutonNav(boutonExports);
         styliserBoutonDanger(boutonDeconnexion);
 
-        boutonDashboard.setOnAction(e -> Navigateur.afficherDashboard());
+        boutonDashboard.setOnAction(e -> {
+            if (estAdmin) Navigateur.afficherAdmin();
+            else if (estModerateur) Navigateur.afficherQuartier(SessionManager.getNeighborhoodId(), "Mon quartier");
+            else Navigateur.afficherConnexion();
+        });
         boutonAlertes.setOnAction(e -> Navigateur.afficherAlertes());
         boutonStatistiques.setOnAction(e -> Navigateur.afficherStatistiques());
-        boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
-        boutonExports.setOnAction(e -> Navigateur.afficherExports());
         boutonDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
 
         HBox menuGauche = new HBox(20, logo, boutonDashboard, boutonIncidents,
-                boutonAlertes, boutonStatistiques, boutonPlugins, boutonExports);
+                boutonAlertes, boutonStatistiques);
         menuGauche.setAlignment(Pos.CENTER_LEFT);
 
         Region espace = new Region();
@@ -107,10 +108,10 @@ public class VueIncidents {
         TableColumn<Incident, String> colonneStatut = new TableColumn<>("Statut");
         colonneStatut.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getStatut()));
 
-        TableColumn<Incident, String> colonneDate = new TableColumn<>("Date");
-        colonneDate.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getDate()));
+        TableColumn<Incident, String> colonneMiseAJour = new TableColumn<>("Dernière mise à jour");
+        colonneMiseAJour.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getUpdatedAt()));
 
-        tableau.getColumns().addAll(colonneTitre, colonnePriorite, colonneStatut, colonneDate);
+        tableau.getColumns().addAll(colonneTitre, colonnePriorite, colonneStatut, colonneMiseAJour);
 
         // ── Boutons d'action sur la sélection ─────────────────────────────────
         Button boutonSupprimer = new Button("Supprimer");
@@ -153,26 +154,22 @@ public class VueIncidents {
         choixStatut.setPromptText("Statut");
         choixStatut.setPrefWidth(130);
 
-        TextField champDate = new TextField(LocalDate.now().toString());
-        champDate.setPrefWidth(130);
-
         Button boutonAjouter = new Button("Ajouter");
         styliserBoutonPrincipal(boutonAjouter);
 
         boutonAjouter.setOnAction(e -> {
             if (!champTitre.getText().isEmpty() && choixStatut.getValue() != null) {
-                Incident nouvel = new Incident(champTitre.getText(), choixStatut.getValue(), champDate.getText());
+                Incident nouvel = new Incident(champTitre.getText(), choixStatut.getValue());
                 if (choixPriorite.getValue() != null) nouvel.setPriorite(choixPriorite.getValue());
                 incidentDAO.save(nouvel);
                 listeIncidents.add(nouvel);
                 champTitre.clear();
                 choixPriorite.setValue(null);
                 choixStatut.setValue(null);
-                champDate.setText(LocalDate.now().toString());
             }
         });
 
-        HBox ligneFormulaire = new HBox(12, champTitre, choixPriorite, choixStatut, champDate, boutonAjouter);
+        HBox ligneFormulaire = new HBox(12, champTitre, choixPriorite, choixStatut, boutonAjouter);
         ligneFormulaire.setAlignment(Pos.CENTER_LEFT);
 
         VBox blocFormulaire = new VBox(12, titreFormulaire, ligneFormulaire);

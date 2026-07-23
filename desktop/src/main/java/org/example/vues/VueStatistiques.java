@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.example.database.AlerteDAO;
 import org.example.database.IncidentDAO;
+import org.example.services.SessionManager;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -36,27 +37,29 @@ public class VueStatistiques {
         logo.setFitHeight(40);
         logo.setPreserveRatio(true);
 
-        Button btnDashboard = new Button("Dashboard");
+        boolean estAdmin = "admin".equals(SessionManager.getRole());
+        boolean estModerateur = "moderator".equals(SessionManager.getRole());
+
+        Button btnDashboard = new Button(
+                estAdmin ? "← Tous les quartiers" : estModerateur ? "← Mon quartier" : "Dashboard");
         Button btnIncidents = new Button("Incidents");
         Button btnAlertes = new Button("Alertes");
         Button btnStats = new Button("Statistiques");
-        Button boutonPlugins = new Button("Plugins");
-        Button boutonExports = new Button("Exports");
         Button btnDeconnexion = new Button("Déconnexion");
 
         styliserBoutonNav(btnDashboard);
         styliserBoutonNav(btnIncidents);
         styliserBoutonNav(btnAlertes);
         styliserBoutonNavActif(btnStats);
-        styliserBoutonNav(boutonPlugins);
-        styliserBoutonNav(boutonExports);
         styliserBoutonDanger(btnDeconnexion);
 
-        btnDashboard.setOnAction(e -> Navigateur.afficherDashboard());
+        btnDashboard.setOnAction(e -> {
+            if (estAdmin) Navigateur.afficherAdmin();
+            else if (estModerateur) Navigateur.afficherQuartier(SessionManager.getNeighborhoodId(), "Mon quartier");
+            else Navigateur.afficherConnexion();
+        });
         btnIncidents.setOnAction(e -> Navigateur.afficherIncidents());
         btnAlertes.setOnAction(e -> Navigateur.afficherAlertes());
-        boutonPlugins.setOnAction(e -> Navigateur.afficherPlugins());
-        boutonExports.setOnAction(e -> Navigateur.afficherExports());
         btnDeconnexion.setOnAction(e -> Navigateur.afficherConnexion());
 
         HBox menuGauche = new HBox(
@@ -65,9 +68,7 @@ public class VueStatistiques {
                 btnDashboard,
                 btnIncidents,
                 btnAlertes,
-                btnStats,
-                boutonPlugins,
-                boutonExports
+                btnStats
         );
         menuGauche.setAlignment(Pos.CENTER_LEFT);
 

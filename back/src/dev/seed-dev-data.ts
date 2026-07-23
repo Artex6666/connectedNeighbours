@@ -7,6 +7,8 @@ import Event from '../models/Event.model';
 import Vote from '../models/Vote.model';
 import Group from '../models/Group.model';
 import GroupMessage from '../models/GroupMessage.model';
+import Incident from '../models/incident.model';
+import Alerte from '../models/alerte.model';
 
 function createConversationId(a: string, b: string) {
   return [a, b].sort().join('__');
@@ -95,6 +97,8 @@ export async function ensureDevSeedData() {
   await seedEventsIfMissing();
   await seedVotesIfMissing();
   await seedGroupsIfMissing();
+  await seedIncidentsIfMissing();
+  await seedAlertesIfMissing();
 }
 
 // ─── Users, neighborhood, services, messages ──────────────────────────────────
@@ -722,4 +726,174 @@ async function seedGroupsIfMissing() {
   ]);
 
   console.log('[seed] Groupe de discussion créé');
+}
+
+// ─── Incidents (incrémental — s'exécute même si les users existent déjà) ──────
+
+async function seedIncidentsIfMissing() {
+  if ((await Incident.countDocuments()) > 0) {
+    return;
+  }
+
+  const [nassim, camille, jean, sarah, marc, lea] = await Promise.all([
+    User.findOne({ email: 'nassim@bobconnect.fr' }),
+    User.findOne({ email: 'camille@bobconnect.fr' }),
+    User.findOne({ email: 'jean@bobconnect.fr' }),
+    User.findOne({ email: 'sarah@bobconnect.fr' }),
+    User.findOne({ email: 'marc@bobconnect.fr' }),
+    User.findOne({ email: 'lea@bobconnect.fr' }),
+  ]);
+
+  if (!nassim || !camille || !jean || !sarah || !marc || !lea) {
+    console.warn('[seed] Users de démo introuvables, skip incidents');
+    return;
+  }
+
+  const now = Date.now();
+  const daysAgo = (n: number) => new Date(now - n * 24 * 60 * 60 * 1000);
+
+  await Incident.insertMany([
+    {
+      title: 'Lampadaire cassé rue de Charonne',
+      description: 'Le lampadaire au niveau du numéro 12 ne s\'allume plus depuis trois jours.',
+      status: 'open',
+      priority: 'medium',
+      createdBy: jean._id,
+      neighborhoodId: jean.neighborhoodId,
+      createdAt: daysAgo(1),
+      updatedAt: daysAgo(1),
+    },
+    {
+      title: 'Dépôt sauvage passage Saint-Ambroise',
+      description: 'Des encombrants ont été déposés devant l\'immeuble, ça bloque une partie du trottoir.',
+      status: 'in_progress',
+      priority: 'high',
+      createdBy: nassim._id,
+      neighborhoodId: nassim.neighborhoodId,
+      createdAt: daysAgo(4),
+      updatedAt: daysAgo(2),
+    },
+    {
+      title: 'Fuite d\'eau boulevard Richard-Lenoir',
+      description: 'Fuite visible sur la chaussée près du numéro 18, risque de verglas si le froid continue.',
+      status: 'open',
+      priority: 'high',
+      createdBy: sarah._id,
+      neighborhoodId: sarah.neighborhoodId,
+      createdAt: daysAgo(0),
+      updatedAt: daysAgo(0),
+    },
+    {
+      title: 'Tag sur la façade de la salle polyvalente',
+      description: 'Tags apparus sur le mur côté rue de la Roquette, à nettoyer avant l\'événement du week-end.',
+      status: 'resolved',
+      priority: 'low',
+      createdBy: camille._id,
+      neighborhoodId: camille.neighborhoodId,
+      createdAt: daysAgo(10),
+      updatedAt: daysAgo(7),
+    },
+    {
+      title: 'Nid de poule quai de Valmy',
+      description: 'Trou important sur la chaussée, déjà signalé deux fois par des cyclistes.',
+      status: 'open',
+      priority: 'medium',
+      createdBy: marc._id,
+      neighborhoodId: marc.neighborhoodId,
+      createdAt: daysAgo(2),
+      updatedAt: daysAgo(2),
+    },
+    {
+      title: 'Éclairage défaillant rue Bichat',
+      description: 'Plusieurs lampadaires clignotent la nuit, quartier mal éclairé entre 22h et minuit.',
+      status: 'in_progress',
+      priority: 'medium',
+      createdBy: lea._id,
+      neighborhoodId: lea.neighborhoodId,
+      createdAt: daysAgo(6),
+      updatedAt: daysAgo(1),
+    },
+  ]);
+
+  console.log('[seed] Incidents de démo créés (6 incidents)');
+}
+
+// ─── Alertes (incrémental — s'exécute même si les users existent déjà) ────────
+
+async function seedAlertesIfMissing() {
+  if ((await Alerte.countDocuments()) > 0) {
+    return;
+  }
+
+  const [nassim, marc] = await Promise.all([
+    User.findOne({ email: 'nassim@bobconnect.fr' }),
+    User.findOne({ email: 'marc@bobconnect.fr' }),
+  ]);
+
+  if (!nassim || !marc) {
+    console.warn('[seed] Users de démo introuvables, skip alertes');
+    return;
+  }
+
+  const now = Date.now();
+  const daysAgo = (n: number) => new Date(now - n * 24 * 60 * 60 * 1000);
+
+  await Alerte.insertMany([
+    {
+      title: 'Coupure d\'eau programmée',
+      message: 'Coupure d\'eau prévue demain de 9h à 13h pour travaux de voirie rue de la Roquette.',
+      level: 'info',
+      active: true,
+      neighborhoodId: nassim.neighborhoodId,
+      createdAt: daysAgo(1),
+      updatedAt: daysAgo(1),
+    },
+    {
+      title: 'Cambriolages signalés dans le quartier',
+      message: 'Plusieurs tentatives d\'effraction signalées cette semaine. Restez vigilants et signalez tout comportement suspect.',
+      level: 'warning',
+      active: true,
+      neighborhoodId: nassim.neighborhoodId,
+      createdAt: daysAgo(3),
+      updatedAt: daysAgo(3),
+    },
+    {
+      title: 'Risque d\'inondation — Canal Saint-Martin',
+      message: 'Montée des eaux surveillée suite aux fortes pluies. Évitez les quais en cas de crue annoncée.',
+      level: 'danger',
+      active: true,
+      neighborhoodId: marc.neighborhoodId,
+      createdAt: daysAgo(0),
+      updatedAt: daysAgo(0),
+    },
+    {
+      title: 'Collecte des déchets décalée',
+      message: 'En raison d\'un jour férié, la collecte du mardi est décalée au mercredi cette semaine.',
+      level: 'info',
+      active: true,
+      neighborhoodId: marc.neighborhoodId,
+      createdAt: daysAgo(5),
+      updatedAt: daysAgo(5),
+    },
+    {
+      title: 'Travaux bruyants en journée',
+      message: 'Des travaux de rénovation auront lieu de 8h à 18h toute la semaine place Léon Blum.',
+      level: 'warning',
+      active: true,
+      neighborhoodId: nassim.neighborhoodId,
+      createdAt: daysAgo(2),
+      updatedAt: daysAgo(2),
+    },
+    {
+      title: 'Fuite de gaz — périmètre de sécurité',
+      message: 'Périmètre de sécurité établi rue Bichat suite à une fuite de gaz. Évitez le secteur.',
+      level: 'danger',
+      active: false,
+      neighborhoodId: marc.neighborhoodId,
+      createdAt: daysAgo(8),
+      updatedAt: daysAgo(6),
+    },
+  ]);
+
+  console.log('[seed] Alertes de démo créées (6 alertes)');
 }

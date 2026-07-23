@@ -19,7 +19,7 @@ public class AlerteDAO {
      */
     public List<Alerte> findAll() {
         List<Alerte> liste = new ArrayList<>();
-        String sql = "SELECT * FROM alertes ORDER BY date DESC";
+        String sql = "SELECT * FROM alertes ORDER BY updated_at DESC";
         try (Statement stmt = DatabaseManager.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -73,7 +73,7 @@ public class AlerteDAO {
      */
     public List<Alerte> findByNeighborhood(String neighborhoodId) {
         List<Alerte> liste = new ArrayList<>();
-        String sql = "SELECT * FROM alertes WHERE neighborhood_id = ? ORDER BY date DESC";
+        String sql = "SELECT * FROM alertes WHERE neighborhood_id = ? ORDER BY updated_at DESC";
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
             stmt.setString(1, neighborhoodId);
             ResultSet rs = stmt.executeQuery();
@@ -91,8 +91,8 @@ public class AlerteDAO {
     public void save(Alerte alerte) {
         String sql = """
             INSERT OR REPLACE INTO alertes
-            (id, titre, message, niveau, statut, date, updated_at, synced_at, dirty, local_only, neighborhood_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (id, title, message, level, statut, updated_at, synced_at, dirty, local_only, neighborhood_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
         try (PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
             stmt.setString(1, alerte.getId());
@@ -100,12 +100,11 @@ public class AlerteDAO {
             stmt.setString(3, alerte.getMessage());
             stmt.setString(4, alerte.getNiveau());
             stmt.setString(5, alerte.getStatut());
-            stmt.setString(6, alerte.getDate());
-            stmt.setString(7, alerte.getUpdatedAt());
-            stmt.setString(8, alerte.getSyncedAt());
-            stmt.setInt(9, alerte.isDirty() ? 1 : 0);
-            stmt.setInt(10, alerte.isLocalOnly() ? 1 : 0);
-            stmt.setString(11, alerte.getNeighborhoodId());
+            stmt.setString(6, alerte.getUpdatedAt());
+            stmt.setString(7, alerte.getSyncedAt());
+            stmt.setInt(8, alerte.isDirty() ? 1 : 0);
+            stmt.setInt(9, alerte.isLocalOnly() ? 1 : 0);
+            stmt.setString(10, alerte.getNeighborhoodId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             System.err.println("AlerteDAO.save : " + e.getMessage());
@@ -163,11 +162,10 @@ public class AlerteDAO {
     private Alerte fromResultSet(ResultSet rs) throws SQLException {
         Alerte alerte = new Alerte(
                 rs.getString("id"),
-                rs.getString("titre"),
+                rs.getString("title"),
                 rs.getString("message"),
-                rs.getString("niveau"),
+                rs.getString("level"),
                 rs.getString("statut"),
-                rs.getString("date"),
                 rs.getString("updated_at"),
                 rs.getString("synced_at"),
                 rs.getInt("dirty") == 1,
